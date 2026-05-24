@@ -2,132 +2,185 @@
 
 ## Overview
 
-DrivaOC se construye en seis fases que siguen la cadena de dependencias dura del sistema: primero la fundación de auth y layout (sin la cual ninguna ruta existe), luego el dashboard, luego el wizard de OC de dos pasos con cálculos financieros, luego los uploads de documentos a Cloudinary, luego las tres integraciones externas (email, PDF export, Google Sheets), y finalmente el pulido SEO y de performance. Cada fase entrega una capacidad completa y verificable antes de que comience la siguiente.
+**Estrategia: Frontend First**
+
+Las primeras 4 fases construyen toda la UI con datos mock y estado local — suficiente para demos al cliente. Las últimas 3 fases conectan el backend real, las integraciones y el SEO.
+
+Esta división permite:
+- **Demo temprana** (tras Phase 2): mostrar dashboards y navegación por rol
+- **Demo completa** (tras Phase 4): wizard de OC completo, vistas, cálculos
+- **Producción** (tras Phase 7): datos reales, emails, exports, SEO
 
 ## Phases
 
 **Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
+- Integer phases (1, 2, 3...): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation & Auth** - Next.js scaffolding, Clerk auth con roles, route groups por rol, sidebar/navbar/footer, identidad visual Driva Dev
-- [ ] **Phase 2: Dashboard** - Stats cards y lista de OCs filtrable (con seed data) para los tres roles
-- [ ] **Phase 3: OC Wizard** - Wizard completo de 2 pasos: productos + gastos de importación, cálculos con decimal.js, persistencia draft → activo
-- [ ] **Phase 4: Document Uploads** - 5 slots de PDF a Cloudinary con signed upload, URLs en MongoDB, lectura para proveedor/despachante
-- [ ] **Phase 5: Integrations** - Email Resend al asignar OC, export PDF con react-pdf, sync a Google Sheets
-- [ ] **Phase 6: SEO & Polish** - Meta tags, OG, sitemap, robots.txt, Next.js Image, audit de performance
+### Frontend Phases
+
+- [ ] **Phase 1: Foundation & Auth** — Next.js scaffolding, Clerk auth con roles, route groups, sidebar/navbar/footer, identidad visual Driva Dev
+- [ ] **Phase 2: Dashboard UI** — Stats cards y lista de OCs filtrable con datos mock, vistas por rol
+- [ ] **Phase 3: OC Wizard UI** — Wizard 2 pasos completo con estado local: productos, gastos, cálculos decimal.js, slots de documentos, value cards
+- [ ] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/loading, OC read-only para proveedor/despachante
+
+### Backend Phases
+
+- [ ] **Phase 5: Backend Core** — MongoDB Atlas, Mongoose models, Clerk webhook, Server Actions, replace mock data con queries reales
+- [ ] **Phase 6: Files & Integrations** — Cloudinary signed upload, email Resend, export PDF con react-pdf, sync Google Sheets
+- [ ] **Phase 7: SEO & Polish** — Meta tags, OG, sitemap, robots.txt, Next.js Image, audit performance
 
 ## Phase Details
 
+---
+
 ### Phase 1: Foundation & Auth
-**Goal**: Cualquier usuario puede registrarse eligiendo su rol, iniciar sesión y ser redirigido a la ruta protegida correcta según su rol, dentro de una UI que respeta la identidad visual de Driva Dev
+**Goal**: Cualquier usuario puede registrarse eligiendo su rol y ser redirigido a la ruta protegida correcta, dentro de una UI con identidad Driva Dev completa
 **Depends on**: Nothing (first phase)
-**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, LAYOUT-01, LAYOUT-02, LAYOUT-03, LAYOUT-04, LAYOUT-05, SEO-04, SEO-05
-**Success Criteria** (what must be TRUE):
-  1. Usuario puede registrarse con email/contraseña eligiendo rol (importador / proveedor / despachante) y el rol queda guardado en publicMetadata de Clerk y sincronizado a MongoDB via webhook
-  2. Al iniciar sesión, el middleware redirige automáticamente a `/importador`, `/proveedor` o `/despachante` según el rol, y una sesión activa persiste al recargar la página
-  3. Usuario puede cerrar sesión desde cualquier página y es redirigido al login
-  4. Importador ve sidebar colapsable con logo DrivaOC, botones Dashboard y Nueva OC, e info de usuario; proveedor y despachante ven solo navbar
-  5. Todas las páginas muestran footer "Desarrollado por Driva Dev", usan Fira Sans, colores Driva Dev (#EA580C, #9A3412, etc.) y son responsive
-**Plans**: TBD
+**Requirements**: AUTH-01, AUTH-03, AUTH-04, AUTH-05, LAYOUT-01, LAYOUT-02, LAYOUT-03, LAYOUT-04, LAYOUT-05, SEO-04, SEO-05
+**Note**: AUTH-02 (webhook MongoDB) → Phase 5. Clerk guarda el rol en publicMetadata — funcional sin MongoDB.
+**Success Criteria**:
+  1. Usuario puede registrarse eligiendo rol (importador / proveedor / despachante); rol queda en Clerk publicMetadata y el middleware redirige correctamente
+  2. Al iniciar sesión, middleware redirige a `/importador`, `/proveedor` o `/despachante` según rol; sesión persiste al recargar
+  3. Usuario puede cerrar sesión desde cualquier página
+  4. Importador ve sidebar colapsable con logo DrivaOC, botones Dashboard y Nueva OC, info de usuario; proveedor/despachante ven solo navbar
+  5. Todas las páginas: footer "Desarrollado por Driva Dev", Fira Sans, colores Driva Dev, responsive en mobile/desktop
 **UI hint**: yes
 
 Plans:
-- [ ] 01-01: Next.js project init, TypeScript strict, Tailwind, Fira Sans, env vars, MongoDB singleton, Atlas Network Access
-- [ ] 01-02: Clerk setup — registro con rol, webhook user.created → MongoDB, middleware con catch-all matcher, route groups (importador)(proveedor)(despachante)
-- [ ] 01-03: Layout components — sidebar importador (colapsable), navbar proveedor/despachante, footer, identidad visual completa
+- [ ] 01-01: Next.js init — TypeScript strict, Tailwind + colores Driva Dev, Fira Sans, estructura de carpetas, `.env.example`, logos SVG a `public/`
+- [ ] 01-02: Clerk setup — signup con campo de rol, publicMetadata, middleware con catch-all matcher, route groups `(importador)` `(proveedor)` `(despachante)`
+- [ ] 01-03: Layout components — sidebar importador colapsable, navbar compartida, footer, wiring de layouts por route group
 
-### Phase 2: Dashboard
-**Goal**: Cada rol puede ver su dashboard con stats de OCs y una lista filtrable de las OCs que le corresponden
+---
+
+### Phase 2: Dashboard UI
+**Goal**: Cada rol puede ver su dashboard con stats y lista de OCs filtrable (datos mock para demo)
 **Depends on**: Phase 1
 **Requirements**: DASH-01, DASH-02, DASH-03, DASH-04
-**Success Criteria** (what must be TRUE):
-  1. Importador ve 4 stat cards (OC Totales, En tránsito, En Aduana, Entregadas) calculadas desde sus OCs reales en MongoDB
-  2. La lista de OCs muestra todas las OCs del importador; proveedor y despachante ven solo las OCs donde su email está en el campo correspondiente
-  3. Cada OC en la lista tiene botones Visualizar, Editar (solo importador) y Eliminar (solo importador) que funcionan correctamente
-  4. La lista se puede filtrar por texto de proveedor y por estado (select) simultáneamente
-**Plans**: TBD
+**Note**: Datos mock hardcodeados — queries reales conectan en Phase 5.
+**Success Criteria**:
+  1. Dashboard muestra 4 stat cards (OC Totales, En tránsito, En Aduana, Entregadas) con valores mock
+  2. Lista de OCs renderiza mock data con badges de estado coloridos; importador ve todas, proveedor/despachante ven subset según rol
+  3. Botones Visualizar, Editar (solo importador) y Eliminar (solo importador) son visibles y navegan correctamente
+  4. Filtros por proveedor (text input) y estado (select) filtran la lista en el cliente
 **UI hint**: yes
 
 Plans:
-- [ ] 02-01: OC model Mongoose + seed data, Server Actions para queries scoped por rol
-- [ ] 02-02: Dashboard UI — stat cards, lista de OCs con badges de estado, filtros, acciones por rol
-- [ ] 02-03: OC detail view read-only (todos los roles pueden ver), skeleton loading states, empty state con CTA
+- [ ] 02-01: Mock data layer — `lib/mock-ocs.ts` con array de OCs ficticias para los tres roles, tipos TypeScript del modelo OC
+- [ ] 02-02: Dashboard UI — stat cards component, OC list table responsive con badges de estado, skeleton loading
+- [ ] 02-03: Filtros + acciones — filter bar (proveedor + estado), botones de acción por rol, empty state con CTA "Nueva OC"
 
-### Phase 3: OC Wizard
-**Goal**: El importador puede crear una OC completa en dos pasos, con cálculos financieros precisos usando decimal.js, persistencia como borrador en Step 1 y activación en Step 2
+---
+
+### Phase 3: OC Wizard UI
+**Goal**: El importador puede completar el wizard de OC de 2 pasos con todos los campos, cálculos financieros precisos y slots de documentos (estado local, sin persistencia real)
 **Depends on**: Phase 2
-**Requirements**: OC1-01, OC1-02, OC1-03, OC1-04, OC1-05, OC2-01, OC2-02, OC2-03, OC2-04, OC2-05, OC2-06, OC2-08, OC2-09, CALC-01, CALC-02, CALC-03
-**Success Criteria** (what must be TRUE):
-  1. Importador puede completar Step 1 (info general + tabla de productos dinámica), ver el FOB total calculado automáticamente en USD y ARS, y guardar — la OC aparece en MongoDB como borrador y el usuario es redirigido a Step 2 con el ID en la URL
-  2. Step 2 muestra un resumen read-only del Step 1 y permite ingresar todos los gastos de importación (Despacho, Despachante, Adicionales, Otros dinámicos); los totales se recalculan en tiempo real
-  3. Las cards finales (Valor FOB, Gastos de importación, Costo Landed Total) muestran valores correctos en USD con subtítulo en ARS usando el tipo de cambio ingresado
-  4. Al completar Step 2, el estado de la OC cambia de "borrador" al estado seleccionado y la OC es visible en el dashboard
-  5. Toda matemática financiera usa decimal.js y los valores se guardan en MongoDB como enteros (centavos), sin errores de punto flotante
-**Plans**: TBD
+**Requirements**: OC1-01, OC1-02, OC1-03, OC1-05, OC2-01, OC2-02, OC2-03, OC2-04, OC2-05, OC2-06, OC2-07, OC2-08, CALC-01, CALC-02, CALC-03, DOC-03
+**Note**: OC1-04 (persistir en MongoDB) + OC2-09 (cambio de estado) → Phase 5. Navegación entre steps via URL params + sessionStorage temporal. DOC-03 incluida aquí como vista read-only de slots (sin upload real aún).
+**Success Criteria**:
+  1. Step 1: todos los campos de info general + tabla de productos dinámica (agregar/eliminar filas) con FOB auto-calculado en USD y ARS usando `decimal.js`
+  2. Navegación Step 1 → Step 2 preserva los datos del wizard (sessionStorage o URL params); Step 2 muestra resumen read-only de Step 1
+  3. Step 2: todas las secciones de gastos (Despacho, Despachante, Adicionales, Otros dinámicos) con total de gastos recalculado en tiempo real
+  4. Cards finales (Valor FOB, Gastos, Costo Landed Total) muestran valores correctos en USD y ARS
+  5. 5 slots de documentos visibles con estado "vacío" UI — proveedor/despachante ven slots read-only
 **UI hint**: yes
 
 Plans:
-- [ ] 03-01: OC model extensión para gastos + valores finales, Server Actions create/update OC, decimal.js utils
-- [ ] 03-02: Step 1 form — info general, tabla de productos dinámica, cálculo FOB live, guardado como borrador
-- [ ] 03-03: Step 2 form — resumen read-only Step 1, secciones de gastos, gastos otros dinámicos, cards finales landed cost, activación OC
+- [ ] 03-01: Step 1 form — info general (date pickers, selects, tipo de cambio + divisa), tabla de productos dinámica, FOB total con `decimal.js`
+- [ ] 03-02: Step 2 form — resumen read-only Step 1, 3 secciones de gastos fijos, lista dinámica "Otros gastos", total de gastos live
+- [ ] 03-03: Value cards + document slots — cards Landed Cost, 5 slots PDF UI (estado vacío/mock), vista read-only para proveedor/despachante
 
-### Phase 4: Document Uploads
-**Goal**: El importador puede subir PDFs a los 5 slots de documentos de una OC vía Cloudinary, y proveedor/despachante pueden ver y descargar esos documentos
+---
+
+### Phase 4: OC Views & Demo Polish
+**Goal**: El sistema es demo-ready: OC detail view completa, modo edición funcional, estados vacíos/error/loading pulidos
 **Depends on**: Phase 3
-**Requirements**: OC2-07, DOC-01, DOC-02, DOC-03
-**Success Criteria** (what must be TRUE):
-  1. Importador puede subir un PDF a cualquiera de los 5 slots nombrados (Factura proveedor, Factura despachante, Conocimiento de embarque, Certificado de Origen, Otro) y la URL queda guardada en MongoDB
-  2. El upload usa signed upload via endpoint API Route — ningún secret aparece en el bundle del cliente
-  3. Proveedor y despachante pueden ver y descargar (no subir ni eliminar) los documentos de las OCs que les corresponden
-**Plans**: TBD
+**Requirements**: (no nuevos REQ-IDs — polish de todos los anteriores)
+**Note**: Esta fase refina la UX para que las demos al cliente sean convincentes. Crea las páginas que faltan (detail, edit) y pule estados edge case.
+**Success Criteria**:
+  1. Existe página `/importador/oc/[id]` con vista completa read-only de la OC (info general, productos, gastos, documentos, valores)
+  2. Existe página `/importador/oc/[id]/editar` con el wizard pre-poblado con datos de la OC mock
+  3. Proveedor ve `/proveedor/oc/[id]` con vista read-only sin botones de edición/eliminación
+  4. Despachante ve `/despachante/oc/[id]` análogo
+  5. Todos los estados edge-case tienen UI: lista vacía, formulario con errores de validación, loading skeleton en cada página
 **UI hint**: yes
 
 Plans:
-- [ ] 04-01: Cloudinary signed upload endpoint (/api/sign-cloudinary-params), resource_type raw, integración con OC model
-- [ ] 04-02: Document slots UI — 5 slots con upload/preview/delete para importador, vista read-only para proveedor/despachante
+- [ ] 04-01: OC detail page (importador) — layout full con todas las secciones, botones Editar/Eliminar, breadcrumb
+- [ ] 04-02: OC detail pages (proveedor + despachante) — vistas read-only con branding Driva Dev, sin acciones de escritura
+- [ ] 04-03: Polish general — validación de formularios (react-hook-form + zod), error boundaries, 404 page, loading skeletons consistentes
 
-### Phase 5: Integrations
-**Goal**: Al asignar proveedor/despachante en una OC el sistema envía emails de notificación; el importador puede exportar la OC a PDF y sincronizarla a Google Sheets
+---
+
+### Phase 5: Backend Core
+**Goal**: Todos los datos son reales — MongoDB persiste OCs, Clerk sincroniza roles, Server Actions reemplazan los datos mock
 **Depends on**: Phase 4
-**Requirements**: NOTIF-01, NOTIF-02, NOTIF-03, EXPORT-01, EXPORT-02, EXPORT-03, SHEETS-01, SHEETS-02, SHEETS-03
-**Success Criteria** (what must be TRUE):
-  1. Al guardar una OC con mail de proveedor o despachante, Resend envía un email con template React Email (identidad visual Driva Dev) invitando al destinatario a ver la OC
-  2. Importador puede hacer clic en "Exportar PDF" y el navegador descarga automáticamente un PDF generado server-side con react-pdf que incluye info general, productos, gastos, links de documentos y branding Driva Dev
-  3. Importador puede hacer clic en "Sincronizar a Sheets" y la OC queda registrada como fila en la Google Sheet configurada en .env — la operación no bloquea la UI y reporta éxito o error
-**Plans**: TBD
+**Requirements**: AUTH-02, OC1-04, OC2-09, DOC-01, DOC-02
+**Success Criteria**:
+  1. Clerk webhook `user.created` sincroniza usuario y rol a MongoDB; role check en middleware usa JWT claim
+  2. Step 1 guarda OC como `borrador` en MongoDB y redirige a Step 2 con ID real en URL
+  3. Step 2 actualiza OC en MongoDB; al completar, estado cambia de "borrador" al estado seleccionado y OC aparece en dashboard real
+  4. Stats del dashboard se calculan desde MongoDB con queries reales scoped por rol
+  5. Eliminar OC borra el documento de MongoDB; filtros usan queries de MongoDB
 
 Plans:
-- [ ] 05-01: Resend + React Email — templates con identidad Driva Dev, envío al guardar OC con proveedor/despachante asignado
-- [ ] 05-02: PDF export — Route Handler con react-pdf, serverExternalPackages config, layout completo de OC, auto-download
-- [ ] 05-03: Google Sheets sync — service account JWT, fire-and-forget Server Action, newline fix para private key, fila por OC
+- [ ] 05-01: MongoDB setup — singleton `lib/mongodb.ts` (maxPoolSize 5), modelos Mongoose (User, OC con embedded products/expenses/docs), Clerk webhook `/api/webhooks/clerk`
+- [ ] 05-02: Server Actions CRUD — createOC, updateOC, deleteOC, getOCs (scoped por rol), getOCById; replace mock data en dashboard y detail pages
+- [ ] 05-03: Wizard wiring real — Step 1 crea borrador en DB, Step 2 updates y activa, stat cards calculadas desde MongoDB
 
-### Phase 6: SEO & Polish
-**Goal**: Todas las páginas públicas tienen meta tags correctos, sitemap y robots.txt; las imágenes están optimizadas y el sitio pasa el audit de performance
+---
+
+### Phase 6: Files & Integrations
+**Goal**: Upload de PDFs funcional, emails de notificación automáticos, export a PDF descargable, sync a Google Sheets
 **Depends on**: Phase 5
-**Requirements**: SEO-01, SEO-02, SEO-03
-**Success Criteria** (what must be TRUE):
-  1. Cada página tiene title, description y OG tags correctos generados via Next.js Metadata API
-  2. `/sitemap.xml` y `/robots.txt` son accesibles y contienen las rutas correctas
-  3. Todas las imágenes del sitio usan `next/image` con lazy loading y no hay imágenes sin dimensiones explícitas
-**Plans**: TBD
+**Requirements**: DOC-01, DOC-02, DOC-03, NOTIF-01, NOTIF-02, NOTIF-03, EXPORT-01, EXPORT-02, EXPORT-03, SHEETS-01, SHEETS-02, SHEETS-03
+**Success Criteria**:
+  1. Importador puede subir PDF a cualquiera de los 5 slots — upload via signed endpoint → Cloudinary (`resource_type: raw`) → URL guardada en MongoDB
+  2. Al guardar OC con proveedor/despachante asignado, Resend envía email con template React Email (identidad Driva Dev)
+  3. "Exportar PDF" descarga PDF generado con `@react-pdf/renderer` en Route Handler con `export const runtime = 'nodejs'`
+  4. "Sincronizar a Sheets" agrega fila en Google Sheet configurada — operación fire-and-forget, no bloquea UI
 
 Plans:
-- [ ] 06-01: Meta tags y OG con Next.js Metadata API en todas las páginas, sitemap.xml dinámico, robots.txt
-- [ ] 06-02: Next.js Image en todos los assets, lazy loading audit, Vercel Analytics review, correcciones de performance
+- [ ] 06-01: Cloudinary PDF upload — `/api/sign-cloudinary-params` firmado, CldUploadWidget o upload directo, actualización de URL en MongoDB
+- [ ] 06-02: Resend + React Email — templates con identidad Driva Dev, envío automático al crear/actualizar OC con proveedor/despachante
+- [ ] 06-03: PDF export + Google Sheets — Route Handler react-pdf, layout completo de OC, Server Action Sheets con service account JWT (`.replace(/\\n/g, '\n')`)
+
+---
+
+### Phase 7: SEO & Polish
+**Goal**: El sitio es production-ready: meta tags, sitemap, performance y responsive completamente auditados
+**Depends on**: Phase 6
+**Requirements**: SEO-01, SEO-02, SEO-03
+**Success Criteria**:
+  1. Cada página tiene title, description y OG tags generados via Next.js Metadata API
+  2. `/sitemap.xml` y `/robots.txt` accesibles con rutas correctas
+  3. Todas las imágenes usan `next/image` con lazy loading; no hay renders sin dimensiones
+
+Plans:
+- [ ] 07-01: Meta tags y OG con Next.js Metadata API en todas las páginas, sitemap.xml dinámico, robots.txt
+- [ ] 07-02: Next.js Image audit, lazy loading, Vercel deploy review, correcciones finales de responsive
+
+---
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+
+**Demo milestones:**
+- After Phase 2: Demo de navegación + dashboard por rol
+- After Phase 4: Demo completa de todo el flujo de OC
+- After Phase 7: Producción
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 0/3 | Not started | - |
-| 2. Dashboard | 0/3 | Not started | - |
-| 3. OC Wizard | 0/3 | Not started | - |
-| 4. Document Uploads | 0/2 | Not started | - |
-| 5. Integrations | 0/3 | Not started | - |
-| 6. SEO & Polish | 0/2 | Not started | - |
+| 2. Dashboard UI | 0/3 | Not started | - |
+| 3. OC Wizard UI | 0/3 | Not started | - |
+| 4. OC Views & Demo Polish | 0/3 | Not started | - |
+| 5. Backend Core | 0/3 | Not started | - |
+| 6. Files & Integrations | 0/3 | Not started | - |
+| 7. SEO & Polish | 0/2 | Not started | - |
