@@ -11,22 +11,30 @@ export default clerkMiddleware(async (auth, req) => {
   const { isAuthenticated, sessionClaims, redirectToSignIn } = await auth()
   const role = sessionClaims?.metadata?.role
 
-  if (isAuthenticated && isOnboarding(req)) return NextResponse.next()
-  if (!isAuthenticated && !isPublicRoute(req)) return redirectToSignIn({ returnBackUrl: req.url })
+  // 1. Unauthenticated: allow public routes, redirect others to sign-in
+  if (!isAuthenticated) {
+    if (!isPublicRoute(req)) return redirectToSignIn({ returnBackUrl: req.url })
+    return NextResponse.next()
+  }
 
-  if (isAuthenticated && !role && !isOnboarding(req)) {
+  // 2. Authenticated without role: must complete onboarding
+  if (!role && !isOnboarding(req)) {
     return NextResponse.redirect(new URL('/onboarding', req.url))
   }
 
-  if (isAuthenticated && role) {
+  // 3. Authenticated with role: redirect away from auth/onboarding, block cross-role access
+  if (role) {
+    if (isPublicRoute(req) || isOnboarding(req)) {
+      return NextResponse.redirect(new URL(`/${role}/dashboard`, req.url))
+    }
     if (isImportador(req) && role !== 'importador') {
-      return NextResponse.redirect(new URL('/importador/dashboard', req.url))
+      return NextResponse.redirect(new URL(`/${role}/dashboard`, req.url))
     }
     if (isProveedor(req) && role !== 'proveedor') {
-      return NextResponse.redirect(new URL('/proveedor/dashboard', req.url))
+      return NextResponse.redirect(new URL(`/${role}/dashboard`, req.url))
     }
     if (isDespachante(req) && role !== 'despachante') {
-      return NextResponse.redirect(new URL('/despachante/dashboard', req.url))
+      return NextResponse.redirect(new URL(`/${role}/dashboard`, req.url))
     }
   }
 })
