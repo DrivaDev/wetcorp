@@ -50,7 +50,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **UI hint**: yes
 
 Plans:
-- [ ] 01-01: Next.js init — TypeScript strict, Tailwind + colores Driva Dev, Fira Sans, estructura de carpetas, `.env.example`, logos SVG a `public/`
+- [x] 01-01: Next.js init — TypeScript strict, Tailwind + colores Driva Dev, Fira Sans, estructura de carpetas, `.env.example`, logos SVG a `public/` ✓ 2026-05-25
 - [ ] 01-02: Clerk setup — signup con campo de rol, publicMetadata, middleware con catch-all matcher, route groups `(importador)` `(proveedor)` `(despachante)`
 - [ ] 01-03: Layout components — sidebar importador colapsable, navbar compartida, footer, wiring de layouts por route group
 
