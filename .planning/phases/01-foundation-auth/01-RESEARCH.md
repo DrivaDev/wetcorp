@@ -631,7 +631,7 @@ GOOGLE_SHEETS_SPREADSHEET_ID=
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Logo SVG files location**
    - What we know: PROJECT.md lists paths in `C:\Users\Equipo\Downloads\logo-svg (1).svg` etc.
