@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 1 of 6 (Foundation & Auth)
-Plan: 2 of 3 in current phase
-Status: Human Checkpoint — awaiting Clerk credentials and manual test
-Last activity: 2026-05-25 — Plan 01-02 complete (Clerk middleware, auth route group, role-based route groups, onboarding flow)
+Plan: 3 of 3 in current phase — PHASE 1 COMPLETE (code)
+Status: Human Checkpoint — Clerk credentials and manual test required before Phase 2
+Last activity: 2026-05-25 — Plan 01-03 complete (Sidebar collapsible + mobile overlay, Navbar responsive, Phase 1 layout shell done)
 
-Progress: [██░░░░░░░░] 20% (2/10 plans complete across all phases)
+Progress: [███░░░░░░░] 30% (3/10 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -27,7 +27,7 @@ Progress: [██░░░░░░░░] 20% (2/10 plans complete across all p
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 - Foundation & Auth | 2/3 | ~35 min | ~18 min |
+| 1 - Foundation & Auth | 3/3 | ~50 min | ~17 min |
 
 **Recent Trend:**
 - Last 5 plans: 01-01 (15 min), 01-02 (20 min)
@@ -49,6 +49,7 @@ Recent decisions affecting current work:
 - Phase 4: Cloudinary resource_type: raw mandatory for PDFs; signed upload via /api/sign-cloudinary-params.
 - Phase 5: @react-pdf/renderer (NOT Puppeteer — Chromium exceeds Vercel 50 MB limit). Add to serverExternalPackages.
 - Phase 5: Google Sheets sync is fire-and-forget — never await in request cycle. Apply newline fix for GOOGLE_PRIVATE_KEY.
+- Phase 1: Clerk v7 removed afterSignOutUrl from UserButton — configured on ClerkProvider as hardcoded string literal "/sign-in".
 
 ### Pending Todos
 
@@ -75,5 +76,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-25
-Stopped at: Plan 01-02 complete — Clerk middleware, auth route group, onboarding, role-based route groups. Human checkpoint: user must configure Clerk account + session token, then test manually.
-Resume file: .planning/phases/01-foundation-auth/01-PLAN-03.md (after human checkpoint complete)
+Stopped at: Plan 01-03 complete — Sidebar (collapsible desktop + mobile overlay), Navbar (responsive), Phase 1 layout shell fully implemented. Human checkpoint still pending from 01-02: user must configure Clerk account + session token and test manually before Phase 2.
+Resume file: .planning/phases/02-dashboard-ui/02-PLAN-01.md (after human checkpoint complete)

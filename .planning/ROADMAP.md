@@ -21,7 +21,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Frontend Phases
 
-- [ ] **Phase 1: Foundation & Auth** — Next.js scaffolding, Clerk auth con roles, route groups, sidebar/navbar/footer, identidad visual Driva Dev
+- [x] **Phase 1: Foundation & Auth** — Next.js scaffolding, Clerk auth con roles, route groups, sidebar/navbar/footer, identidad visual Driva Dev ✓ 2026-05-25 [HUMAN CHECKPOINT PENDING]
 - [ ] **Phase 2: Dashboard UI** — Stats cards y lista de OCs filtrable con datos mock, vistas por rol
 - [ ] **Phase 3: OC Wizard UI** — Wizard 2 pasos completo con estado local: productos, gastos, cálculos decimal.js, slots de documentos, value cards
 - [ ] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/loading, OC read-only para proveedor/despachante
@@ -52,7 +52,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01: Next.js init — TypeScript strict, Tailwind + colores Driva Dev, Fira Sans, estructura de carpetas, `.env.example`, logos SVG a `public/` ✓ 2026-05-25
 - [x] 01-02: Clerk setup — signup con campo de rol, publicMetadata, middleware con catch-all matcher, route groups `(importador)` `(proveedor)` `(despachante)` ✓ 2026-05-25 [HUMAN CHECKPOINT PENDING]
-- [ ] 01-03: Layout components — sidebar importador colapsable, navbar compartida, footer, wiring de layouts por route group
+- [x] 01-03: Layout components — sidebar importador colapsable, navbar compartida, footer, wiring de layouts por route group ✓ 2026-05-25
 
 ---
 
@@ -177,7 +177,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Auth | 2/3 | In Progress | 01-01 ✓ 2026-05-25, 01-02 ✓ 2026-05-25 (checkpoint pending) |
+| 1. Foundation & Auth | 3/3 | Complete (checkpoint pending) | 01-01 ✓, 01-02 ✓, 01-03 ✓ 2026-05-25 |
 | 2. Dashboard UI | 0/3 | Not started | - |
 | 3. OC Wizard UI | 0/3 | Not started | - |
 | 4. OC Views & Demo Polish | 0/3 | Not started | - |
