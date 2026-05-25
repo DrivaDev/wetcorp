@@ -8,6 +8,12 @@ export async function completeOnboarding(role: Role): Promise<{ success: true } 
   if (!userId) return { error: 'No autenticado' }
 
   const client = await clerkClient()
+
+  const user = await client.users.getUser(userId)
+  if (user.publicMetadata?.role) {
+    return { error: 'El rol ya fue configurado' }
+  }
+
   await client.users.updateUser(userId, {
     publicMetadata: { role },
   })
