@@ -32,16 +32,21 @@ export default function OnboardingPage() {
     if (!selected) return
     setLoading(true)
     setError(null)
-
-    const result = await completeOnboarding(selected)
-    if ('error' in result) {
-      setError(result.error)
+    try {
+      const result = await completeOnboarding(selected)
+      if ('error' in result) {
+        setError(result.error)
+        return
+      }
+      if (!user) {
+        setError('Error de sesión. Por favor recargá la página.')
+        return
+      }
+      await user.reload()
+      router.push(ROLE_REDIRECTS[selected])
+    } finally {
       setLoading(false)
-      return
     }
-
-    await user?.reload()
-    router.push(ROLE_REDIRECTS[selected])
   }
 
   return (
@@ -58,8 +63,8 @@ export default function OnboardingPage() {
             key={id}
             onClick={() => setSelected(id)}
             className={cn(
-              'border-2 rounded-xl p-6 cursor-pointer text-left transition-colors duration-150',
-              'active:scale-[0.98] transition-transform duration-75',
+              'border-2 rounded-xl p-6 cursor-pointer text-left',
+              'transition-all duration-150 active:scale-[0.98]',
               selected === id
                 ? 'border-principal bg-acento/30'
                 : 'border-acento hover:border-principal hover:bg-acento/30'
