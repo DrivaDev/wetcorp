@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/sign-in">
       <html lang="es" className={firaSans.variable}>
         <body className="bg-fondo text-texto font-sans antialiased">
           {children}
