@@ -7,10 +7,10 @@ export default function ImportadorLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex flex-col flex-1 min-w-0">
-        <main className="flex-1 overflow-auto p-6 bg-fondo">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+        <main className="flex-1 overflow-auto bg-fondo">
           {children}
         </main>
         <Footer />

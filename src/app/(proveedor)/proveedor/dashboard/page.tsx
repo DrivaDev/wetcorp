@@ -24,9 +24,9 @@ export default function ProveedorDashboardPage() {
   }
 
   return (
-    <div className="p-6 bg-fondo min-h-screen">
+    <div className="p-4 sm:p-6">
       <h1 className="text-xl font-bold text-titulares mb-6">Mis Órdenes</h1>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <StatCard icon={FileText} value={stats.totales} label="OC Totales" />
         <StatCard icon={Truck} value={stats.enTransito} label="En tránsito" />
         <StatCard icon={Package} value={stats.enAduana} label="En aduana" />

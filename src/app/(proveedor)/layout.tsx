@@ -8,8 +8,8 @@ export default function ProveedorLayout({
 }) {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-1 bg-fondo p-6">
+      <Navbar rol="proveedor" />
+      <main className="flex-1 bg-fondo">
         {children}
       </main>
       <Footer />

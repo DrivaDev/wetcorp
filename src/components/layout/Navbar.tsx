@@ -1,29 +1,36 @@
 'use client'
 import Image from 'next/image'
-import { UserButton } from '@clerk/nextjs'
+import { SignOutButton } from '@clerk/nextjs'
+import { LogOut } from 'lucide-react'
 
-export function Navbar() {
+interface NavbarProps {
+  rol: 'proveedor' | 'despachante'
+}
+
+const ROL_LABEL: Record<NavbarProps['rol'], string> = {
+  proveedor: 'Proveedor',
+  despachante: 'Despachante',
+}
+
+export function Navbar({ rol }: NavbarProps) {
   return (
-    <nav className="sticky top-0 z-10 h-14 flex items-center justify-between px-6 bg-white border-b border-acento">
-      <div className="hidden md:block">
-        <Image
-          src="/logo-horizontal.svg"
-          alt="DrivaOC"
-          width={140}
-          height={36}
-          priority
-        />
+    <nav className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 bg-[#1C1917] border-b border-white/10 min-h-[64px]">
+      <div className="flex items-center gap-3">
+        <Image src="/isotipo.svg" alt="DrivaOC" width={32} height={32} priority />
+        <div className="flex flex-col">
+          <span className="text-white text-sm font-medium leading-none">DrivaOC</span>
+          <span className="text-white/40 text-xs font-light mt-0.5">{ROL_LABEL[rol]}</span>
+        </div>
       </div>
-      <div className="md:hidden">
-        <Image
-          src="/isotipo.svg"
-          alt="DrivaOC"
-          width={32}
-          height={32}
-          priority
-        />
-      </div>
-      <UserButton showName={true} />
+      <SignOutButton>
+        <button
+          className="flex items-center gap-2 px-3 py-2 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors duration-150 text-sm min-h-[44px]"
+          aria-label="Cerrar sesión"
+        >
+          <LogOut size={16} />
+          <span className="hidden sm:block font-light">Cerrar sesión</span>
+        </button>
+      </SignOutButton>
     </nav>
   )
 }

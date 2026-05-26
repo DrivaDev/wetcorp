@@ -111,11 +111,23 @@ export function Sidebar() {
       </nav>
 
       {/* User zone */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-3 border-t border-white/10 flex flex-col gap-2">
         <UserButton
           showName={isMobileOverlay || !collapsed}
           appearance={{ elements: { userButtonBox: 'text-white' } }}
         />
+        <SignOutButton>
+          <button
+            className={cn(
+              'flex items-center gap-2 px-3 py-2 rounded-lg min-h-[44px] text-white/50 hover:text-white hover:bg-white/10 transition-colors duration-150 text-sm w-full',
+              collapsed && !isMobileOverlay ? 'justify-center' : ''
+            )}
+            aria-label="Cerrar sesión"
+          >
+            <LogOut size={16} />
+            {(isMobileOverlay || !collapsed) && <span className="font-light">Cerrar sesión</span>}
+          </button>
+        </SignOutButton>
       </div>
     </div>
   )
@@ -167,7 +179,7 @@ export function Sidebar() {
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'hidden sm:flex flex-col h-screen bg-[#1C1917] border-r border-white/10 transition-all duration-200',
+          'hidden sm:flex flex-col h-full flex-shrink-0 bg-[#1C1917] border-r border-white/10 transition-all duration-200',
           collapsed ? 'w-16' : 'w-64'
         )}
       >
