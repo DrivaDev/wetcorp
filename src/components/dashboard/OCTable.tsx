@@ -39,7 +39,8 @@ const ESTADO_LABELS: Record<EstadoOC, string> = {
 }
 
 function formatFecha(iso: string): string {
-  const [year, month, day] = iso.split('-')
+  const date = iso.split('T')[0]
+  const [year, month, day] = date.split('-')
   return `${day}/${month}/${year}`
 }
 
