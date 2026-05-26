@@ -12,7 +12,7 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 Phase: 2 of 6 (Dashboard UI)
 Plan: 0 of 3 in current phase
 Status: Ready to execute
-Last activity: 2026-05-25 — Phase 1 complete ✓ (15/15 automated checks, human UAT approved)
+Last activity: 2026-05-25 — Phase 2 planned ✓ (3 plans in 3 waves)
 
 Progress: [███░░░░░░░] 30% (3/10 plans complete across all phases)
 
@@ -76,5 +76,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-25
-Stopped at: Phase 2 UI-SPEC approved — design contract ready, proceed to /gsd-plan-phase 2.
-Resume file: .planning/phases/02-dashboard-ui/02-UI-SPEC.md
+Stopped at: Phase 2 planning complete — 3 planes (02-01, 02-02, 02-03) en 3 waves listos para ejecutar.
+Resume file: .planning/phases/02-dashboard-ui/02-01-PLAN.md

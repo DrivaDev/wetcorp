@@ -69,9 +69,19 @@ Plans:
 **UI hint**: yes
 
 Plans:
+**Wave 1**
 - [ ] 02-01-PLAN.md — Mock data layer: `src/lib/mock-ocs.ts` con tipos TypeScript OC y array de 10 OCs ficticias que cubren los 6 estados
+
+**Wave 2** *(blocked on Wave 1 completion)*
 - [ ] 02-02-PLAN.md — Dashboard UI components: StatCard, OCTable con badges y skeleton loading, DeleteModal, EmptyState
+
+**Wave 3** *(blocked on Wave 2 completion)*
 - [ ] 02-03-PLAN.md — Filtros + wireo de páginas: FilterBar, dashboards de importador/proveedor/despachante con datos filtrados por rol
+
+**Cross-cutting constraints:**
+- Tokens brand system en todos los componentes: `text-principal`, `bg-acento`, `border-acento`, `text-titulares`, `text-texto`
+- `'use client'` solo donde hay `useState` (OCTable, FilterBar, DeleteModal, páginas dashboard)
+- Touch targets `min-h-[44px] min-w-[44px]` en todos los botones de icono
 
 ---
 
