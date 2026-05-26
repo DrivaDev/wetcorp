@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 ### Frontend Phases
 
 - [x] **Phase 1: Foundation & Auth** — Next.js scaffolding, Clerk auth con roles, route groups, sidebar/navbar/footer, identidad visual Driva Dev ✓ 2026-05-25
-- [ ] **Phase 2: Dashboard UI** — Stats cards y lista de OCs filtrable con datos mock, vistas por rol
+- [x] **Phase 2: Dashboard UI** — Stats cards y lista de OCs filtrable con datos mock, vistas por rol ✓ 2026-05-26
 - [ ] **Phase 3: OC Wizard UI** — Wizard 2 pasos completo con estado local: productos, gastos, cálculos decimal.js, slots de documentos, value cards
 - [ ] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/error/loading pulidos
 
@@ -70,13 +70,13 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 02-01-PLAN.md — Mock data layer: `src/lib/mock-ocs.ts` con tipos TypeScript OC y array de 10 OCs ficticias que cubren los 6 estados
+- [x] 02-01-PLAN.md — Mock data layer: `src/lib/mock-ocs.ts` con tipos TypeScript OC y array de 10 OCs ficticias que cubren los 6 estados ✓ 2026-05-25
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 02-02-PLAN.md — Dashboard UI components: StatCard, OCTable con badges y skeleton loading, DeleteModal, EmptyState
+- [x] 02-02-PLAN.md — Dashboard UI components: StatCard, OCTable con badges y skeleton loading, DeleteModal, EmptyState ✓ 2026-05-25
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 02-03-PLAN.md — Filtros + wireo de páginas: FilterBar, dashboards de importador/proveedor/despachante con datos filtrados por rol
+- [x] 02-03-PLAN.md — Filtros + wireo de páginas: FilterBar, dashboards de importador/proveedor/despachante con datos filtrados por rol ✓ 2026-05-26
 
 **Cross-cutting constraints:**
 - Tokens brand system en todos los componentes: `text-principal`, `bg-acento`, `border-acento`, `text-titulares`, `text-texto`
@@ -188,7 +188,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 3/3 | Complete ✓ | 01-01 ✓, 01-02 ✓, 01-03 ✓ 2026-05-25 |
-| 2. Dashboard UI | 0/3 | Not started | - |
+| 2. Dashboard UI | 3/3 | Complete ✓ | 02-01 ✓, 02-02 ✓, 02-03 ✓ 2026-05-26 |
 | 3. OC Wizard UI | 0/3 | Not started | - |
 | 4. OC Views & Demo Polish | 0/3 | Not started | - |
 | 5. Backend Core | 0/3 | Not started | - |

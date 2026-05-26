@@ -23,10 +23,10 @@
 
 ### Dashboard
 
-- [ ] **DASH-01**: Dashboard muestra 4 stat cards inline: OC Totales, En tránsito, En Aduana, Entregadas
-- [ ] **DASH-02**: Debajo de stats: lista de todas las OCs del usuario (importador ve todas las suyas; proveedor/despachante solo las donde su email está asignado)
-- [ ] **DASH-03**: Cada OC en la lista tiene acciones: visualizar, editar (solo importador), eliminar (solo importador)
-- [ ] **DASH-04**: Lista filtrable por proveedor (texto) y por estado (select)
+- [x] **DASH-01**: Dashboard muestra 4 stat cards inline: OC Totales, En tránsito, En Aduana, Entregadas ✓ 02-03
+- [x] **DASH-02**: Debajo de stats: lista de todas las OCs del usuario (importador ve todas las suyas; proveedor/despachante solo las donde su email está asignado) ✓ 02-03
+- [x] **DASH-03**: Cada OC en la lista tiene acciones: visualizar, editar (solo importador), eliminar (solo importador) ✓ 02-02/02-03
+- [x] **DASH-04**: Lista filtrable por proveedor (texto) y por estado (select) ✓ 02-03
 
 ### OC — Step 1: Información General y Productos
 
@@ -135,10 +135,10 @@
 | LAYOUT-03 | Phase 1 | Pending |
 | LAYOUT-04 | Phase 1 | Pending |
 | LAYOUT-05 | Phase 1 | Pending |
-| DASH-01 | Phase 2 | Pending |
-| DASH-02 | Phase 2 | Pending |
-| DASH-03 | Phase 2 | Pending |
-| DASH-04 | Phase 2 | Pending |
+| DASH-01 | Phase 2 | Complete ✓ |
+| DASH-02 | Phase 2 | Complete ✓ |
+| DASH-03 | Phase 2 | Complete ✓ |
+| DASH-04 | Phase 2 | Complete ✓ |
 | OC1-01 | Phase 3 | Pending |
 | OC1-02 | Phase 3 | Pending |
 | OC1-03 | Phase 3 | Pending |

@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 
 ## Current Position
 
-Phase: 2 of 6 (Dashboard UI)
+Phase: 3 of 6 (OC Wizard UI)
 Plan: 0 of 3 in current phase
 Status: Ready to execute
-Last activity: 2026-05-25 — Phase 2 planned ✓ (3 plans in 3 waves)
+Last activity: 2026-05-26 — Phase 2 complete ✓ (3/3 plans: 02-01, 02-02, 02-03)
 
-Progress: [███░░░░░░░] 30% (3/10 plans complete across all phases)
+Progress: [████░░░░░░] 40% (6/17 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -28,6 +28,7 @@ Progress: [███░░░░░░░] 30% (3/10 plans complete across all p
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 1 - Foundation & Auth | 3/3 | ~50 min | ~17 min |
+| 2 - Dashboard UI | 3/3 | ~30 min | ~10 min |
 
 **Recent Trend:**
 - Last 5 plans: 01-01 (15 min), 01-02 (20 min)
@@ -50,6 +51,10 @@ Recent decisions affecting current work:
 - Phase 5: @react-pdf/renderer (NOT Puppeteer — Chromium exceeds Vercel 50 MB limit). Add to serverExternalPackages.
 - Phase 5: Google Sheets sync is fire-and-forget — never await in request cycle. Apply newline fix for GOOGLE_PRIVATE_KEY.
 - Phase 1: Clerk v7 removed afterSignOutUrl from UserButton — configured on ClerkProvider as hardcoded string literal "/sign-in".
+- Phase 2: Dashboard pages use 'use client' + useState for filters (not Server Components) — necesario para filtrado client-side en tiempo real sin roundtrip al servidor.
+- Phase 2: OCTable tiene columnas dinámicas por rol — importador ve Proveedor + Despachante; proveedor ve solo Despachante; despachante ve solo Proveedor.
+- Phase 2: Stats calculadas desde subset base del rol (sin aplicar filtros activos) para conteos estables mientras el usuario filtra.
+- Phase 2: FilterBar es rol-aware — importador ve filtros de proveedor + despachante + estado; proveedor/despachante ven solo filtro de estado.
 
 ### Pending Todos
 
@@ -75,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-25
-Stopped at: Phase 2 planning complete — 3 planes (02-01, 02-02, 02-03) en 3 waves listos para ejecutar.
-Resume file: .planning/phases/02-dashboard-ui/02-01-PLAN.md
+Last session: 2026-05-26
+Stopped at: Phase 2 complete — 02-03 (FilterBar + wireo dashboards + post-checkpoint fixes) aprobado por usuario.
+Resume file: .planning/phases/03-oc-wizard-ui/03-01-PLAN.md
