@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation & Auth** — Next.js scaffolding, Clerk auth con roles, route groups, sidebar/navbar/footer, identidad visual Driva Dev ✓ 2026-05-25
 - [ ] **Phase 2: Dashboard UI** — Stats cards y lista de OCs filtrable con datos mock, vistas por rol
 - [ ] **Phase 3: OC Wizard UI** — Wizard 2 pasos completo con estado local: productos, gastos, cálculos decimal.js, slots de documentos, value cards
-- [ ] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/loading, OC read-only para proveedor/despachante
+- [ ] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/error/loading pulidos
 
 ### Backend Phases
 
@@ -64,14 +64,14 @@ Plans:
 **Success Criteria**:
   1. Dashboard muestra 4 stat cards (OC Totales, En tránsito, En Aduana, Entregadas) con valores mock
   2. Lista de OCs renderiza mock data con badges de estado coloridos; importador ve todas, proveedor/despachante ven subset según rol
-  3. Botones Visualizar, Editar (solo importador) y Eliminar (solo importador) son visibles y navegan correctamente
+  3. Botones Visualizar y Editar visibles para todos los roles; Eliminar (Trash2) solo para importador — per D-08
   4. Filtros por proveedor (text input) y estado (select) filtran la lista en el cliente
 **UI hint**: yes
 
 Plans:
-- [ ] 02-01: Mock data layer — `lib/mock-ocs.ts` con array de OCs ficticias para los tres roles, tipos TypeScript del modelo OC
-- [ ] 02-02: Dashboard UI — stat cards component, OC list table responsive con badges de estado, skeleton loading
-- [ ] 02-03: Filtros + acciones — filter bar (proveedor + estado), botones de acción por rol, empty state con CTA "Nueva OC"
+- [ ] 02-01-PLAN.md — Mock data layer: `src/lib/mock-ocs.ts` con tipos TypeScript OC y array de 10 OCs ficticias que cubren los 6 estados
+- [ ] 02-02-PLAN.md — Dashboard UI components: StatCard, OCTable con badges y skeleton loading, DeleteModal, EmptyState
+- [ ] 02-03-PLAN.md — Filtros + wireo de páginas: FilterBar, dashboards de importador/proveedor/despachante con datos filtrados por rol
 
 ---
 
@@ -99,18 +99,18 @@ Plans:
 **Goal**: El sistema es demo-ready: OC detail view completa, modo edición funcional, estados vacíos/error/loading pulidos
 **Depends on**: Phase 3
 **Requirements**: (no nuevos REQ-IDs — polish de todos los anteriores)
-**Note**: Esta fase refina la UX para que las demos al cliente sean convincentes. Crea las páginas que faltan (detail, edit) y pule estados edge case.
+**Note**: Esta fase refina la UX para que las demos al cliente sean convincentes. Crea las páginas que faltan (detail, edit) y pule estados edge case. Proveedor y despachante tienen vistas de edición per D-08 (decidido en Phase 2).
 **Success Criteria**:
   1. Existe página `/importador/oc/[id]` con vista completa read-only de la OC (info general, productos, gastos, documentos, valores)
   2. Existe página `/importador/oc/[id]/editar` con el wizard pre-poblado con datos de la OC mock
-  3. Proveedor ve `/proveedor/oc/[id]` con vista read-only sin botones de edición/eliminación
-  4. Despachante ve `/despachante/oc/[id]` análogo
+  3. Proveedor ve `/proveedor/oc/[id]` con vista read-only sin botón de eliminación; tiene botón Editar que lleva a `/proveedor/oc/[id]/editar`
+  4. Despachante ve `/despachante/oc/[id]` análogo con vista read-only y botón Editar
   5. Todos los estados edge-case tienen UI: lista vacía, formulario con errores de validación, loading skeleton en cada página
 **UI hint**: yes
 
 Plans:
 - [ ] 04-01: OC detail page (importador) — layout full con todas las secciones, botones Editar/Eliminar, breadcrumb
-- [ ] 04-02: OC detail pages (proveedor + despachante) — vistas read-only con branding Driva Dev, sin acciones de escritura
+- [ ] 04-02: OC detail pages (proveedor + despachante) — vistas read-only con botón Editar, branding Driva Dev, sin botón Eliminar
 - [ ] 04-03: Polish general — validación de formularios (react-hook-form + zod), error boundaries, 404 page, loading skeletons consistentes
 
 ---
