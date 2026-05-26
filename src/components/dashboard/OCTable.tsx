@@ -43,39 +43,59 @@ function formatFecha(iso: string): string {
   return `${day}/${month}/${year}`
 }
 
-const tableHead = (
-  <thead className="bg-fondo border-b border-acento">
-    <tr>
-      <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[100px]">Nº OC</th>
-      <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap">Proveedor</th>
-      <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[140px]">Estado</th>
-      <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[110px]">Fecha</th>
-      <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[100px]">Acciones</th>
-    </tr>
-  </thead>
-)
+function TableHead({ rol }: { rol: Rol }) {
+  return (
+    <thead className="bg-fondo border-b border-acento">
+      <tr>
+        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[100px]">Nº OC</th>
+        {rol !== 'proveedor' && (
+          <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap">Proveedor</th>
+        )}
+        {rol !== 'despachante' && (
+          <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap">Despachante</th>
+        )}
+        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[140px]">Estado</th>
+        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[110px]">Fecha</th>
+        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[100px]">Acciones</th>
+      </tr>
+    </thead>
+  )
+}
+
+function SkeletonCells({ rol }: { rol: Rol }) {
+  const extraCols = rol === 'importador' ? 2 : 1
+  return (
+    <>
+      <td className="px-4 py-3"><div className="h-4 w-16 rounded bg-acento/30" /></td>
+      {Array.from({ length: extraCols }).map((_, i) => (
+        <td key={i} className="px-4 py-3"><div className="h-4 w-32 rounded bg-acento/30" /></td>
+      ))}
+      <td className="px-4 py-3"><div className="h-5 w-20 rounded-full bg-acento/40" /></td>
+      <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-acento/30" /></td>
+      <td className="px-4 py-3">
+        <div className="flex gap-1">
+          <div className="h-8 w-8 rounded-lg bg-acento/30" />
+          <div className="h-8 w-8 rounded-lg bg-acento/30" />
+        </div>
+      </td>
+    </>
+  )
+}
 
 export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<OC | null>(null)
 
+  const minWidth = rol === 'importador' ? 'min-w-[780px]' : 'min-w-[640px]'
+
   if (isLoading) {
     return (
       <div className="w-full overflow-x-auto rounded-xl border border-acento bg-white">
-        <table className="w-full min-w-[640px] text-base">
-          {tableHead}
+        <table className={cn('w-full text-base', minWidth)}>
+          <TableHead rol={rol} />
           <tbody>
             {Array.from({ length: 5 }).map((_, i) => (
               <tr key={i} className="border-b border-acento/50 animate-pulse">
-                <td className="px-4 py-3"><div className="h-4 w-16 rounded bg-acento/30" /></td>
-                <td className="px-4 py-3"><div className="h-4 w-32 rounded bg-acento/30" /></td>
-                <td className="px-4 py-3"><div className="h-5 w-20 rounded-full bg-acento/40" /></td>
-                <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-acento/30" /></td>
-                <td className="px-4 py-3">
-                  <div className="flex gap-1">
-                    <div className="h-8 w-8 rounded-lg bg-acento/30" />
-                    <div className="h-8 w-8 rounded-lg bg-acento/30" />
-                  </div>
-                </td>
+                <SkeletonCells rol={rol} />
               </tr>
             ))}
           </tbody>
@@ -94,15 +114,20 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
   return (
     <>
       <div className="w-full overflow-x-auto rounded-xl border border-acento bg-white">
-        <table className="w-full min-w-[640px] text-base">
-          {tableHead}
+        <table className={cn('w-full text-base', minWidth)}>
+          <TableHead rol={rol} />
           <tbody>
             {ocs.map((oc) => (
               <tr key={oc.id} className="border-b border-acento/50 hover:bg-acento/20 transition-colors duration-150">
                 <td className="px-4 py-3 w-[100px]">
                   <span className="font-medium text-titulares">{oc.numeroOC}</span>
                 </td>
-                <td className="px-4 py-3 text-base text-texto">{oc.proveedor}</td>
+                {rol !== 'proveedor' && (
+                  <td className="px-4 py-3 text-base text-texto">{oc.proveedor}</td>
+                )}
+                {rol !== 'despachante' && (
+                  <td className="px-4 py-3 text-base text-texto">{oc.despachante}</td>
+                )}
                 <td className="px-4 py-3">
                   <span className={cn(getBadgeClasses(oc.estado))}>
                     {ESTADO_LABELS[oc.estado]}
