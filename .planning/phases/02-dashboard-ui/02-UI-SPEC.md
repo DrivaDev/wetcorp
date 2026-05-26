@@ -1,7 +1,7 @@
 ---
 phase: 2
 slug: dashboard-ui
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-25
@@ -51,7 +51,9 @@ Escala basada en múltiplos de 4px usando clases Tailwind estándar:
 | 2xl | `py-12` | 48px | Padding vertical del empty state |
 | 3xl | `py-16` | 64px | No usado en Phase 2 |
 
-**Excepción:** Touch targets de botones de acción en tabla — mínimo `min-w-[44px] min-h-[44px]` para cumplir WCAG 2.5.5. Patrón existente en `Sidebar.tsx`.
+**Excepciones:**
+- Touch targets de botones de acción — mínimo `min-w-[44px] min-h-[44px]` para cumplir WCAG 2.5.5. Patrón existente en `Sidebar.tsx`.
+- Padding vertical de badges pill — `py-0.5` (2px): elemento inline, no afecta grid de layout.
 
 ---
 
@@ -434,11 +436,11 @@ Plain Tailwind v4 con tokens `@theme` en `globals.css`. Sin dependencias externa
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: FLAG (no bloqueante — 4 pesos definidos en brand system CLAUDE.md)
+- [x] Dimension 5 Spacing: FLAG (no bloqueante — `py-0.5` en badges pill documentado como excepción)
+- [x] Dimension 6 Registry Safety: PASS
 
-**Aprobación:** pendiente
+**Aprobación:** approved 2026-05-25
