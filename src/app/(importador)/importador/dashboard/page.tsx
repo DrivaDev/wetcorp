@@ -8,15 +8,17 @@ import { OCTable } from '@/components/dashboard/OCTable'
 import { FilterBar } from '@/components/dashboard/FilterBar'
 
 export default function ImportadorDashboardPage() {
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchProveedor, setSearchProveedor] = useState('')
+  const [searchDespachante, setSearchDespachante] = useState('')
   const [estadoFiltro, setEstadoFiltro] = useState<EstadoOC | ''>('')
 
   const todasLasOCs = MOCK_OCS
 
   const ocsFiltradas = todasLasOCs.filter((oc) => {
-    const matchProveedor = oc.proveedor.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchProveedor = oc.proveedor.toLowerCase().includes(searchProveedor.toLowerCase())
+    const matchDespachante = oc.despachante.toLowerCase().includes(searchDespachante.toLowerCase())
     const matchEstado = estadoFiltro === '' || oc.estado === estadoFiltro
-    return matchProveedor && matchEstado
+    return matchProveedor && matchDespachante && matchEstado
   })
 
   const stats = {
@@ -26,7 +28,7 @@ export default function ImportadorDashboardPage() {
     entregadas: todasLasOCs.filter((oc) => oc.estado === 'entregada').length,
   }
 
-  const hasFilters = searchQuery !== '' || estadoFiltro !== ''
+  const hasFilters = searchProveedor !== '' || searchDespachante !== '' || estadoFiltro !== ''
 
   return (
     <div className="p-6 bg-fondo min-h-screen">
@@ -37,7 +39,12 @@ export default function ImportadorDashboardPage() {
         <StatCard icon={Package} value={stats.enAduana} label="En aduana" />
         <StatCard icon={CheckCircle2} value={stats.entregadas} label="Entregadas" />
       </div>
-      <FilterBar onSearch={setSearchQuery} onEstado={setEstadoFiltro} />
+      <FilterBar
+        rol="importador"
+        onEstado={setEstadoFiltro}
+        onSearchProveedor={setSearchProveedor}
+        onSearchDespachante={setSearchDespachante}
+      />
       <OCTable ocs={ocsFiltradas} rol="importador" hasFilters={hasFilters} />
     </div>
   )

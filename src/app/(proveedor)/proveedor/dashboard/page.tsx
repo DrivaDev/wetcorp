@@ -8,15 +8,12 @@ import { OCTable } from '@/components/dashboard/OCTable'
 import { FilterBar } from '@/components/dashboard/FilterBar'
 
 export default function ProveedorDashboardPage() {
-  const [searchQuery, setSearchQuery] = useState('')
   const [estadoFiltro, setEstadoFiltro] = useState<EstadoOC | ''>('')
 
   const ocsDelProveedor = MOCK_OCS.filter((oc) => oc.emailProveedor === 'proveedor@empresa.com')
 
   const ocsFiltradas = ocsDelProveedor.filter((oc) => {
-    const matchProveedor = oc.proveedor.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchEstado = estadoFiltro === '' || oc.estado === estadoFiltro
-    return matchProveedor && matchEstado
+    return estadoFiltro === '' || oc.estado === estadoFiltro
   })
 
   const stats = {
@@ -25,8 +22,6 @@ export default function ProveedorDashboardPage() {
     enAduana: ocsDelProveedor.filter((oc) => oc.estado === 'en_aduana').length,
     entregadas: ocsDelProveedor.filter((oc) => oc.estado === 'entregada').length,
   }
-
-  const hasFilters = searchQuery !== '' || estadoFiltro !== ''
 
   return (
     <div className="p-6 bg-fondo min-h-screen">
@@ -37,8 +32,8 @@ export default function ProveedorDashboardPage() {
         <StatCard icon={Package} value={stats.enAduana} label="En aduana" />
         <StatCard icon={CheckCircle2} value={stats.entregadas} label="Entregadas" />
       </div>
-      <FilterBar onSearch={setSearchQuery} onEstado={setEstadoFiltro} />
-      <OCTable ocs={ocsFiltradas} rol="proveedor" hasFilters={hasFilters} />
+      <FilterBar rol="proveedor" onEstado={setEstadoFiltro} />
+      <OCTable ocs={ocsFiltradas} rol="proveedor" hasFilters={estadoFiltro !== ''} />
     </div>
   )
 }
