@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Un importador puede crear una OC, ver el costo total de importación (FOB + gastos) y compartir el estado con su proveedor y despachante — todo desde una sola plataforma.
-**Current focus:** Phase 2 — Dashboard UI
+**Current focus:** Phase 3 — OC Wizard UI
 
 ## Current Position
 
