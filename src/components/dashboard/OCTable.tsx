@@ -13,6 +13,7 @@ interface OCTableProps {
   ocs: OC[]
   rol: Rol
   isLoading?: boolean
+  hasFilters?: boolean
 }
 
 function getBadgeClasses(estado: EstadoOC): string {
@@ -54,7 +55,7 @@ const tableHead = (
   </thead>
 )
 
-export function OCTable({ ocs, rol, isLoading }: OCTableProps) {
+export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<OC | null>(null)
 
   if (isLoading) {
@@ -84,7 +85,7 @@ export function OCTable({ ocs, rol, isLoading }: OCTableProps) {
   }
 
   if (ocs.length === 0) {
-    return <EmptyState rol={rol} hasFilters={false} />
+    return <EmptyState rol={rol} hasFilters={hasFilters} />
   }
 
   const eyeHref = (oc: OC) => `/${rol}/oc/${oc.id}`
