@@ -25,6 +25,8 @@ import { ResumenStep1 } from './ResumenStep1'
 import { GastosCard } from './GastosCard'
 import type { GastoField } from './GastosCard'
 import { OtrosGastosSection } from './OtrosGastosSection'
+import { ValueCards } from './ValueCards'
+import { DocumentSlots } from './DocumentSlots'
 
 const camposDespacho: GastoField[] = [
   { key: 'sim', label: 'SIM (ARS)', divisa: 'ARS' },
@@ -168,7 +170,13 @@ export function Step2Form() {
           </div>
         </div>
 
-        {/* Slot para ValueCards y DocumentSlots — plan 03-03 */}
+        <DocumentSlots />
+
+        <ValueCards
+          fobUSD={fobUSD}
+          totalGastosUSD={totalGastosUSD}
+          tipoCambio={tipoCambio}
+        />
 
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-acento">
           <button
