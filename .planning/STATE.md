@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 3 of 6 (OC Wizard UI)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-05-27 — Plan 03-01 complete ✓ (decimal.js, wizard-types, wizard-calculations, page.tsx, Step1Form, ProductosTable)
+Last activity: 2026-05-27 — Plan 03-02 complete ✓ (ResumenStep1, GastosCard, OtrosGastosSection, Step2Form)
 
-Progress: [████░░░░░░] 41% (7/17 plans complete across all phases)
+Progress: [████░░░░░░] 47% (8/17 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -57,6 +57,7 @@ Recent decisions affecting current work:
 - Phase 2: Stats calculadas desde subset base del rol (sin aplicar filtros activos) para conteos estables mientras el usuario filtra.
 - Phase 2: FilterBar es rol-aware — importador ve filtros de proveedor + despachante + estado; proveedor/despachante ven solo filtro de estado.
 - Phase 3 Plan 01: WizardPage.tsx creado como stub temporal (plan 03-03 lo reemplaza). STORAGE_KEY='oc-step1-draft'. Todos los campos numéricos del wizard como string para inputs controlados.
+- Phase 3 Plan 02: GastosCard genérico con campos configurables por props. Step2Form lee sessionStorage en useEffect, redirige a step=1 si vacío (D-06). handleGuardar sin API real — toast + redirect mock (D-04).
 
 ### Pending Todos
 
@@ -83,5 +84,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-27
-Stopped at: Completed 03-01-PLAN.md — decimal.js instalado, tipos + cálculos + page.tsx + Step1Form + ProductosTable.
-Resume file: .planning/phases/03-oc-wizard-ui/03-02-PLAN.md
+Stopped at: Completed 03-02-PLAN.md — ResumenStep1, GastosCard, OtrosGastosSection, Step2Form con gastos en tiempo real.
+Resume file: .planning/phases/03-oc-wizard-ui/03-03-PLAN.md

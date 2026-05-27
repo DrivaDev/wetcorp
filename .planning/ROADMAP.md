@@ -104,7 +104,7 @@ Plans:
 - [x] 03-01-PLAN.md — Tipos + cálculos + page.tsx + Step1Form + ProductosTable: decimal.js instalado, wizard-types.ts, wizard-calculations.ts, page.tsx Server Component async, formulario Step 1 con info general y tabla de productos dinámica con FOB en tiempo real ✓ 2026-05-27
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 03-02-PLAN.md — Step2Form completo: ResumenStep1 read-only, GastosCard (Despacho/Despachante/Adicionales), OtrosGastosSection dinámica, total global de gastos live, botones Volver/Guardar OC con toast + redirect
+- [x] 03-02-PLAN.md — Step2Form completo: ResumenStep1 read-only, GastosCard (Despacho/Despachante/Adicionales), OtrosGastosSection dinámica, total global de gastos live, botones Volver/Guardar OC con toast + redirect ✓ 2026-05-27
 - [ ] 03-03-PLAN.md — Cierre del wizard: ValueCards (FOB/Gastos/Landed Total en USD+ARS), DocumentSlots (5 slots estáticos dashed), WizardPage root + integración en Step2Form
 
 ---
@@ -193,7 +193,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 3/3 | Complete ✓ | 01-01 ✓, 01-02 ✓, 01-03 ✓ 2026-05-25 |
 | 2. Dashboard UI | 3/3 | Complete ✓ | 02-01 ✓, 02-02 ✓, 02-03 ✓ 2026-05-26 |
-| 3. OC Wizard UI | 1/3 | In progress | 03-01 ✓ 2026-05-27, 03-02 pending, 03-03 pending |
+| 3. OC Wizard UI | 2/3 | In progress | 03-01 ✓ 2026-05-27, 03-02 ✓ 2026-05-27, 03-03 pending |
 | 4. OC Views & Demo Polish | 0/3 | Not started | - |
 | 5. Backend Core | 0/3 | Not started | - |
 | 6. Files & Integrations | 0/3 | Not started | - |
