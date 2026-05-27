@@ -97,11 +97,15 @@ Plans:
   4. Cards finales (Valor FOB, Gastos, Costo Landed Total) muestran valores correctos en USD y ARS
   5. 5 slots de documentos visibles con estado "vacío" UI — proveedor/despachante ven slots read-only
 **UI hint**: yes
+**Plans:** 3 plans
 
 Plans:
-- [ ] 03-01: Step 1 form — info general (date pickers, selects, tipo de cambio + divisa), tabla de productos dinámica, FOB total con `decimal.js`
-- [ ] 03-02: Step 2 form — resumen read-only Step 1, 3 secciones de gastos fijos, lista dinámica "Otros gastos", total de gastos live
-- [ ] 03-03: Value cards + document slots — cards Landed Cost, 5 slots PDF UI (estado vacío/mock), vista read-only para proveedor/despachante
+**Wave 1**
+- [ ] 03-01-PLAN.md — Tipos + cálculos + page.tsx + Step1Form + ProductosTable: decimal.js instalado, wizard-types.ts, wizard-calculations.ts, page.tsx Server Component async, formulario Step 1 con info general y tabla de productos dinámica con FOB en tiempo real
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 03-02-PLAN.md — Step2Form completo: ResumenStep1 read-only, GastosCard (Despacho/Despachante/Adicionales), OtrosGastosSection dinámica, total global de gastos live, botones Volver/Guardar OC con toast + redirect
+- [ ] 03-03-PLAN.md — Cierre del wizard: ValueCards (FOB/Gastos/Landed Total en USD+ARS), DocumentSlots (5 slots estáticos dashed), WizardPage root + integración en Step2Form
 
 ---
 
@@ -189,7 +193,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 3/3 | Complete ✓ | 01-01 ✓, 01-02 ✓, 01-03 ✓ 2026-05-25 |
 | 2. Dashboard UI | 3/3 | Complete ✓ | 02-01 ✓, 02-02 ✓, 02-03 ✓ 2026-05-26 |
-| 3. OC Wizard UI | 0/3 | Not started | - |
+| 3. OC Wizard UI | 0/3 | Planned | 03-01, 03-02, 03-03 — ready to execute |
 | 4. OC Views & Demo Polish | 0/3 | Not started | - |
 | 5. Backend Core | 0/3 | Not started | - |
 | 6. Files & Integrations | 0/3 | Not started | - |
