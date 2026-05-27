@@ -55,6 +55,7 @@ function TableHead({ rol }: { rol: Rol }) {
         {rol !== 'despachante' && (
           <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap">Despachante</th>
         )}
+        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[130px]">Despacho</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[140px]">Estado</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[110px]">Fecha</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[100px]">Acciones</th>
@@ -71,6 +72,7 @@ function SkeletonCells({ rol }: { rol: Rol }) {
       {Array.from({ length: extraCols }).map((_, i) => (
         <td key={i} className="px-4 py-3"><div className="h-4 w-32 rounded bg-acento/30" /></td>
       ))}
+      <td className="px-4 py-3"><div className="h-4 w-28 rounded bg-acento/30" /></td>
       <td className="px-4 py-3"><div className="h-5 w-20 rounded-full bg-acento/40" /></td>
       <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-acento/30" /></td>
       <td className="px-4 py-3">
@@ -86,7 +88,7 @@ function SkeletonCells({ rol }: { rol: Rol }) {
 export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<OC | null>(null)
 
-  const minWidth = rol === 'importador' ? 'min-w-[780px]' : 'min-w-[640px]'
+  const minWidth = rol === 'importador' ? 'min-w-[920px]' : 'min-w-[720px]'
 
   if (isLoading) {
     return (
@@ -129,6 +131,9 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
                 {rol !== 'despachante' && (
                   <td className="px-4 py-3 text-base text-texto">{oc.despachante}</td>
                 )}
+                <td className="px-4 py-3 text-base text-texto">
+                  {oc.numeroDespacho || <span className="text-texto/30">—</span>}
+                </td>
                 <td className="px-4 py-3">
                   <span className={cn(getBadgeClasses(oc.estado))}>
                     {ESTADO_LABELS[oc.estado]}

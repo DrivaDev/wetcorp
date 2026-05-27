@@ -13,6 +13,7 @@ export interface OC {
   emailProveedor: string
   despachante: string
   emailDespachante: string
+  numeroDespacho: string
   estado: EstadoOC
   fecha: string
 }
@@ -25,6 +26,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'proveedor@empresa.com',
     despachante: 'Logística Rápida SA',
     emailDespachante: 'despachante@logistica.com',
+    numeroDespacho: '',
     estado: 'borrador',
     fecha: '2025-01-15',
   },
@@ -35,6 +37,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'proveedor@empresa.com',
     despachante: 'Logística Rápida SA',
     emailDespachante: 'despachante@logistica.com',
+    numeroDespacho: '',
     estado: 'en_proceso',
     fecha: '2025-02-03',
   },
@@ -45,6 +48,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'proveedor@empresa.com',
     despachante: 'Logística Rápida SA',
     emailDespachante: 'despachante@logistica.com',
+    numeroDespacho: 'D-2025-00341',
     estado: 'en_transito',
     fecha: '2025-03-20',
   },
@@ -55,6 +59,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'proveedor@empresa.com',
     despachante: 'Logística Rápida SA',
     emailDespachante: 'despachante@logistica.com',
+    numeroDespacho: 'D-2025-00498',
     estado: 'en_aduana',
     fecha: '2025-04-10',
   },
@@ -65,6 +70,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'proveedor@empresa.com',
     despachante: 'Logística Rápida SA',
     emailDespachante: 'despachante@logistica.com',
+    numeroDespacho: 'D-2025-00512',
     estado: 'entregada',
     fecha: '2025-05-05',
   },
@@ -75,6 +81,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'otro@proveedor.com',
     despachante: 'Logística Rápida SA',
     emailDespachante: 'despachante@logistica.com',
+    numeroDespacho: '',
     estado: 'cancelada',
     fecha: '2025-06-18',
   },
@@ -85,6 +92,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'otro@proveedor.com',
     despachante: 'Logística Rápida SA',
     emailDespachante: 'despachante@logistica.com',
+    numeroDespacho: '',
     estado: 'borrador',
     fecha: '2025-07-22',
   },
@@ -95,6 +103,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'otro@proveedor.com',
     despachante: 'Despachos del Sur SRL',
     emailDespachante: 'otro@despacho.com',
+    numeroDespacho: '',
     estado: 'en_proceso',
     fecha: '2025-08-14',
   },
@@ -105,6 +114,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'otro@proveedor.com',
     despachante: 'Despachos del Sur SRL',
     emailDespachante: 'otro@despacho.com',
+    numeroDespacho: 'D-2025-00887',
     estado: 'en_transito',
     fecha: '2025-09-30',
   },
@@ -115,6 +125,7 @@ export const MOCK_OCS: OC[] = [
     emailProveedor: 'otro@proveedor.com',
     despachante: 'Despachos del Sur SRL',
     emailDespachante: 'otro@despacho.com',
+    numeroDespacho: 'D-2025-00934',
     estado: 'entregada',
     fecha: '2025-12-01',
   },
