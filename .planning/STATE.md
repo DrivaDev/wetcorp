@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 3 of 6 (OC Wizard UI)
-Plan: 0 of 3 in current phase
-Status: Ready to execute
-Last activity: 2026-05-27 — Phase 3 planned ✓ (3/3 plans: 03-01, 03-02, 03-03)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-05-27 — Plan 03-01 complete ✓ (decimal.js, wizard-types, wizard-calculations, page.tsx, Step1Form, ProductosTable)
 
-Progress: [████░░░░░░] 40% (6/17 plans complete across all phases)
+Progress: [████░░░░░░] 41% (7/17 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -29,10 +29,11 @@ Progress: [████░░░░░░] 40% (6/17 plans complete across all p
 |-------|-------|-------|----------|
 | 1 - Foundation & Auth | 3/3 | ~50 min | ~17 min |
 | 2 - Dashboard UI | 3/3 | ~30 min | ~10 min |
+| 3 - OC Wizard UI | 1/3 | ~20 min | ~20 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (15 min), 01-02 (20 min)
-- Trend: Baseline established
+- Last 5 plans: 01-01 (15 min), 01-02 (20 min), 03-01 (20 min)
+- Trend: Stable ~20 min/plan
 
 *Updated after each plan completion*
 
@@ -55,6 +56,7 @@ Recent decisions affecting current work:
 - Phase 2: OCTable tiene columnas dinámicas por rol — importador ve Proveedor + Despachante; proveedor ve solo Despachante; despachante ve solo Proveedor.
 - Phase 2: Stats calculadas desde subset base del rol (sin aplicar filtros activos) para conteos estables mientras el usuario filtra.
 - Phase 2: FilterBar es rol-aware — importador ve filtros de proveedor + despachante + estado; proveedor/despachante ven solo filtro de estado.
+- Phase 3 Plan 01: WizardPage.tsx creado como stub temporal (plan 03-03 lo reemplaza). STORAGE_KEY='oc-step1-draft'. Todos los campos numéricos del wizard como string para inputs controlados.
 
 ### Pending Todos
 
@@ -81,5 +83,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-27
-Stopped at: Phase 3 planned — 3 plans ready to execute (03-01, 03-02, 03-03).
-Resume file: .planning/phases/03-oc-wizard-ui/03-01-PLAN.md
+Stopped at: Completed 03-01-PLAN.md — decimal.js instalado, tipos + cálculos + page.tsx + Step1Form + ProductosTable.
+Resume file: .planning/phases/03-oc-wizard-ui/03-02-PLAN.md
