@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation & Auth** — Next.js scaffolding, Clerk auth con roles, route groups, sidebar/navbar/footer, identidad visual Driva Dev ✓ 2026-05-25
 - [x] **Phase 2: Dashboard UI** — Stats cards y lista de OCs filtrable con datos mock, vistas por rol ✓ 2026-05-26
-- [ ] **Phase 3: OC Wizard UI** — Wizard 2 pasos completo con estado local: productos, gastos, cálculos decimal.js, slots de documentos, value cards
+- [x] **Phase 3: OC Wizard UI** — Wizard 2 pasos completo con estado local: productos, gastos, cálculos decimal.js, slots de documentos, value cards ✓ 2026-05-27
 - [ ] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/error/loading pulidos
 
 ### Backend Phases
@@ -105,7 +105,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 - [x] 03-02-PLAN.md — Step2Form completo: ResumenStep1 read-only, GastosCard (Despacho/Despachante/Adicionales), OtrosGastosSection dinámica, total global de gastos live, botones Volver/Guardar OC con toast + redirect ✓ 2026-05-27
-- [ ] 03-03-PLAN.md — Cierre del wizard: ValueCards (FOB/Gastos/Landed Total en USD+ARS), DocumentSlots (5 slots estáticos dashed), WizardPage root + integración en Step2Form
+- [x] 03-03-PLAN.md — Cierre del wizard: ValueCards (FOB/Gastos/Landed Total en USD+ARS), DocumentSlots (5 slots estáticos dashed), WizardPage root + integración en Step2Form ✓ 2026-05-27
 
 ---
 
@@ -193,7 +193,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 |-------|----------------|--------|-----------|
 | 1. Foundation & Auth | 3/3 | Complete ✓ | 01-01 ✓, 01-02 ✓, 01-03 ✓ 2026-05-25 |
 | 2. Dashboard UI | 3/3 | Complete ✓ | 02-01 ✓, 02-02 ✓, 02-03 ✓ 2026-05-26 |
-| 3. OC Wizard UI | 2/3 | In progress | 03-01 ✓ 2026-05-27, 03-02 ✓ 2026-05-27, 03-03 pending |
+| 3. OC Wizard UI | 3/3 | Complete ✓ | 03-01 ✓, 03-02 ✓, 03-03 ✓ 2026-05-27 |
 | 4. OC Views & Demo Polish | 0/3 | Not started | - |
 | 5. Backend Core | 0/3 | Not started | - |
 | 6. Files & Integrations | 0/3 | Not started | - |

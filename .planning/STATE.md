@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Un importador puede crear una OC, ver el costo total de importación (FOB + gastos) y compartir el estado con su proveedor y despachante — todo desde una sola plataforma.
-**Current focus:** Phase 3 — OC Wizard UI
+**Current focus:** Phase 4 — OC Views & Demo Polish
 
 ## Current Position
 
-Phase: 3 of 6 (OC Wizard UI)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-05-27 — Plan 03-02 complete ✓ (ResumenStep1, GastosCard, OtrosGastosSection, Step2Form)
+Phase: 4 of 6 (OC Views & Demo Polish)
+Plan: 0 of 3 in current phase
+Status: Phase 3 complete — ready to start Phase 4
+Last activity: 2026-05-27 — Plan 03-03 complete ✓ (ValueCards, DocumentSlots, WizardPage root, Step2Form integrado — wizard end-to-end completo)
 
-Progress: [████░░░░░░] 47% (8/17 plans complete across all phases)
+Progress: [█████░░░░░] 53% (9/17 plans complete across all phases)
 
 ## Performance Metrics
 
@@ -29,7 +29,7 @@ Progress: [████░░░░░░] 47% (8/17 plans complete across all p
 |-------|-------|-------|----------|
 | 1 - Foundation & Auth | 3/3 | ~50 min | ~17 min |
 | 2 - Dashboard UI | 3/3 | ~30 min | ~10 min |
-| 3 - OC Wizard UI | 1/3 | ~20 min | ~20 min |
+| 3 - OC Wizard UI | 3/3 | ~50 min | ~17 min |
 
 **Recent Trend:**
 - Last 5 plans: 01-01 (15 min), 01-02 (20 min), 03-01 (20 min)
@@ -58,6 +58,7 @@ Recent decisions affecting current work:
 - Phase 2: FilterBar es rol-aware — importador ve filtros de proveedor + despachante + estado; proveedor/despachante ven solo filtro de estado.
 - Phase 3 Plan 01: WizardPage.tsx creado como stub temporal (plan 03-03 lo reemplaza). STORAGE_KEY='oc-step1-draft'. Todos los campos numéricos del wizard como string para inputs controlados.
 - Phase 3 Plan 02: GastosCard genérico con campos configurables por props. Step2Form lee sessionStorage en useEffect, redirige a step=1 si vacío (D-06). handleGuardar sin API real — toast + redirect mock (D-04).
+- Phase 3 Plan 03: ValueCards recibe instancias Decimal ya calculadas desde Step2Form — nunca strings para operaciones aritméticas. DocumentSlots es Server Component puro (sin use client). WizardPage mínimo sin estado propio — fuente de verdad del step es la URL prop desde page.tsx.
 
 ### Pending Todos
 
@@ -84,5 +85,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-05-27
-Stopped at: Completed 03-02-PLAN.md — ResumenStep1, GastosCard, OtrosGastosSection, Step2Form con gastos en tiempo real.
-Resume file: .planning/phases/03-oc-wizard-ui/03-03-PLAN.md
+Stopped at: Completed 03-03-PLAN.md — ValueCards, DocumentSlots, WizardPage root, Step2Form integrado. Phase 3 completa.
+Resume file: .planning/phases/04-oc-detail-ui/04-01-PLAN.md
