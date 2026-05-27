@@ -565,17 +565,19 @@ function SuccessToast({ visible }: { visible: boolean }) {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **¿Tipo de cambio: campo número libre o con validación de rango?**
    - What we know: REQUIREMENTS.md OC1-01 dice "Tipo de cambio (número) + divisa (ARS/USD o ARS/EUR)". CONTEXT.md Specifics menciona conversión ARS = monto_USD × tipo_de_cambio.
    - What's unclear: ¿El campo Tipo de Cambio acepta decimales? ¿Hay validación de rango mínimo/máximo? ¿La divisa es un select con opciones ARS/USD y ARS/EUR?
    - Recommendation: El planner debe decidir si el tipo de cambio es un input libre (con validación `> 0`) o si incluye select de par de divisas. El calc logic es el mismo — solo afecta el label de la UI.
+   - **RESOLVED:** Input libre con validación `> 0`. No hay rango mínimo/máximo — el importador ingresa el tipo de cambio del día. El select de divisa (ARS/USD, ARS/EUR) aplica como label informativo. isStep1Valid verifica `tipoCambio > 0` antes de habilitar el paso 2.
 
 2. **¿El `id` de la OC se genera en el frontend para Phase 3 o se omite?**
    - What we know: Phase 3 no tiene backend. Al "Guardar OC" se hace un toast + redirect sin llamada real.
    - What's unclear: ¿Se genera un UUID local para el mock que luego será reemplazado en Phase 5, o simplemente se redirige al dashboard sin generar ID?
    - Recommendation: No generar ID en Phase 3 — redirect directo sin crear ningún objeto mock. Phase 5 manejará la creación real con MongoDB.
+   - **RESOLVED:** Sin generar ID en Phase 3. Al hacer click en "Guardar OC", se muestra el toast de éxito y se redirige directamente a /importador/dashboard sin crear ningún objeto ni generar UUID. Phase 5 gestiona la creación real con MongoDB y el ID persistente.
 
 ---
 
