@@ -187,7 +187,7 @@ New component: `src/components/ui/EstadoBadge.tsx` — accepts `estado: EstadoOC
     // Row 2: OC number + badge + action buttons
     <div flex items-center justify-between gap-4 flex-wrap>
       <div flex items-center gap-3>
-        <h1 text-xl font-bold text-titulares>{oc.numeroOC}</h1>
+        <h1 text-lg font-bold text-titulares>{oc.numeroOC}</h1>
         <EstadoBadge estado={oc.estado} />
       </div>
       <div flex items-center gap-2>
@@ -290,7 +290,7 @@ New component: `src/components/ui/EstadoBadge.tsx` — accepts `estado: EstadoOC
 ```
 <div flex flex-col items-center justify-center py-16 gap-4 text-center>
   <FileText size={48} class="text-acento" />
-  <p text-xl font-bold text-titulares>{heading}</p>
+  <p text-lg font-bold text-titulares>{heading}</p>
   <p text-base font-normal text-texto/70 max-w-sm>{body}</p>
   {showCTA && <Link ...>{cta}</Link>}
 </div>
@@ -329,7 +329,7 @@ Alternatively, a single shared `src/app/not-found.tsx` can be used with a generi
 <div flex flex-col items-center justify-center py-32 gap-6 text-center px-4>
   <FileSearch size={64} class="text-acento" />
   <div flex flex-col gap-2>
-    <h1 text-2xl font-bold text-titulares>"OC no encontrada"</h1>
+    <h1 text-lg font-bold text-titulares>"OC no encontrada"</h1>
     <p text-base font-normal text-texto/70 max-w-sm>
       "No pudimos encontrar la orden de compra que buscás. Puede que haya sido eliminada o que el enlace sea incorrecto."
     </p>
@@ -541,11 +541,11 @@ No third-party component registries. All UI is custom Tailwind. No new icon libr
 
 ## Checker Sign-Off
 
-- [ ] Dimension 1 Copywriting: PASS
-- [ ] Dimension 2 Visuals: PASS
-- [ ] Dimension 3 Color: PASS
-- [ ] Dimension 4 Typography: PASS
-- [ ] Dimension 5 Spacing: PASS
-- [ ] Dimension 6 Registry Safety: PASS
+- [x] Dimension 1 Copywriting: PASS
+- [x] Dimension 2 Visuals: PASS
+- [x] Dimension 3 Color: PASS
+- [x] Dimension 4 Typography: PASS
+- [x] Dimension 5 Spacing: PASS
+- [x] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved 2026-05-28
