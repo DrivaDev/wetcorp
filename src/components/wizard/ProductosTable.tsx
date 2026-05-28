@@ -155,7 +155,7 @@ export function ProductosTable({
         className="flex items-center gap-2 text-sm font-normal text-principal hover:text-titulares transition-colors min-h-[44px]"
       >
         <Plus size={16} />
-        + Agregar producto
+        Agregar producto
       </button>
     </div>
   )

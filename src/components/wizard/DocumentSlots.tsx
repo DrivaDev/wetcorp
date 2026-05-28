@@ -1,6 +1,6 @@
 'use client'
-import { useState } from 'react'
-import { Upload, Plus, X } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { Plus, Upload, X, FileText } from 'lucide-react'
 
 const FIXED_SLOTS = [
   'Factura proveedor',
@@ -9,44 +9,115 @@ const FIXED_SLOTS = [
   'Certificado de Origen',
 ]
 
-function Slot({ nombre, onRemove }: { nombre: string; onRemove?: () => void }) {
+interface OtroSlot {
+  id: string
+  nombre: string
+  fileName: string | null
+}
+
+function DocumentRow({
+  nombre,
+  onNameChange,
+  onRemove,
+}: {
+  nombre: string
+  onNameChange?: (v: string) => void
+  onRemove?: () => void
+}) {
+  const [fileName, setFileName] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFileName(e.target.files?.[0]?.name ?? null)
+  }
+
   return (
-    <div className="rounded-xl border-2 border-dashed border-acento bg-white p-6 flex flex-col items-center justify-center gap-3 min-h-[120px] relative">
+    <div className="flex items-center gap-3 px-4 py-3">
+      <FileText size={18} className="text-acento shrink-0" />
+
+      {onNameChange ? (
+        <input
+          type="text"
+          value={nombre}
+          placeholder="Nombre del documento"
+          onChange={(e) => onNameChange(e.target.value)}
+          className="flex-1 text-base font-normal text-texto bg-transparent border-b border-acento/50 focus:outline-none focus:border-principal placeholder:text-texto/40"
+        />
+      ) : (
+        <span className="flex-1 text-base font-normal text-texto">{nombre}</span>
+      )}
+
+      <span className="text-sm font-normal text-texto/50 hidden sm:block shrink-0 max-w-[180px] truncate">
+        {fileName ?? 'Sin archivo adjunto'}
+      </span>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".pdf"
+        className="hidden"
+        onChange={handleFile}
+      />
+
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
+      >
+        <Upload size={14} />
+        {fileName ? 'Cambiar' : 'Adjuntar'}
+      </button>
+
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
           aria-label="Eliminar documento"
-          className="absolute top-2 right-2 min-h-[32px] min-w-[32px] flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+          className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
         >
           <X size={14} />
         </button>
       )}
-      <Upload size={32} className="text-acento" />
-      <p className="text-sm font-normal text-titulares text-center">{nombre}</p>
-      <p className="text-sm font-normal text-texto/60 text-center">Sin archivo adjunto</p>
     </div>
   )
 }
 
 export function DocumentSlots() {
-  const [otrosSlots, setOtrosSlots] = useState<string[]>([])
+  const [otrosSlots, setOtrosSlots] = useState<OtroSlot[]>([])
 
-  const addOtro = () => setOtrosSlots((prev) => [...prev, `Otro documento ${prev.length + 1}`])
-  const removeOtro = (idx: number) => setOtrosSlots((prev) => prev.filter((_, i) => i !== idx))
+  const addOtro = () =>
+    setOtrosSlots((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), nombre: '', fileName: null },
+    ])
+
+  const removeOtro = (id: string) =>
+    setOtrosSlots((prev) => prev.filter((s) => s.id !== id))
+
+  const updateNombre = (id: string, nombre: string) =>
+    setOtrosSlots((prev) => prev.map((s) => (s.id === id ? { ...s, nombre } : s)))
 
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-base font-bold text-titulares">Documentos</h2>
-      <p className="text-sm font-normal text-texto/60 -mt-2">Solo se aceptan archivos PDF</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div className="flex flex-col gap-3">
+      <div>
+        <h2 className="text-base font-bold text-titulares">Documentos</h2>
+        <p className="text-sm font-normal text-texto/60 mt-0.5">Solo se aceptan archivos PDF</p>
+      </div>
+
+      <div className="rounded-xl border border-acento bg-white divide-y divide-acento/40 overflow-hidden">
         {FIXED_SLOTS.map((nombre) => (
-          <Slot key={nombre} nombre={nombre} />
+          <DocumentRow key={nombre} nombre={nombre} />
         ))}
-        {otrosSlots.map((nombre, idx) => (
-          <Slot key={idx} nombre={nombre} onRemove={() => removeOtro(idx)} />
+        {otrosSlots.map((slot) => (
+          <DocumentRow
+            key={slot.id}
+            nombre={slot.nombre}
+            onNameChange={(v) => updateNombre(slot.id, v)}
+            onRemove={() => removeOtro(slot.id)}
+          />
         ))}
       </div>
+
       <button
         type="button"
         onClick={addOtro}

@@ -72,7 +72,7 @@ export function OtrosGastosSection({
         className="flex items-center gap-2 text-sm font-normal text-principal hover:text-titulares transition-colors min-h-[44px]"
       >
         <Plus size={16} />
-        + Agregar gasto
+        Agregar gasto
       </button>
 
       <div className="mt-4 pt-4 border-t border-acento/50 flex justify-between items-center">
