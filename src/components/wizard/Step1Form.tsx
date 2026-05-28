@@ -23,16 +23,46 @@ function isValidEmail(v: string): boolean {
   return EMAIL_RE.test(v.trim())
 }
 
-// Auto-format date input as DD/MM/AAAA while typing
+// Auto-format date input as DD/MM/AAAA while typing, clamping day ≤ 31 and month ≤ 12
 function formatDateInput(raw: string): string {
   const digits = raw.replace(/\D/g, '').slice(0, 8)
-  if (digits.length <= 2) return digits
-  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`
-  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+  if (digits.length === 0) return ''
+
+  let dd = digits.slice(0, 2)
+  if (digits.length >= 2) {
+    const n = parseInt(dd, 10)
+    if (n > 31) dd = '31'
+    else if (n === 0) dd = '01'
+  }
+  if (digits.length <= 2) return dd
+
+  const rawMm = digits.slice(2, 4)
+  let mm = rawMm
+  if (digits.length >= 4) {
+    const n = parseInt(rawMm, 10)
+    if (n > 12) mm = '12'
+    else if (n === 0) mm = '01'
+  }
+  if (digits.length === 3) return `${dd}/${rawMm}`
+  if (digits.length === 4) return `${dd}/${mm}`
+  return `${dd}/${mm}/${digits.slice(4)}`
+}
+
+// Convert YYYY-MM-DD (old type="date" sessionStorage) → DD/MM/YYYY
+function migrateDate(val: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
+    const [y, m, d] = val.split('-')
+    return `${d}/${m}/${y}`
+  }
+  return val
 }
 
 function isCompleteDate(v: string): boolean {
-  return /^\d{2}\/\d{2}\/\d{4}$/.test(v)
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(v)) return false
+  const [dd, mm] = v.split('/')
+  const d = parseInt(dd, 10)
+  const m = parseInt(mm, 10)
+  return d >= 1 && d <= 31 && m >= 1 && m <= 12
 }
 
 const EMPTY_INFO: InfoGeneralState = {
@@ -79,6 +109,10 @@ export function Step1Form() {
       if (!info.emailsDespachante?.length) info.emailsDespachante = ['']
       if (!info.despacho) info.despacho = ''
       if (!info.fechaPago) info.fechaPago = ''
+      // Migrate dates from old YYYY-MM-DD format
+      info.fechaOC = migrateDate(info.fechaOC)
+      info.llegadaEstimada = migrateDate(info.llegadaEstimada)
+      info.fechaPago = migrateDate(info.fechaPago)
       setInfo(info)
       setProductos(data.productos)
     } catch {
@@ -187,7 +221,7 @@ export function Step1Form() {
           <input
             type="text"
             value={info.despacho}
-            placeholder="Nombre del despachante / agencia"
+            placeholder="Ej: 12345678/00"
             onChange={(e) => setField('despacho', e.target.value)}
             className={inputClass}
           />
