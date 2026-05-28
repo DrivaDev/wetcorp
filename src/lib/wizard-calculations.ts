@@ -6,6 +6,7 @@ import type {
   GastosDespachante,
   GastosAdicionales,
   OtroGastoRow,
+  Impuestos,
 } from './wizard-types'
 
 export function calcTotalFila(row: ProductRow): Decimal {
@@ -52,8 +53,14 @@ export function calcSubtotalAdicionales(g: GastosAdicionales, tc: string): Decim
   const deposito = arsToUSD(g.depositoFiscal, tc)
   const digital = arsToUSD(g.digitalizacion, tc)
   const estancia = arsToUSD(g.estanciaCamion, tc)
-  const iibb = arsToUSD(g.iibb, tc)
-  return deposito.plus(digital).plus(estancia).plus(iibb)
+  return deposito.plus(digital).plus(estancia)
+}
+
+export function calcSubtotalImpuestos(imp: Impuestos, tc: string): Decimal {
+  return arsToUSD(imp.iva, tc)
+    .plus(arsToUSD(imp.ivaAd, tc))
+    .plus(arsToUSD(imp.iibb, tc))
+    .plus(arsToUSD(imp.iigg, tc))
 }
 
 export function calcSubtotalOtros(rows: OtroGastoRow[], tc: string): Decimal {

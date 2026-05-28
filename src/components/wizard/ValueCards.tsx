@@ -5,37 +5,47 @@ import { calcLandedCost, usdToARS, formatUSD, formatARS } from '@/lib/wizard-cal
 interface ValueCardsProps {
   fobUSD: Decimal
   totalGastosUSD: Decimal
+  totalImpuestosUSD: Decimal
   tipoCambio: string
 }
 
-export function ValueCards({ fobUSD, totalGastosUSD, tipoCambio }: ValueCardsProps) {
+function Card({
+  label,
+  usd,
+  tipoCambio,
+  highlight,
+}: {
+  label: string
+  usd: Decimal
+  tipoCambio: string
+  highlight?: boolean
+}) {
+  return (
+    <div
+      className={`rounded-xl border border-acento p-6 flex flex-col gap-2 ${
+        highlight ? 'bg-fondo' : 'bg-white'
+      }`}
+    >
+      <p className="text-sm font-bold text-titulares uppercase tracking-wide">{label}</p>
+      <p className="text-3xl font-bold text-titulares leading-none whitespace-nowrap">
+        {formatUSD(usd)}
+      </p>
+      <p className="text-sm font-normal text-titulares/60 whitespace-nowrap">
+        {formatARS(usdToARS(usd.toString(), tipoCambio))}
+      </p>
+    </div>
+  )
+}
+
+export function ValueCards({ fobUSD, totalGastosUSD, totalImpuestosUSD, tipoCambio }: ValueCardsProps) {
   const landedCostUSD = calcLandedCost(fobUSD, totalGastosUSD)
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div className="rounded-xl border border-acento bg-white p-6 flex flex-col gap-2">
-        <p className="text-sm font-bold text-titulares uppercase tracking-wide">Valor FOB</p>
-        <p className="text-3xl font-bold text-titulares leading-none">{formatUSD(fobUSD)}</p>
-        <p className="text-sm font-normal text-titulares/60">
-          {formatARS(usdToARS(fobUSD.toString(), tipoCambio))}
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-acento bg-white p-6 flex flex-col gap-2">
-        <p className="text-sm font-bold text-titulares uppercase tracking-wide">Gastos de Importación</p>
-        <p className="text-3xl font-bold text-titulares leading-none">{formatUSD(totalGastosUSD)}</p>
-        <p className="text-sm font-normal text-titulares/60">
-          {formatARS(usdToARS(totalGastosUSD.toString(), tipoCambio))}
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-acento bg-fondo p-6 flex flex-col gap-2">
-        <p className="text-sm font-bold text-titulares uppercase tracking-wide">Costo Landed Total</p>
-        <p className="text-3xl font-bold text-titulares leading-none">{formatUSD(landedCostUSD)}</p>
-        <p className="text-sm font-normal text-titulares/60">
-          {formatARS(usdToARS(landedCostUSD.toString(), tipoCambio))}
-        </p>
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <Card label="Valor FOB" usd={fobUSD} tipoCambio={tipoCambio} />
+      <Card label="Gastos de Importación" usd={totalGastosUSD} tipoCambio={tipoCambio} />
+      <Card label="Costo Landed Total" usd={landedCostUSD} tipoCambio={tipoCambio} highlight />
+      <Card label="Total Impuestos" usd={totalImpuestosUSD} tipoCambio={tipoCambio} />
     </div>
   )
 }

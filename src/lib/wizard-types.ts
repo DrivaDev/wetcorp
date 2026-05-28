@@ -42,7 +42,13 @@ export interface GastosAdicionales {
   depositoFiscal: string
   digitalizacion: string
   estanciaCamion: string
+}
+
+export interface Impuestos {
+  iva: string
+  ivaAd: string
   iibb: string
+  iigg: string
 }
 
 export interface OtroGastoRow {
