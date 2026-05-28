@@ -82,6 +82,12 @@ export function calcLandedCost(fobUSD: Decimal, gastosUSD: Decimal): Decimal {
   return fobUSD.plus(gastosUSD)
 }
 
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function isValidEmail(v: string): boolean {
+  return EMAIL_RE.test(v.trim())
+}
+
 export function isStep1Valid(
   info: InfoGeneralState,
   productos: ProductRow[]
@@ -89,8 +95,10 @@ export function isStep1Valid(
   const hasRequiredInfo =
     info.referenciaOC.trim() !== '' &&
     info.proveedor.trim() !== '' &&
-    info.emailProveedor.trim() !== '' &&
-    info.emailDespachante.trim() !== '' &&
+    info.emailsProveedor.length > 0 &&
+    info.emailsProveedor.every(isValidEmail) &&
+    info.emailsDespachante.length > 0 &&
+    info.emailsDespachante.every(isValidEmail) &&
     info.paisOrigen.trim() !== '' &&
     info.fechaOC !== '' &&
     new Decimal(info.tipoCambio || '0').greaterThan(0)

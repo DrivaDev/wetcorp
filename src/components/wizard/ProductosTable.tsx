@@ -136,11 +136,10 @@ export function ProductosTable({
                 FOB Total
               </td>
               <td className="px-3 py-3 text-right">
-                <span className="text-base font-bold text-titulares">
+                <span className="block text-base font-bold text-titulares whitespace-nowrap">
                   USD {fobTotal.toFixed(2)}
                 </span>
-                <br />
-                <span className="text-sm font-normal text-titulares/60">
+                <span className="block text-sm font-normal text-titulares/60 whitespace-nowrap">
                   $ {fobARS.toFixed(2)}
                 </span>
               </td>

@@ -57,6 +57,26 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
           <p className={readOnlyClass}>{info.proveedor || '—'}</p>
         </div>
         <div>
+          <p className="text-sm font-normal text-titulares mb-1">Despacho</p>
+          <p className={readOnlyClass}>{info.despacho || '—'}</p>
+        </div>
+        <div>
+          <p className="text-sm font-normal text-titulares mb-1">Mail proveedor</p>
+          <div className="flex flex-col gap-1">
+            {(info.emailsProveedor ?? []).map((e, i) => (
+              <p key={i} className={readOnlyClass}>{e || '—'}</p>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-normal text-titulares mb-1">Mail despachante</p>
+          <div className="flex flex-col gap-1">
+            {(info.emailsDespachante ?? []).map((e, i) => (
+              <p key={i} className={readOnlyClass}>{e || '—'}</p>
+            ))}
+          </div>
+        </div>
+        <div>
           <p className="text-sm font-normal text-titulares mb-1">País de origen</p>
           <p className={readOnlyClass}>{info.paisOrigen || '—'}</p>
         </div>
@@ -68,6 +88,12 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
           <p className="text-sm font-normal text-titulares mb-1">Llegada estimada</p>
           <p className={readOnlyClass}>{info.llegadaEstimada || '—'}</p>
         </div>
+        {info.fechaPago && (
+          <div>
+            <p className="text-sm font-normal text-titulares mb-1">Fecha estimada de pago</p>
+            <p className={readOnlyClass}>{info.fechaPago}</p>
+          </div>
+        )}
         <div>
           <p className="text-sm font-normal text-titulares mb-1">Tipo de cambio</p>
           <p className={readOnlyClass}>{info.tipoCambio ? `$ ${info.tipoCambio} (${info.divisa})` : '—'}</p>

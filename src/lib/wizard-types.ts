@@ -12,11 +12,13 @@ export interface InfoGeneralState {
   referenciaOC: string
   estado: EstadoOC
   proveedor: string
-  emailProveedor: string
-  emailDespachante: string
+  emailsProveedor: string[]
+  despacho: string
+  emailsDespachante: string[]
   paisOrigen: string
   fechaOC: string
   llegadaEstimada: string
+  fechaPago: string
   tipoCambio: string
   divisa: 'ARS/USD' | 'ARS/EUR'
   notas: string
