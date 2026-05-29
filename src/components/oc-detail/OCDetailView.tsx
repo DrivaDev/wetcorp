@@ -1,0 +1,147 @@
+import {
+  calcFOBTotal,
+  calcSubtotalDespacho,
+  calcSubtotalDespachante,
+  calcSubtotalAdicionales,
+  calcSubtotalOtros,
+  calcTotalGastos,
+  calcSubtotalImpuestos,
+} from '@/lib/wizard-calculations'
+import { ResumenStep1 } from '@/components/wizard/ResumenStep1'
+import { GastosCard } from '@/components/wizard/GastosCard'
+import { OtrosGastosSection } from '@/components/wizard/OtrosGastosSection'
+import { ValueCards } from '@/components/wizard/ValueCards'
+import { DocumentSlots } from '@/components/wizard/DocumentSlots'
+import type { GastoField } from '@/components/wizard/GastosCard'
+import type { Step1Data } from '@/lib/wizard-types'
+import type { OCDetalle } from '@/lib/mock-ocs'
+
+interface OCDetailViewProps {
+  oc: OCDetalle
+}
+
+const camposDespacho: GastoField[] = [
+  { key: 'sim', label: 'SIM (ARS)', divisa: 'ARS' },
+  { key: 'derechos', label: 'Derechos (ARS)', divisa: 'ARS' },
+  { key: 'otros', label: 'Otros (ARS)', divisa: 'ARS' },
+]
+
+const camposDespachante: GastoField[] = [
+  { key: 'terminal', label: 'Terminal (ARS)', divisa: 'ARS' },
+  { key: 'fleteInternacional', label: 'Flete internacional (USD)', divisa: 'USD' },
+  { key: 'fleteInterno', label: 'Flete interno (ARS)', divisa: 'ARS' },
+  { key: 'senasa', label: 'SENASA (ARS)', divisa: 'ARS' },
+  { key: 'despachante', label: 'Despachante (ARS)', divisa: 'ARS' },
+]
+
+const camposAdicionales: GastoField[] = [
+  { key: 'depositoFiscal', label: 'Depósito fiscal (ARS)', divisa: 'ARS' },
+  { key: 'digitalizacion', label: 'Digitalización (ARS)', divisa: 'ARS' },
+  { key: 'estanciaCamion', label: 'Estancia de camión (ARS)', divisa: 'ARS' },
+]
+
+const camposImpuestos: GastoField[] = [
+  { key: 'iva', label: 'IVA (ARS)', divisa: 'ARS' },
+  { key: 'ivaAd', label: 'IVA ad (ARS)', divisa: 'ARS' },
+  { key: 'iibb', label: 'IIBB (ARS)', divisa: 'ARS' },
+  { key: 'iigg', label: 'IIGG (ARS)', divisa: 'ARS' },
+]
+
+export function OCDetailView({ oc }: OCDetailViewProps) {
+  const step1Data: Step1Data = {
+    info: {
+      referenciaOC: oc.referenciaOC,
+      estado: oc.estado,
+      proveedor: oc.proveedor,
+      emailsProveedor: oc.emailsProveedor,
+      despacho: oc.despacho,
+      emailsDespachante: oc.emailsDespachante,
+      paisOrigen: oc.paisOrigen,
+      fechaOC: oc.fechaOC,
+      llegadaEstimada: oc.llegadaEstimada,
+      fechaPago: '',
+      tipoCambio: oc.tipoCambio,
+      divisa: oc.divisa,
+      notas: oc.notas,
+    },
+    productos: oc.productos,
+  }
+
+  const fobUSD = calcFOBTotal(oc.productos)
+  const subtotalDespacho = calcSubtotalDespacho(oc.gastosDespacho, oc.tipoCambio)
+  const subtotalDespachante = calcSubtotalDespachante(oc.gastosDespachante, oc.tipoCambio)
+  const subtotalAdicionales = calcSubtotalAdicionales(oc.gastosAdicionales, oc.tipoCambio)
+  const subtotalOtros = calcSubtotalOtros(oc.otrosGastos, oc.tipoCambio)
+  const totalGastosUSD = calcTotalGastos(
+    oc.gastosDespacho,
+    oc.gastosDespachante,
+    oc.gastosAdicionales,
+    oc.otrosGastos,
+    oc.tipoCambio
+  )
+  const totalImpuestosUSD = calcSubtotalImpuestos(oc.impuestos, oc.tipoCambio)
+
+  return (
+    <main className="px-4 sm:px-8 py-6 max-w-5xl mx-auto flex flex-col gap-6">
+      <ResumenStep1 step1Data={step1Data} />
+
+      <h2 className="text-base font-bold text-titulares">Gastos de importación</h2>
+
+      <GastosCard
+        titulo="Despacho"
+        campos={camposDespacho}
+        values={oc.gastosDespacho as unknown as Record<string, string>}
+        subtotalUSD={subtotalDespacho}
+        tipoCambio={oc.tipoCambio}
+        readOnly
+      />
+
+      <GastosCard
+        titulo="Despachante"
+        campos={camposDespachante}
+        values={oc.gastosDespachante as unknown as Record<string, string>}
+        subtotalUSD={subtotalDespachante}
+        tipoCambio={oc.tipoCambio}
+        readOnly
+      />
+
+      <GastosCard
+        titulo="Gastos adicionales"
+        campos={camposAdicionales}
+        values={oc.gastosAdicionales as unknown as Record<string, string>}
+        subtotalUSD={subtotalAdicionales}
+        tipoCambio={oc.tipoCambio}
+        readOnly
+      />
+
+      <OtrosGastosSection
+        rows={oc.otrosGastos}
+        subtotalUSD={subtotalOtros}
+        tipoCambio={oc.tipoCambio}
+        readOnly
+      />
+
+      <h2 className="text-base font-bold text-titulares">Impuestos</h2>
+
+      <GastosCard
+        titulo="Impuestos"
+        campos={camposImpuestos}
+        values={oc.impuestos as unknown as Record<string, string>}
+        subtotalUSD={totalImpuestosUSD}
+        tipoCambio={oc.tipoCambio}
+        readOnly
+      />
+
+      <DocumentSlots readOnly documentos={oc.documentos} />
+
+      <h2 className="text-base font-bold text-titulares">Valores Finales</h2>
+
+      <ValueCards
+        fobUSD={fobUSD}
+        totalGastosUSD={totalGastosUSD}
+        totalImpuestosUSD={totalImpuestosUSD}
+        tipoCambio={oc.tipoCambio}
+      />
+    </main>
+  )
+}
