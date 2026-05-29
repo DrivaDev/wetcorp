@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation & Auth** — Next.js scaffolding, Clerk auth con roles, route groups, sidebar/navbar/footer, identidad visual Driva Dev ✓ 2026-05-25
 - [x] **Phase 2: Dashboard UI** — Stats cards y lista de OCs filtrable con datos mock, vistas por rol ✓ 2026-05-26
 - [x] **Phase 3: OC Wizard UI** — Wizard 2 pasos completo con estado local: productos, gastos, cálculos decimal.js, slots de documentos, value cards ✓ 2026-05-27
-- [ ] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/error/loading pulidos
+- [x] **Phase 4: OC Views & Demo Polish** — Vista detalle de OC (todos los roles), modo edición, estados vacíos/error/loading pulidos ✓ 2026-05-28
 
 ### Backend Phases
 
@@ -125,11 +125,11 @@ Plans:
 
 Plans:
 **Wave 1**
-- [ ] 04-01-PLAN.md — Base compartida: expandir `mock-ocs.ts` con `OCDetalle` + `MOCK_OCS_DETALLE` (OC-003/OC-004 con datos ricos), prop `readOnly` opt-in en GastosCard/OtrosGastosSection/DocumentSlots, `EstadoBadge` Server Component, copy de EmptyState per UI-SPEC
+- [x] 04-01-PLAN.md — Base compartida: expandir `mock-ocs.ts` con `OCDetalle` + `MOCK_OCS_DETALLE` (OC-003/OC-004 con datos ricos), prop `readOnly` opt-in en GastosCard/OtrosGastosSection/DocumentSlots, `EstadoBadge` Server Component, copy de EmptyState per UI-SPEC ✓ 2026-05-28
 
 **Wave 2** *(blocked on 04-01 — paralelas entre sí)*
-- [ ] 04-02-PLAN.md — Detalle + edición del importador: OCDetailHeader/OCDetailActions/OCDetailView, `/importador/oc/[id]` (read-only completo + Editar/Eliminar), 404 custom, loading skeleton, `/importador/oc/[id]/editar` con EditWizardLoader (pre-carga sessionStorage)
-- [ ] 04-03-PLAN.md — Detalle + edición de proveedor y despachante: páginas análogas reutilizando OCDetailHeader/OCDetailView (sin botón Eliminar per D-08), 404 + loading + EditWizardLoader por route group con Navbar
+- [x] 04-02-PLAN.md — Detalle + edición del importador: OCDetailHeader/OCDetailActions/OCDetailView, `/importador/oc/[id]` (read-only completo + Editar/Eliminar), 404 custom, loading skeleton, `/importador/oc/[id]/editar` con EditWizardLoader (pre-carga sessionStorage) ✓ 2026-05-28
+- [x] 04-03-PLAN.md — Detalle + edición de proveedor y despachante: páginas análogas reutilizando OCDetailHeader/OCDetailView (sin botón Eliminar per D-08), 404 + loading + EditWizardLoader por route group con Navbar ✓ 2026-05-28
 
 ---
 

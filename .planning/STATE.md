@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Un importador puede crear una OC, ver el costo total de importación (FOB + gastos) y compartir el estado con su proveedor y despachante — todo desde una sola plataforma.
-**Current focus:** Phase 4 — OC Views & Demo Polish
+**Current focus:** Phase 5 — Backend Core
 
 ## Current Position
 
-Phase: 4 of 6 (OC Views & Demo Polish)
-Plan: 0 of 3 in current phase
-Status: Ready to execute — Phase 4 planned (3 plans, 2 waves)
-Last activity: 2026-05-28 — Phase 4 planned ✓ (04-01: base compartida + mock data; 04-02: detail+edit importador; 04-03: detail+edit proveedor/despachante)
+Phase: 5 of 6 (Backend Core)
+Plan: 0 of ? in current phase
+Status: Ready to plan — Phase 4 complete ✓ 2026-05-28
+Last activity: 2026-05-28 — Phase 4 executed ✓ (04-01: base compartida + mock data; 04-02: detail+edit importador; 04-03: detail+edit proveedor/despachante)
 
-Progress: [█████░░░░░] 53% (9/17 plans complete across all phases)
+Progress: [███████░░░] 71% (12/17 plans complete across all phases)
 
 ## Performance Metrics
 
