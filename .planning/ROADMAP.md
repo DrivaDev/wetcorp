@@ -113,7 +113,7 @@ Plans:
 **Goal**: El sistema es demo-ready: OC detail view completa, modo edición funcional, estados vacíos/error/loading pulidos
 **Depends on**: Phase 3
 **Requirements**: (no nuevos REQ-IDs — polish de todos los anteriores)
-**Note**: Esta fase refina la UX para que las demos al cliente sean convincentes. Crea las páginas que faltan (detail, edit) y pule estados edge case. Proveedor y despachante tienen vistas de edición per D-08 (decidido en Phase 2).
+**Note**: Esta fase refina la UX para que las demos al cliente sean convincentes. Crea las páginas que faltan (detail, edit) y pule estados edge case. Proveedor y despachante tienen vistas de edición per D-08 (decidido en Phase 2). La validación de formularios ya está cubierta por `isStep1Valid` del wizard (Phase 3); RESEARCH confirmó que no se introducen nuevas dependencias (sin react-hook-form/zod).
 **Success Criteria**:
   1. Existe página `/importador/oc/[id]` con vista completa read-only de la OC (info general, productos, gastos, documentos, valores)
   2. Existe página `/importador/oc/[id]/editar` con el wizard pre-poblado con datos de la OC mock
@@ -121,11 +121,15 @@ Plans:
   4. Despachante ve `/despachante/oc/[id]` análogo con vista read-only y botón Editar
   5. Todos los estados edge-case tienen UI: lista vacía, formulario con errores de validación, loading skeleton en cada página
 **UI hint**: yes
+**Plans:** 3 plans
 
 Plans:
-- [ ] 04-01: OC detail page (importador) — layout full con todas las secciones, botones Editar/Eliminar, breadcrumb
-- [ ] 04-02: OC detail pages (proveedor + despachante) — vistas read-only con botón Editar, branding Driva Dev, sin botón Eliminar
-- [ ] 04-03: Polish general — validación de formularios (react-hook-form + zod), error boundaries, 404 page, loading skeletons consistentes
+**Wave 1**
+- [ ] 04-01-PLAN.md — Base compartida: expandir `mock-ocs.ts` con `OCDetalle` + `MOCK_OCS_DETALLE` (OC-003/OC-004 con datos ricos), prop `readOnly` opt-in en GastosCard/OtrosGastosSection/DocumentSlots, `EstadoBadge` Server Component, copy de EmptyState per UI-SPEC
+
+**Wave 2** *(blocked on 04-01 — paralelas entre sí)*
+- [ ] 04-02-PLAN.md — Detalle + edición del importador: OCDetailHeader/OCDetailActions/OCDetailView, `/importador/oc/[id]` (read-only completo + Editar/Eliminar), 404 custom, loading skeleton, `/importador/oc/[id]/editar` con EditWizardLoader (pre-carga sessionStorage)
+- [ ] 04-03-PLAN.md — Detalle + edición de proveedor y despachante: páginas análogas reutilizando OCDetailHeader/OCDetailView (sin botón Eliminar per D-08), 404 + loading + EditWizardLoader por route group con Navbar
 
 ---
 
