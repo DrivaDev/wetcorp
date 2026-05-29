@@ -14,11 +14,15 @@ interface GastosCardProps {
   values: Record<string, string>
   subtotalUSD: Decimal
   tipoCambio: string
-  onChange: (key: string, value: string) => void
+  onChange?: (key: string, value: string) => void
+  readOnly?: boolean
 }
 
 const inputClass =
   'w-full px-4 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150'
+
+const readOnlyClass =
+  'text-base font-normal text-texto bg-fondo px-3 py-2 rounded-lg border border-acento/50'
 
 export function GastosCard({
   titulo,
@@ -27,6 +31,7 @@ export function GastosCard({
   subtotalUSD,
   tipoCambio,
   onChange,
+  readOnly,
 }: GastosCardProps) {
   const subtotalARS = usdToARS(subtotalUSD.toString(), tipoCambio)
 
@@ -40,15 +45,19 @@ export function GastosCard({
             <label className="block text-sm font-normal text-texto mb-1">
               {campo.label}
             </label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-              value={values[campo.key] ?? ''}
-              onChange={(e) => onChange(campo.key, e.target.value)}
-              className={inputClass}
-            />
+            {readOnly ? (
+              <p className={readOnlyClass}>{values[campo.key] || '—'}</p>
+            ) : (
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                value={values[campo.key] ?? ''}
+                onChange={(e) => onChange?.(campo.key, e.target.value)}
+                className={inputClass}
+              />
+            )}
           </div>
         ))}
       </div>

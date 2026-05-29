@@ -9,20 +9,42 @@ const FIXED_SLOTS = [
   'Certificado de Origen',
 ]
 
+const FIXED_SLOT_KEYS: Record<string, keyof NonNullable<DocumentSlotsProps['documentos']>> = {
+  'Factura proveedor':        'facturaProveedor',
+  'Factura despachante':      'facturaDespachante',
+  'Conocimiento de embarque': 'conocimientoEmbarque',
+  'Certificado de Origen':    'certificadoOrigen',
+}
+
 interface OtroSlot {
   id: string
   nombre: string
   fileName: string | null
 }
 
+interface DocumentSlotsProps {
+  readOnly?: boolean
+  documentos?: {
+    facturaProveedor: string | null
+    facturaDespachante: string | null
+    conocimientoEmbarque: string | null
+    certificadoOrigen: string | null
+    otro: string | null
+  }
+}
+
 function DocumentRow({
   nombre,
   onNameChange,
   onRemove,
+  readOnly,
+  fileNameProp,
 }: {
   nombre: string
   onNameChange?: (v: string) => void
   onRemove?: () => void
+  readOnly?: boolean
+  fileNameProp?: string | null
 }) {
   const [fileName, setFileName] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -30,6 +52,8 @@ function DocumentRow({
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(e.target.files?.[0]?.name ?? null)
   }
+
+  const displayFileName = readOnly ? (fileNameProp ?? 'Sin archivo adjunto') : (fileName ?? 'Sin archivo adjunto')
 
   return (
     <div className="flex items-center gap-3 px-4 py-3">
@@ -48,41 +72,45 @@ function DocumentRow({
       )}
 
       <span className="text-sm font-normal text-texto/50 hidden sm:block shrink-0 max-w-[180px] truncate">
-        {fileName ?? 'Sin archivo adjunto'}
+        {displayFileName}
       </span>
 
-      <input
-        ref={inputRef}
-        type="file"
-        accept=".pdf"
-        className="hidden"
-        onChange={handleFile}
-      />
+      {!readOnly && (
+        <>
+          <input
+            ref={inputRef}
+            type="file"
+            accept=".pdf"
+            className="hidden"
+            onChange={handleFile}
+          />
 
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
-      >
-        <Upload size={14} />
-        {fileName ? 'Cambiar' : 'Adjuntar'}
-      </button>
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
+          >
+            <Upload size={14} />
+            {fileName ? 'Cambiar' : 'Adjuntar'}
+          </button>
 
-      {onRemove && (
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label="Eliminar documento"
-          className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
-        >
-          <X size={14} />
-        </button>
+          {onRemove && (
+            <button
+              type="button"
+              onClick={onRemove}
+              aria-label="Eliminar documento"
+              className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </>
       )}
     </div>
   )
 }
 
-export function DocumentSlots() {
+export function DocumentSlots({ readOnly, documentos }: DocumentSlotsProps = {}) {
   const [otrosSlots, setOtrosSlots] = useState<OtroSlot[]>([])
 
   const addOtro = () =>
@@ -106,9 +134,14 @@ export function DocumentSlots() {
 
       <div className="rounded-xl border border-acento bg-white divide-y divide-acento/40 overflow-hidden">
         {FIXED_SLOTS.map((nombre) => (
-          <DocumentRow key={nombre} nombre={nombre} />
+          <DocumentRow
+            key={nombre}
+            nombre={nombre}
+            readOnly={readOnly}
+            fileNameProp={documentos ? documentos[FIXED_SLOT_KEYS[nombre]] : null}
+          />
         ))}
-        {otrosSlots.map((slot) => (
+        {!readOnly && otrosSlots.map((slot) => (
           <DocumentRow
             key={slot.id}
             nombre={slot.nombre}
@@ -118,14 +151,16 @@ export function DocumentSlots() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={addOtro}
-        className="flex items-center gap-2 text-sm font-normal text-principal hover:text-titulares transition-colors min-h-[44px] self-start"
-      >
-        <Plus size={16} />
-        Agregar otro documento
-      </button>
+      {!readOnly && (
+        <button
+          type="button"
+          onClick={addOtro}
+          className="flex items-center gap-2 text-sm font-normal text-principal hover:text-titulares transition-colors min-h-[44px] self-start"
+        >
+          <Plus size={16} />
+          Agregar otro documento
+        </button>
+      )}
     </div>
   )
 }
