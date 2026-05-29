@@ -11,8 +11,8 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 
 Phase: 4 of 6 (OC Views & Demo Polish)
 Plan: 0 of 3 in current phase
-Status: Phase 3 complete — ready to start Phase 4
-Last activity: 2026-05-27 — Plan 03-03 complete ✓ (ValueCards, DocumentSlots, WizardPage root, Step2Form integrado — wizard end-to-end completo)
+Status: Ready to execute — Phase 4 planned (3 plans, 2 waves)
+Last activity: 2026-05-28 — Phase 4 planned ✓ (04-01: base compartida + mock data; 04-02: detail+edit importador; 04-03: detail+edit proveedor/despachante)
 
 Progress: [█████░░░░░] 53% (9/17 plans complete across all phases)
 
