@@ -45,7 +45,7 @@ export function Sidebar() {
       {/* Header */}
       {isMobileOverlay || !collapsed ? (
         <div className="flex items-center justify-between px-4 min-h-[64px] border-b border-white/10">
-          <Image src="/isotipo.svg" alt="DrivaOC" width={36} height={36} priority />
+          <Image src="/logo-horizontal.svg" alt="DrivaOC" width={140} height={40} priority className="object-contain" />
           <button
             onClick={isMobileOverlay ? () => setMobileOpen(false) : toggleCollapsed}
             className="text-white/60 hover:text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors duration-150"
@@ -136,7 +136,7 @@ export function Sidebar() {
     <>
       {/* Mobile top navbar */}
       <div className="sticky top-0 z-10 flex sm:hidden items-center justify-between px-4 py-3 bg-[#1C1917] border-b border-white/10">
-        <Image src="/isotipo.svg" alt="DrivaOC" width={32} height={32} />
+        <Image src="/logo-horizontal.svg" alt="DrivaOC" width={120} height={34} className="object-contain" />
         <div className="flex items-center gap-1">
           <SignOutButton>
             <button
