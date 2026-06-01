@@ -41,7 +41,7 @@ Comandos clave:
 
 ## Brand Identity
 
-- Colores: `#EA580C` (principal), `#9A3412` (titulares), `#FED7AA` (acento), `#FFF7ED` (fondo), `#1C1917` (texto)
+- Colores: `#0061a6` (principal/azul), `#004a80` (titulares), `#62b446` (acento/verde), `#f0f7ff` (fondo), `#1C1917` (texto)
 - Fuente: Fira Sans (Google Fonts) — 700 H1/H2, 500 H3/nav, 400 body, 300 captions
 - Footer: "Desarrollado por Driva Dev" + link a `drivadev.com.ar`
 - Logos en: `public/logo.svg` (vertical), `public/logo-horizontal.svg`, `public/isotipo.svg`
