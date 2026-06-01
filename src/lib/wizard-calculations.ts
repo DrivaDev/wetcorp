@@ -122,10 +122,13 @@ export function isStep1Valid(
   return hasRequiredInfo && hasValidProducts
 }
 
+const fmtUSD = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmtARS = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
 export function formatUSD(d: Decimal): string {
-  return `USD ${d.toFixed(2)}`
+  return `USD ${fmtUSD.format(d.toNumber())}`
 }
 
 export function formatARS(d: Decimal): string {
-  return `$ ${d.toFixed(2)}`
+  return `$ ${fmtARS.format(d.toNumber())}`
 }
