@@ -52,7 +52,7 @@ export default function OnboardingPage() {
   return (
     <div className="w-full max-w-2xl px-4">
       <div className="text-center mb-8">
-        <Image src="/isotipo.svg" alt="DrivaOC" width={48} height={48} className="mx-auto mb-4" />
+        <Image src="/logo-horizontal.svg" alt="DrivaOC" width={180} height={52} className="mx-auto mb-4 object-contain" />
         <h1 className="text-2xl font-bold text-titulares">Selecciona tu rol</h1>
         <p className="text-base text-texto/70 mt-2">¿Cómo vas a usar DrivaOC?</p>
       </div>

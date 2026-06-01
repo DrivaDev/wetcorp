@@ -8,7 +8,6 @@ import {
   LayoutDashboard,
   PlusCircle,
   ChevronLeft,
-  ChevronRight,
   Menu,
   X,
   LogOut,
@@ -45,7 +44,7 @@ export function Sidebar() {
       {/* Header */}
       {isMobileOverlay || !collapsed ? (
         <div className="flex items-center justify-between px-4 min-h-[64px] border-b border-white/10">
-          <Image src="/isotipo.svg" alt="DrivaOC" width={36} height={36} priority />
+          <Image src="/logo-horizontal.svg" alt="DrivaOC" width={130} height={36} priority className="object-contain" />
           <button
             onClick={isMobileOverlay ? () => setMobileOpen(false) : toggleCollapsed}
             className="text-white/60 hover:text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors duration-150"
@@ -58,10 +57,10 @@ export function Sidebar() {
         <div className="flex items-center justify-center min-h-[64px] border-b border-white/10">
           <button
             onClick={toggleCollapsed}
-            className="text-white/60 hover:text-white p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors duration-150"
+            className="p-1 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors duration-150"
             aria-label="Expandir sidebar"
           >
-            <ChevronRight size={18} />
+            <Image src="/isotipo.svg" alt="DrivaOC" width={32} height={32} />
           </button>
         </div>
       )}
@@ -135,7 +134,7 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile top navbar */}
-      <div className="sticky top-0 z-10 flex sm:hidden items-center justify-between px-4 py-3 bg-[#1C1917] border-b border-white/10">
+      <div className="sticky top-0 z-10 flex sm:hidden items-center justify-between px-4 py-3 bg-[#002344] border-b border-white/10">
         <Image src="/isotipo.svg" alt="DrivaOC" width={32} height={32} />
         <div className="flex items-center gap-1">
           <SignOutButton>
@@ -168,7 +167,7 @@ export function Sidebar() {
       {/* Mobile slide-in panel */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-[#1C1917] border-r border-white/10 sm:hidden',
+          'fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-[#002344] border-r border-white/10 sm:hidden',
           'transition-transform duration-200',
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         )}
@@ -179,7 +178,7 @@ export function Sidebar() {
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          'hidden sm:flex flex-col h-full flex-shrink-0 bg-[#1C1917] border-r border-white/10 transition-all duration-200',
+          'hidden sm:flex flex-col h-full flex-shrink-0 bg-[#002344] border-r border-white/10 transition-all duration-200',
           collapsed ? 'w-16' : 'w-64'
         )}
       >
