@@ -86,7 +86,7 @@ export function Sidebar() {
                 'flex items-center gap-3 px-3 py-2 rounded-lg min-h-[44px] transition-colors duration-150',
                 collapsed && !isMobileOverlay ? 'justify-center' : '',
                 isActive
-                  ? 'border-l-2 border-[#EA580C] text-[#EA580C] bg-[#EA580C]/10'
+                  ? 'border-l-2 border-principal text-principal bg-principal/10'
                   : 'text-white/70 hover:text-white hover:bg-white/10'
               )}
             >
@@ -101,7 +101,7 @@ export function Sidebar() {
           onClick={() => setMobileOpen(false)}
           className={cn(
             'flex items-center gap-3 px-3 py-2 rounded-lg min-h-[44px] transition-colors duration-150',
-            'bg-[#EA580C] text-white hover:bg-[#9A3412]',
+            'bg-principal text-white hover:bg-titulares',
             collapsed && !isMobileOverlay ? 'justify-center' : ''
           )}
         >
