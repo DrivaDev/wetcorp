@@ -167,13 +167,15 @@ export const MOCK_OCS: OC[] = [
   },
 ]
 
-const emptyGastosDespacho: GastosDespacho = { sim: '', derechos: '', otros: '' }
+const emptyGastosDespacho: GastosDespacho = { sim: '', derechos: '', otros: '', tasaEstadistica: '' }
 const emptyGastosDespachante: GastosDespachante = {
   terminal: '',
   fleteInternacional: '',
   fleteInterno: '',
   senasa: '',
   despachante: '',
+  gastosOperativos: '',
+  gastosBancarios: '',
 }
 const emptyGastosAdicionales: GastosAdicionales = {
   depositoFiscal: '',
@@ -272,13 +274,15 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
       { id: 'p2', producto: 'Cables y conectores', descripcion: 'Cables de comunicación RS-485', cantidad: '500', valorUSD: '4.80' },
       { id: 'p3', producto: 'Sensores de temperatura', descripcion: 'Sensores PT100 industriales', cantidad: '200', valorUSD: '12.25' },
     ],
-    gastosDespacho: { sim: '85000', derechos: '320000', otros: '40000' },
+    gastosDespacho: { sim: '85000', derechos: '320000', otros: '40000', tasaEstadistica: '' },
     gastosDespachante: {
       terminal: '150000',
       fleteInternacional: '3200',
       fleteInterno: '90000',
       senasa: '25000',
       despachante: '180000',
+      gastosOperativos: '',
+      gastosBancarios: '',
     },
     gastosAdicionales: { depositoFiscal: '60000', digitalizacion: '15000', estanciaCamion: '45000' },
     impuestos: { iva: '1100000', ivaAd: '420000', iibb: '210000', iigg: '95000' },
@@ -318,13 +322,15 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
       { id: 'p1', producto: 'Maquinaria agrícola', descripcion: 'Bombas hidráulicas de precisión', cantidad: '15', valorUSD: '380.00' },
       { id: 'p2', producto: 'Repuestos maquinaria', descripcion: 'Filtros y sellos de repuesto', cantidad: '300', valorUSD: '8.90' },
     ],
-    gastosDespacho: { sim: '85000', derechos: '320000', otros: '40000' },
+    gastosDespacho: { sim: '85000', derechos: '320000', otros: '40000', tasaEstadistica: '' },
     gastosDespachante: {
       terminal: '150000',
       fleteInternacional: '3200',
       fleteInterno: '90000',
       senasa: '25000',
       despachante: '180000',
+      gastosOperativos: '',
+      gastosBancarios: '',
     },
     gastosAdicionales: { depositoFiscal: '60000', digitalizacion: '15000', estanciaCamion: '45000' },
     impuestos: { iva: '1100000', ivaAd: '420000', iibb: '210000', iigg: '95000' },
