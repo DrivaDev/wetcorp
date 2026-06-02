@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-05-24)
 
 **Core value:** Un importador puede crear una OC, ver el costo total de importación (FOB + gastos) y compartir el estado con su proveedor y despachante — todo desde una sola plataforma.
-**Current focus:** Phase 5 — Backend Core
+**Current focus:** Phase 6 — Files & Integrations
 
 ## Current Position
 
-Phase: 5 of 6 (Backend Core)
+Phase: 6 of 7 (Files & Integrations)
 Plan: 0 of 3 in current phase
-Status: Ready to execute — Phase 5 planned ✓ 2026-06-02
-Last activity: 2026-06-02 — Phase 5 planned ✓ (05-01: MongoDB + modelos + webhook; 05-02: Server Actions CRUD + dashboards; 05-03: wizard wiring real)
+Status: Ready to execute — Phase 6 planned ✓ 2026-06-02
+Last activity: 2026-06-02 — Phase 6 planned ✓ (06-01: Cloudinary signed upload + packingList gap; 06-02: Resend + React Email; 06-03: PDF export + Google Sheets)
 
 Progress: [███████░░░] 71% (12/17 plans complete across all phases)
 
