@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 ## Current Position
 
 Phase: 5 of 6 (Backend Core)
-Plan: 0 of ? in current phase
-Status: Ready to plan — Phase 4 complete ✓ 2026-05-28
-Last activity: 2026-05-28 — Phase 4 executed ✓ (04-01: base compartida + mock data; 04-02: detail+edit importador; 04-03: detail+edit proveedor/despachante)
+Plan: 0 of 3 in current phase
+Status: Ready to execute — Phase 5 planned ✓ 2026-06-02
+Last activity: 2026-06-02 — Phase 5 planned ✓ (05-01: MongoDB + modelos + webhook; 05-02: Server Actions CRUD + dashboards; 05-03: wizard wiring real)
 
 Progress: [███████░░░] 71% (12/17 plans complete across all phases)
 

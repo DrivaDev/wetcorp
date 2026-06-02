@@ -145,9 +145,20 @@ Plans:
   5. Eliminar OC borra el documento de MongoDB; filtros usan queries de MongoDB
 
 Plans:
-- [ ] 05-01: MongoDB setup — singleton `lib/mongodb.ts` (maxPoolSize 5), modelos Mongoose (User, OC con embedded products/expenses/docs), Clerk webhook `/api/webhooks/clerk`
-- [ ] 05-02: Server Actions CRUD — createOC, updateOC, deleteOC, getOCs (scoped por rol), getOCById; replace mock data en dashboard y detail pages
-- [ ] 05-03: Wizard wiring real — Step 1 crea borrador en DB, Step 2 updates y activa, stat cards calculadas desde MongoDB
+**Wave 1**
+- [ ] 05-01-PLAN.md — Foundation: singleton `lib/mongodb.ts` (maxPoolSize 5, bufferCommands false), modelos Mongoose OC + User, Clerk webhook `/api/webhooks/clerk` con `verifyWebhook`
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 05-02-PLAN.md — Server Actions CRUD: `createOC`, `updateOC`, `deleteOC`, `getOCs` (scoped por rol con aggregation), `getOCById`; 3 dashboards → Server Components con DashboardClient
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 05-03-PLAN.md — Wizard wiring real: Step1Form → createOC → redirect con ID real, Step2Form → updateOC, EditWizardLoaders fetchean de DB, eliminar sessionStorage
+
+**Cross-cutting constraints:**
+- `export const runtime = 'nodejs'` en todas las routes/actions que importen Mongoose
+- Valores monetarios guardados en centavos (integer); `serializeOC` convierte de vuelta a strings para el wizard
+- Emails de proveedor/despachante normalizados a lowercase antes de guardar
+- IDOR guard en todas las Server Actions: verificar `importadorId === userId` antes de cualquier mutación
 
 ---
 
