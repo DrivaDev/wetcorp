@@ -8,7 +8,6 @@ const isProveedor    = createRouteMatcher(['/proveedor(.*)'])
 const isDespachante  = createRouteMatcher(['/despachante(.*)'])
 
 export default clerkMiddleware(async (auth, req) => {
-  if (process.env.NODE_ENV === 'development' && process.env.SKIP_AUTH_DEV === 'true') return NextResponse.next()
   const { isAuthenticated, sessionClaims, redirectToSignIn } = await auth()
   const role = sessionClaims?.metadata?.role
 
