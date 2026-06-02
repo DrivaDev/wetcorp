@@ -1,5 +1,4 @@
 'use server'
-export const runtime = 'nodejs'
 
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { connectDB } from '@/lib/mongodb'
