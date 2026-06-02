@@ -124,6 +124,11 @@ export function isStep1Valid(
 
 const fmtUSD = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const fmtARS = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const fmtNum = new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+export function formatNum(d: Decimal): string {
+  return fmtNum.format(d.toNumber())
+}
 
 export function formatUSD(d: Decimal): string {
   return `USD ${fmtUSD.format(d.toNumber())}`

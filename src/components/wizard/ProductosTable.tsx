@@ -3,7 +3,7 @@
 import { Trash2, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ProductRow } from '@/lib/wizard-types'
-import { calcTotalFila, calcFOBTotal, usdToARS } from '@/lib/wizard-calculations'
+import { calcTotalFila, calcFOBTotal, usdToARS, formatNum, formatUSD, formatARS } from '@/lib/wizard-calculations'
 
 interface ProductosTableProps {
   productos: ProductRow[]
@@ -102,7 +102,7 @@ export function ProductosTable({
                   />
                 </td>
                 <td className="px-3 py-2 bg-fondo font-bold text-titulares text-right text-base">
-                  {calcTotalFila(row).toFixed(2)}
+                  {formatNum(calcTotalFila(row))}
                 </td>
                 <td className="px-3 py-2 text-center">
                   <button
@@ -137,10 +137,10 @@ export function ProductosTable({
               </td>
               <td className="px-3 py-3 text-right">
                 <span className="block text-base font-bold text-titulares whitespace-nowrap">
-                  USD {fobTotal.toFixed(2)}
+                  {formatUSD(fobTotal)}
                 </span>
                 <span className="block text-sm font-normal text-titulares/60 whitespace-nowrap">
-                  $ {fobARS.toFixed(2)}
+                  {formatARS(fobARS)}
                 </span>
               </td>
               <td />

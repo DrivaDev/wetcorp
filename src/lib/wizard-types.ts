@@ -14,6 +14,7 @@ export interface InfoGeneralState {
   proveedor: string
   emailsProveedor: string[]
   despacho: string
+  fechaDespacho: string
   emailsDespachante: string[]
   paisOrigen: string
   fechaOC: string

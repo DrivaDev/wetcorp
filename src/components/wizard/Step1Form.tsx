@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { InfoGeneralState, ProductRow, Step1Data } from '@/lib/wizard-types'
+import { PAISES } from '@/lib/paises'
 import { isStep1Valid } from '@/lib/wizard-calculations'
 import { ProductosTable } from './ProductosTable'
 
@@ -71,6 +72,7 @@ const EMPTY_INFO: InfoGeneralState = {
   proveedor: '',
   emailsProveedor: [''],
   despacho: '',
+  fechaDespacho: '',
   emailsDespachante: [''],
   paisOrigen: '',
   fechaOC: '',
@@ -108,6 +110,7 @@ export function Step1Form() {
       if (!info.emailsProveedor?.length) info.emailsProveedor = ['']
       if (!info.emailsDespachante?.length) info.emailsDespachante = ['']
       if (!info.despacho) info.despacho = ''
+      if (!info.fechaDespacho) info.fechaDespacho = ''
       if (!info.fechaPago) info.fechaPago = ''
       // Migrate dates from old YYYY-MM-DD format
       info.fechaOC = migrateDate(info.fechaOC)
@@ -227,6 +230,19 @@ export function Step1Form() {
           />
         </div>
 
+        {/* Fecha de despacho */}
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-normal text-texto">Fecha de despacho</label>
+          <input
+            type="text"
+            value={info.fechaDespacho}
+            placeholder="DD/MM/AAAA"
+            maxLength={10}
+            onChange={(e) => setField('fechaDespacho', formatDateInput(e.target.value))}
+            className={inputClass}
+          />
+        </div>
+
         {/* Mails proveedor */}
         <div className="flex flex-col gap-1 sm:col-span-2">
           <label className="text-sm font-normal text-texto">Mail proveedor *</label>
@@ -336,11 +352,17 @@ export function Step1Form() {
           <label className="text-sm font-normal text-texto">País de origen *</label>
           <input
             type="text"
+            list="paises-list"
             value={info.paisOrigen}
-            placeholder="Ej: China"
+            placeholder="Escribí para buscar..."
             onChange={(e) => setField('paisOrigen', e.target.value)}
             className={fieldError(info.paisOrigen) ? inputErrorClass : inputClass}
           />
+          <datalist id="paises-list">
+            {PAISES.map((p) => (
+              <option key={p} value={p} />
+            ))}
+          </datalist>
           {fieldError(info.paisOrigen) && (
             <p className="mt-1 text-xs text-red-600">Este campo es obligatorio</p>
           )}

@@ -31,6 +31,7 @@ export function EditWizardLoader({ ocId, rol }: EditWizardLoaderProps) {
         fechaOC: oc.fechaOC,
         llegadaEstimada: oc.llegadaEstimada,
         fechaPago: '',
+          fechaDespacho: '',
         tipoCambio: oc.tipoCambio,
         divisa: oc.divisa,
         notas: oc.notas,
