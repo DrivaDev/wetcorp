@@ -7,7 +7,9 @@ declare global {
   }
 }
 
-const MONGODB_URI = process.env.MONGODB_URI!
+const _uri = process.env.MONGODB_URI
+if (!_uri) throw new Error('MONGODB_URI environment variable is not set')
+const MONGODB_URI: string = _uri
 
 if (!global.mongooseCache) {
   global.mongooseCache = { conn: null, promise: null }
@@ -21,6 +23,11 @@ export async function connectDB() {
       bufferCommands: false,
     })
   }
-  global.mongooseCache.conn = await global.mongooseCache.promise
+  try {
+    global.mongooseCache.conn = await global.mongooseCache.promise
+  } catch (err) {
+    global.mongooseCache.promise = null
+    throw err
+  }
   return global.mongooseCache.conn
 }
