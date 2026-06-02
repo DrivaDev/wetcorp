@@ -13,13 +13,25 @@ export async function POST(req: NextRequest) {
       const { id, email_addresses, public_metadata } = evt.data
       const email = email_addresses[0]?.email_address ?? ''
       const rol = (public_metadata as { role?: string }).role ?? 'importador'
-
       await connectDB()
-      await User.create({
-        clerkId: id,
-        email: email.toLowerCase(),
-        rol,
-      })
+      await User.findOneAndUpdate(
+        { clerkId: id },
+        { clerkId: id, email: email.toLowerCase(), rol },
+        { upsert: true, new: true }
+      )
+    }
+
+    if (evt.type === 'user.updated') {
+      const { id, email_addresses, public_metadata } = evt.data
+      const email = email_addresses[0]?.email_address ?? ''
+      const rol = (public_metadata as { role?: string }).role
+      if (rol) {
+        await connectDB()
+        await User.findOneAndUpdate(
+          { clerkId: id },
+          { email: email.toLowerCase(), rol }
+        )
+      }
     }
 
     return new Response('OK', { status: 200 })
