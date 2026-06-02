@@ -101,7 +101,7 @@ export function ProductosTable({
                     className="h-9 border-0 bg-transparent focus:bg-white focus:ring-1 focus:ring-principal rounded px-2 w-full text-base text-texto placeholder:text-texto/40 focus:outline-none"
                   />
                 </td>
-                <td className="px-3 py-2 bg-fondo font-bold text-titulares text-right text-base">
+                <td className="px-3 py-2 font-bold text-titulares text-right text-base">
                   {formatNum(calcTotalFila(row))}
                 </td>
                 <td className="px-3 py-2 text-center">
