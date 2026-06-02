@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
-import { Decimal } from 'decimal.js'
 import {
   calcSubtotalDespacho,
   calcSubtotalDespachante,
@@ -178,9 +177,6 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
       router.push('/importador/dashboard')
     }, 2000)
   }
-
-  // Suppress unused import warning — Decimal is used by calc functions indirectly
-  void Decimal
 
   return (
     <>
