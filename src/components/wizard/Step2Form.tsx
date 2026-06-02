@@ -31,9 +31,10 @@ import { ValueCards } from './ValueCards'
 import { DocumentSlots } from './DocumentSlots'
 
 const camposDespacho: GastoField[] = [
-  { key: 'sim', label: 'SIM (ARS)', divisa: 'ARS' },
-  { key: 'derechos', label: 'Derechos (ARS)', divisa: 'ARS' },
-  { key: 'otros', label: 'Otros (ARS)', divisa: 'ARS' },
+  { key: 'sim', label: 'SIM (USD)', divisa: 'USD' },
+  { key: 'derechos', label: 'Derechos (USD)', divisa: 'USD' },
+  { key: 'tasaEstadistica', label: 'Tasa de estadística (USD)', divisa: 'USD' },
+  { key: 'otros', label: 'Otros (USD)', divisa: 'USD' },
 ]
 
 const camposDespachante: GastoField[] = [
@@ -42,6 +43,8 @@ const camposDespachante: GastoField[] = [
   { key: 'fleteInterno', label: 'Flete interno (ARS)', divisa: 'ARS' },
   { key: 'senasa', label: 'SENASA (ARS)', divisa: 'ARS' },
   { key: 'despachante', label: 'Despachante (ARS)', divisa: 'ARS' },
+  { key: 'gastosOperativos', label: 'Gastos operativos (ARS)', divisa: 'ARS' },
+  { key: 'gastosBancarios', label: 'Gastos bancarios (ARS)', divisa: 'ARS' },
 ]
 
 const camposAdicionales: GastoField[] = [
@@ -62,10 +65,11 @@ export function Step2Form() {
 
   const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
   const [gastosDespacho, setGastosDespacho] = useState<GastosDespacho>({
-    sim: '', derechos: '', otros: '',
+    sim: '', derechos: '', otros: '', tasaEstadistica: '',
   })
   const [gastosDespachante, setGastosDespachante] = useState<GastosDespachante>({
     terminal: '', fleteInternacional: '', fleteInterno: '', senasa: '', despachante: '',
+    gastosOperativos: '', gastosBancarios: '',
   })
   const [gastosAdicionales, setGastosAdicionales] = useState<GastosAdicionales>({
     depositoFiscal: '', digitalizacion: '', estanciaCamion: '',
@@ -74,6 +78,7 @@ export function Step2Form() {
   const [impuestos, setImpuestos] = useState<Impuestos>({
     iva: '', ivaAd: '', iibb: '', iigg: '',
   })
+  const [otrosImpuestos, setOtrosImpuestos] = useState<OtroGastoRow[]>([])
   const [toastVisible, setToastVisible] = useState(false)
 
   useEffect(() => {
@@ -100,6 +105,7 @@ export function Step2Form() {
 
   // Impuestos (no cuentan para costo de despacho)
   const totalImpuestosUSD = calcSubtotalImpuestos(impuestos, tipoCambio)
+    .plus(calcSubtotalOtros(otrosImpuestos, tipoCambio))
 
   const updateDespacho    = (key: string, val: string) => setGastosDespacho(prev => ({ ...prev, [key]: val }))
   const updateDespachante = (key: string, val: string) => setGastosDespachante(prev => ({ ...prev, [key]: val }))
@@ -110,6 +116,11 @@ export function Step2Form() {
   const removeOtroGasto = (id: string) => setOtrosGastos(prev => prev.filter(r => r.id !== id))
   const updateOtroGasto = (id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) =>
     setOtrosGastos(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
+
+  const addOtroImpuesto    = () => setOtrosImpuestos(prev => [...prev, { id: crypto.randomUUID(), descripcion: '', monto: '', divisa: 'ARS' }])
+  const removeOtroImpuesto = (id: string) => setOtrosImpuestos(prev => prev.filter(r => r.id !== id))
+  const updateOtroImpuesto = (id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) =>
+    setOtrosImpuestos(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
 
   const handleVolver  = () => router.push('/importador/oc/nueva?step=1')
   const handleGuardar = () => {
@@ -204,9 +215,20 @@ export function Step2Form() {
             titulo="Impuestos"
             campos={camposImpuestos}
             values={impuestos as unknown as Record<string, string>}
-            subtotalUSD={totalImpuestosUSD}
+            subtotalUSD={calcSubtotalImpuestos(impuestos, tipoCambio)}
             tipoCambio={tipoCambio}
             onChange={updateImpuestos}
+          />
+
+          <OtrosGastosSection
+            titulo="Otros impuestos"
+            addLabel="Agregar impuesto"
+            rows={otrosImpuestos}
+            subtotalUSD={calcSubtotalOtros(otrosImpuestos, tipoCambio)}
+            tipoCambio={tipoCambio}
+            onAdd={addOtroImpuesto}
+            onRemove={removeOtroImpuesto}
+            onChange={updateOtroImpuesto}
           />
         </div>
 

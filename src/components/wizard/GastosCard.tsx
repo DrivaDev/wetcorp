@@ -1,6 +1,6 @@
 'use client'
 import { Decimal } from 'decimal.js'
-import { usdToARS, formatARS } from '@/lib/wizard-calculations'
+import { usdToARS, formatARS, formatUSD } from '@/lib/wizard-calculations'
 
 export interface GastoField {
   key: string
@@ -65,7 +65,7 @@ export function GastosCard({
       <div className="mt-4 pt-4 border-t border-acento/50 flex justify-between items-center">
         <span className="text-sm font-normal text-titulares">Subtotal</span>
         <div className="text-right">
-          <p className="text-base font-bold text-titulares">USD {subtotalUSD.toFixed(2)}</p>
+          <p className="text-base font-bold text-titulares">{formatUSD(subtotalUSD)}</p>
           <p className="text-sm font-normal text-titulares/60">{formatARS(subtotalARS)}</p>
         </div>
       </div>

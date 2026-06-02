@@ -44,7 +44,7 @@ export function ValueCards({ fobUSD, totalGastosUSD, totalImpuestosUSD, tipoCamb
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
       <Card label="Valor FOB" usd={fobUSD} tipoCambio={tipoCambio} />
       <Card label="Gastos importación" usd={totalGastosUSD} tipoCambio={tipoCambio} />
-      <Card label="Costo Landed Total" usd={landedCostUSD} tipoCambio={tipoCambio} highlight />
+      <Card label="Costo nacionalización" usd={landedCostUSD} tipoCambio={tipoCambio} highlight />
       <Card label="Total Impuestos" usd={totalImpuestosUSD} tipoCambio={tipoCambio} />
     </div>
   )

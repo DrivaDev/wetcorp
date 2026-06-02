@@ -33,11 +33,12 @@ export function usdToARS(montoUSD: string, tipoCambio: string): Decimal {
   return new Decimal(montoUSD || '0').times(new Decimal(tipoCambio || '0'))
 }
 
-export function calcSubtotalDespacho(g: GastosDespacho, tc: string): Decimal {
-  const sim = arsToUSD(g.sim, tc)
-  const derechos = arsToUSD(g.derechos, tc)
-  const otros = arsToUSD(g.otros, tc)
-  return sim.plus(derechos).plus(otros)
+export function calcSubtotalDespacho(g: GastosDespacho, _tc: string): Decimal {
+  // All Despacho fields are in USD — no conversion needed
+  return new Decimal(g.sim || '0')
+    .plus(new Decimal(g.derechos || '0'))
+    .plus(new Decimal(g.otros || '0'))
+    .plus(new Decimal(g.tasaEstadistica || '0'))
 }
 
 export function calcSubtotalDespachante(g: GastosDespachante, tc: string): Decimal {
@@ -46,7 +47,10 @@ export function calcSubtotalDespachante(g: GastosDespachante, tc: string): Decim
   const fleteIntARS = arsToUSD(g.fleteInterno, tc)
   const senasa = arsToUSD(g.senasa, tc)
   const despachante = arsToUSD(g.despachante, tc)
+  const gastosOperativos = arsToUSD(g.gastosOperativos ?? '', tc)
+  const gastosBancarios = arsToUSD(g.gastosBancarios ?? '', tc)
   return fleteUSD.plus(terminal).plus(fleteIntARS).plus(senasa).plus(despachante)
+    .plus(gastosOperativos).plus(gastosBancarios)
 }
 
 export function calcSubtotalAdicionales(g: GastosAdicionales, tc: string): Decimal {

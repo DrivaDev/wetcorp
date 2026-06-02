@@ -1,7 +1,7 @@
 'use client'
 import { Decimal } from 'decimal.js'
 import { Plus, Trash2 } from 'lucide-react'
-import { usdToARS, formatARS } from '@/lib/wizard-calculations'
+import { usdToARS, formatARS, formatUSD } from '@/lib/wizard-calculations'
 import type { OtroGastoRow } from '@/lib/wizard-types'
 
 interface OtrosGastosSectionProps {
@@ -12,6 +12,8 @@ interface OtrosGastosSectionProps {
   onRemove?: (id: string) => void
   onChange?: (id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) => void
   readOnly?: boolean
+  titulo?: string
+  addLabel?: string
 }
 
 const readOnlyClass =
@@ -25,12 +27,14 @@ export function OtrosGastosSection({
   onRemove,
   onChange,
   readOnly,
+  titulo = 'Otros gastos',
+  addLabel = 'Agregar gasto',
 }: OtrosGastosSectionProps) {
   const subtotalARS = usdToARS(subtotalUSD.toString(), tipoCambio)
 
   return (
     <div className="rounded-xl border border-acento bg-white p-6 flex flex-col gap-4">
-      <h2 className="text-base font-bold text-titulares">Otros gastos</h2>
+      <h2 className="text-base font-bold text-titulares">{titulo}</h2>
 
       <div className="flex flex-col gap-3">
         {rows.map((row) => (
@@ -87,14 +91,14 @@ export function OtrosGastosSection({
           className="flex items-center gap-2 text-sm font-normal text-principal hover:text-titulares transition-colors min-h-[44px]"
         >
           <Plus size={16} />
-          Agregar gasto
+          {addLabel}
         </button>
       )}
 
       <div className="mt-4 pt-4 border-t border-acento/50 flex justify-between items-center">
         <span className="text-sm font-normal text-titulares">Subtotal</span>
         <div className="text-right">
-          <p className="text-base font-bold text-titulares">USD {subtotalUSD.toFixed(2)}</p>
+          <p className="text-base font-bold text-titulares">{formatUSD(subtotalUSD)}</p>
           <p className="text-sm font-normal text-titulares/60">{formatARS(subtotalARS)}</p>
         </div>
       </div>

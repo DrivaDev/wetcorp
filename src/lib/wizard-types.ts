@@ -29,6 +29,7 @@ export interface GastosDespacho {
   sim: string
   derechos: string
   otros: string
+  tasaEstadistica?: string
 }
 
 export interface GastosDespachante {
@@ -37,6 +38,8 @@ export interface GastosDespachante {
   fleteInterno: string
   senasa: string
   despachante: string
+  gastosOperativos?: string
+  gastosBancarios?: string
 }
 
 export interface GastosAdicionales {

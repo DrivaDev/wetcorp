@@ -5,15 +5,17 @@ import { Plus, Upload, X, FileText } from 'lucide-react'
 const FIXED_SLOTS = [
   'Factura proveedor',
   'Factura despachante',
-  'Conocimiento de embarque',
+  'B/L',
   'Certificado de Origen',
+  'Packing list',
 ]
 
 const FIXED_SLOT_KEYS: Record<string, keyof NonNullable<DocumentSlotsProps['documentos']>> = {
-  'Factura proveedor':        'facturaProveedor',
-  'Factura despachante':      'facturaDespachante',
-  'Conocimiento de embarque': 'conocimientoEmbarque',
-  'Certificado de Origen':    'certificadoOrigen',
+  'Factura proveedor':   'facturaProveedor',
+  'Factura despachante': 'facturaDespachante',
+  'B/L':                 'conocimientoEmbarque',
+  'Certificado de Origen': 'certificadoOrigen',
+  'Packing list':        'packingList',
 }
 
 interface OtroSlot {
@@ -29,6 +31,7 @@ interface DocumentSlotsProps {
     facturaDespachante: string | null
     conocimientoEmbarque: string | null
     certificadoOrigen: string | null
+    packingList?: string | null
     otro: string | null
   }
 }
