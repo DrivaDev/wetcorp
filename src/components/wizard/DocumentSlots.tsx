@@ -7,6 +7,7 @@ const FIXED_SLOTS = [
   'Factura despachante',
   'B/L',
   'Certificado de Origen',
+  'Certificado de Análisis',
   'Packing list',
 ]
 
@@ -15,6 +16,7 @@ const FIXED_SLOT_KEYS: Record<string, keyof NonNullable<DocumentSlotsProps['docu
   'Factura despachante': 'facturaDespachante',
   'B/L':                 'conocimientoEmbarque',
   'Certificado de Origen': 'certificadoOrigen',
+  'Certificado de Análisis': 'certificadoAnalisis',
   'Packing list':        'packingList',
 }
 
@@ -31,6 +33,7 @@ interface DocumentSlotsProps {
     facturaDespachante: string | null
     conocimientoEmbarque: string | null
     certificadoOrigen: string | null
+    certificadoAnalisis?: string | null
     packingList?: string | null
     otro: string | null
   }
