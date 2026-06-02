@@ -244,14 +244,18 @@ export async function getOCById(
     if (oc.importadorId !== userId) return { error: 'Sin acceso' }
   } else if (rol === 'proveedor') {
     const clerkUser = await (await clerkClient()).users.getUser(userId)
-    const email = clerkUser.emailAddresses[0]?.emailAddress?.toLowerCase() ?? ''
+    const emails = clerkUser.emailAddresses
+      .map(e => e.emailAddress?.toLowerCase() ?? '')
+      .filter(Boolean)
     if (oc.estado === 'borrador') return { error: 'Sin acceso' }
-    if (!oc.emailsProveedor.includes(email)) return { error: 'Sin acceso' }
+    if (!emails.some(e => oc.emailsProveedor.includes(e))) return { error: 'Sin acceso' }
   } else if (rol === 'despachante') {
     const clerkUser = await (await clerkClient()).users.getUser(userId)
-    const email = clerkUser.emailAddresses[0]?.emailAddress?.toLowerCase() ?? ''
+    const emails = clerkUser.emailAddresses
+      .map(e => e.emailAddress?.toLowerCase() ?? '')
+      .filter(Boolean)
     if (oc.estado === 'borrador') return { error: 'Sin acceso' }
-    if (!oc.emailsDespachante.includes(email)) return { error: 'Sin acceso' }
+    if (!emails.some(e => oc.emailsDespachante.includes(e))) return { error: 'Sin acceso' }
   }
 
   return { data: { oc: serializeOC(doc as Record<string, unknown>) } }
@@ -350,12 +354,14 @@ export async function getOCs(): Promise<
     filter = { importadorId: userId }
   } else if (rol === 'proveedor' || rol === 'despachante') {
     const clerkUser = await (await clerkClient()).users.getUser(userId)
-    const email = clerkUser.emailAddresses[0]?.emailAddress?.toLowerCase() ?? ''
-    if (!email) return { data: { ocs: [], stats: defaultStats() } }
+    const emails = clerkUser.emailAddresses
+      .map(e => e.emailAddress?.toLowerCase() ?? '')
+      .filter(Boolean)
+    if (emails.length === 0) return { data: { ocs: [], stats: defaultStats() } }
     filter =
       rol === 'proveedor'
-        ? { emailsProveedor: email, estado: { $ne: 'borrador' } }
-        : { emailsDespachante: email, estado: { $ne: 'borrador' } }
+        ? { emailsProveedor: { $in: emails }, estado: { $ne: 'borrador' } }
+        : { emailsDespachante: { $in: emails }, estado: { $ne: 'borrador' } }
   } else {
     return { error: 'Rol no reconocido' }
   }
