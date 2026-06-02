@@ -8,7 +8,7 @@ import type { InfoGeneralState, ProductRow } from '@/lib/wizard-types'
 import { PAISES } from '@/lib/paises'
 import { isStep1Valid } from '@/lib/wizard-calculations'
 import { ProductosTable } from './ProductosTable'
-import { createOC } from '@/actions/oc'
+import { createOC, updateOCInfo } from '@/actions/oc'
 
 const inputClass =
   'w-full px-4 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150'
@@ -130,8 +130,12 @@ export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
     setIsLoading(true)
 
     if (ocId) {
-      // Modo edición: navegar directamente a Step 2 con el ID existente
+      const result = await updateOCInfo(ocId, { info, productos })
       setIsLoading(false)
+      if ('error' in result) {
+        setServerError(result.error)
+        return
+      }
       router.push(`/importador/oc/${ocId}?step=2`)
       return
     }

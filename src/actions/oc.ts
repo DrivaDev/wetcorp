@@ -393,3 +393,51 @@ export async function getOCs(): Promise<
 
   return { data: { ocs, stats } }
 }
+
+export async function updateOCInfo(
+  id: string,
+  data: {
+    info: InfoGeneralState
+    productos: ProductRow[]
+  }
+): Promise<{ data: { id: string } } | { error: string }> {
+  const { userId } = await auth()
+  if (!userId) return { error: 'No autorizado' }
+
+  await connectDB()
+
+  const existing = await OC.findById(id).lean() as { importadorId?: string } | null
+  if (!existing || existing.importadorId !== userId) return { error: 'Sin acceso' }
+
+  const emailsProveedor = data.info.emailsProveedor
+    .map(e => e.toLowerCase().trim())
+    .filter(e => e !== '')
+  const emailsDespachante = data.info.emailsDespachante
+    .map(e => e.toLowerCase().trim())
+    .filter(e => e !== '')
+
+  await OC.findByIdAndUpdate(id, {
+    referenciaOC: data.info.referenciaOC.trim(),
+    estado: data.info.estado,
+    proveedor: data.info.proveedor,
+    emailsProveedor,
+    emailsDespachante,
+    despacho: data.info.despacho,
+    fechaDespacho: data.info.fechaDespacho,
+    paisOrigen: data.info.paisOrigen,
+    fechaOC: data.info.fechaOC,
+    llegadaEstimada: data.info.llegadaEstimada,
+    fechaPago: data.info.fechaPago,
+    tipoCambio: parseFloat(data.info.tipoCambio || '0'),
+    divisa: data.info.divisa,
+    notas: data.info.notas,
+    productos: data.productos.map(p => ({
+      producto: p.producto,
+      descripcion: p.descripcion,
+      cantidad: Math.round(parseFloat(p.cantidad || '0')),
+      valorUSD: toCentavos(p.valorUSD),
+    })),
+  })
+
+  return { data: { id } }
+}
