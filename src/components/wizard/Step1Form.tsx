@@ -1,13 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import type { InfoGeneralState, ProductRow, Step1Data } from '@/lib/wizard-types'
+import type { InfoGeneralState, ProductRow } from '@/lib/wizard-types'
 import { PAISES } from '@/lib/paises'
 import { isStep1Valid } from '@/lib/wizard-calculations'
 import { ProductosTable } from './ProductosTable'
+import { createOC } from '@/actions/oc'
 
 const inputClass =
   'w-full px-4 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150'
@@ -49,15 +50,6 @@ function formatDateInput(raw: string): string {
   return `${dd}/${mm}/${digits.slice(4)}`
 }
 
-// Convert YYYY-MM-DD (old type="date" sessionStorage) → DD/MM/YYYY
-function migrateDate(val: string): string {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-    const [y, m, d] = val.split('-')
-    return `${d}/${m}/${y}`
-  }
-  return val
-}
-
 function isCompleteDate(v: string): boolean {
   if (!/^\d{2}\/\d{2}\/\d{4}$/.test(v)) return false
   const [dd, mm] = v.split('/')
@@ -83,45 +75,22 @@ const EMPTY_INFO: InfoGeneralState = {
   notas: '',
 }
 
-export function Step1Form() {
+interface Step1FormProps {
+  initialData?: { info: InfoGeneralState; productos: ProductRow[] }
+  ocId?: string
+}
+
+export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
   const router = useRouter()
   const [submitted, setSubmitted] = useState(false)
-  const [info, setInfo] = useState<InfoGeneralState>(EMPTY_INFO)
-  const [productos, setProductos] = useState<ProductRow[]>([
-    { id: crypto.randomUUID(), producto: '', descripcion: '', cantidad: '', valorUSD: '' },
-  ])
-
-  useEffect(() => {
-    const raw = sessionStorage.getItem('oc-step1-draft')
-    if (!raw) return
-    try {
-      const data: Step1Data = JSON.parse(raw)
-      // Backward compat: old sessions used string fields instead of arrays
-      const info = data.info as InfoGeneralState & {
-        emailProveedor?: string
-        emailDespachante?: string
-      }
-      if (typeof info.emailProveedor === 'string' && !info.emailsProveedor) {
-        info.emailsProveedor = [info.emailProveedor]
-      }
-      if (typeof info.emailDespachante === 'string' && !info.emailsDespachante) {
-        info.emailsDespachante = [info.emailDespachante]
-      }
-      if (!info.emailsProveedor?.length) info.emailsProveedor = ['']
-      if (!info.emailsDespachante?.length) info.emailsDespachante = ['']
-      if (!info.despacho) info.despacho = ''
-      if (!info.fechaDespacho) info.fechaDespacho = ''
-      if (!info.fechaPago) info.fechaPago = ''
-      // Migrate dates from old YYYY-MM-DD format
-      info.fechaOC = migrateDate(info.fechaOC)
-      info.llegadaEstimada = migrateDate(info.llegadaEstimada)
-      info.fechaPago = migrateDate(info.fechaPago)
-      setInfo(info)
-      setProductos(data.productos)
-    } catch {
-      // JSON inválido — ignorar
-    }
-  }, [])
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [info, setInfo] = useState<InfoGeneralState>(initialData?.info ?? EMPTY_INFO)
+  const [productos, setProductos] = useState<ProductRow[]>(
+    initialData?.productos?.length
+      ? initialData.productos
+      : [{ id: crypto.randomUUID(), producto: '', descripcion: '', cantidad: '', valorUSD: '' }]
+  )
 
   const addProducto = () =>
     setProductos((prev) => [
@@ -154,11 +123,27 @@ export function Step1Form() {
       [field]: prev[field].map((v, i) => (i === idx ? value : v)),
     }))
 
-  const handleContinuar = () => {
+  const handleContinuar = async () => {
     setSubmitted(true)
     if (!isStep1Valid(info, productos)) return
-    sessionStorage.setItem('oc-step1-draft', JSON.stringify({ info, productos }))
-    router.push('/importador/oc/nueva?step=2')
+    setServerError(null)
+    setIsLoading(true)
+
+    if (ocId) {
+      // Modo edición: navegar directamente a Step 2 con el ID existente
+      setIsLoading(false)
+      router.push(`/importador/oc/${ocId}?step=2`)
+      return
+    }
+
+    // Modo creación
+    const result = await createOC({ info, productos })
+    setIsLoading(false)
+    if ('error' in result) {
+      setServerError(result.error)
+      return
+    }
+    router.push(`/importador/oc/${result.data.id}?step=2`)
   }
 
   const isValid = isStep1Valid(info, productos)
@@ -183,6 +168,9 @@ export function Step1Form() {
           />
           {fieldError(info.referenciaOC) && (
             <p className="mt-1 text-xs text-red-600">Este campo es obligatorio</p>
+          )}
+          {serverError && (
+            <p className="mt-1 text-xs text-red-600">{serverError}</p>
           )}
         </div>
 
@@ -480,15 +468,15 @@ export function Step1Form() {
         <button
           type="button"
           onClick={handleContinuar}
-          disabled={submitted && !isValid}
+          disabled={isLoading || (submitted && !isValid)}
           className={cn(
             'px-6 py-3 rounded-lg font-bold min-h-[44px] transition-colors',
-            isValid
+            isValid && !isLoading
               ? 'bg-principal text-white hover:bg-titulares'
               : 'bg-principal/40 text-white/70 cursor-not-allowed'
           )}
         >
-          Continuar a Paso 2
+          {isLoading ? 'Guardando...' : 'Continuar a Paso 2'}
         </button>
       </div>
     </div>

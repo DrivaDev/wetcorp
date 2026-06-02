@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
 import { Decimal } from 'decimal.js'
@@ -23,6 +23,7 @@ import type {
   OtroGastoRow,
   Impuestos,
 } from '@/lib/wizard-types'
+import type { OCDetalle } from '@/lib/mock-ocs'
 import { Trash2, Plus } from 'lucide-react'
 import { ResumenStep1 } from './ResumenStep1'
 import { GastosCard } from './GastosCard'
@@ -30,6 +31,7 @@ import type { GastoField } from './GastosCard'
 import { OtrosGastosSection } from './OtrosGastosSection'
 import { ValueCards } from './ValueCards'
 import { DocumentSlots } from './DocumentSlots'
+import { updateOC } from '@/actions/oc'
 
 const camposDespacho: GastoField[] = [
   { key: 'sim', label: 'SIM (USD)', divisa: 'USD' },
@@ -61,38 +63,66 @@ const camposImpuestos: GastoField[] = [
   { key: 'iigg', label: 'IIGG (ARS)', divisa: 'ARS' },
 ]
 
-export function Step2Form() {
+interface Step2FormProps {
+  ocData: (OCDetalle & { id?: string; otrosImpuestos?: OtroGastoRow[] }) | null
+  ocId: string
+}
+
+export function Step2Form({ ocData, ocId }: Step2FormProps) {
   const router = useRouter()
 
-  const [step1Data, setStep1Data] = useState<Step1Data | null>(null)
-  const [gastosDespacho, setGastosDespacho] = useState<GastosDespacho>({
-    sim: '', derechos: '', otros: '', tasaEstadistica: '',
-  })
-  const [gastosDespachante, setGastosDespachante] = useState<GastosDespachante>({
-    terminal: '', fleteInternacional: '', fleteInterno: '', senasa: '', despachante: '',
-    gastosOperativos: '', gastosBancarios: '',
-  })
-  const [gastosAdicionales, setGastosAdicionales] = useState<GastosAdicionales>({
-    depositoFiscal: '', digitalizacion: '', estanciaCamion: '',
-  })
-  const [otrosGastos, setOtrosGastos] = useState<OtroGastoRow[]>([])
-  const [impuestos, setImpuestos] = useState<Impuestos>({
-    iva: '', ivaAd: '', iibb: '', iigg: '',
-  })
-  const [otrosImpuestos, setOtrosImpuestos] = useState<OtroGastoRow[]>([])
-  const [toastVisible, setToastVisible] = useState(false)
-
-  useEffect(() => {
-    const raw = sessionStorage.getItem('oc-step1-draft')
-    if (!raw) {
-      router.replace('/importador/oc/nueva?step=1')
-      return
+  const [gastosDespacho, setGastosDespacho] = useState<GastosDespacho>(
+    ocData?.gastosDespacho ?? { sim: '', derechos: '', otros: '', tasaEstadistica: '' }
+  )
+  const [gastosDespachante, setGastosDespachante] = useState<GastosDespachante>(
+    ocData?.gastosDespachante ?? {
+      terminal: '', fleteInternacional: '', fleteInterno: '', senasa: '',
+      despachante: '', gastosOperativos: '', gastosBancarios: '',
     }
-    const data: Step1Data = JSON.parse(raw)
-    setStep1Data(data)
-  }, [router])
+  )
+  const [gastosAdicionales, setGastosAdicionales] = useState<GastosAdicionales>(
+    ocData?.gastosAdicionales ?? { depositoFiscal: '', digitalizacion: '', estanciaCamion: '' }
+  )
+  const [otrosGastos, setOtrosGastos] = useState<OtroGastoRow[]>(
+    ocData?.otrosGastos ?? []
+  )
+  const [impuestos, setImpuestos] = useState<Impuestos>(
+    ocData?.impuestos ?? { iva: '', ivaAd: '', iibb: '', iigg: '' }
+  )
+  const [otrosImpuestos, setOtrosImpuestos] = useState<OtroGastoRow[]>(
+    ocData?.otrosImpuestos ?? []
+  )
+  const [toastVisible, setToastVisible] = useState(false)
+  const [serverError, setServerError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
-  if (!step1Data) return null
+  if (!ocData) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-12 text-center text-texto/60">
+        No se encontró la OC. <a href="/importador/dashboard" className="underline">Volver al dashboard</a>
+      </div>
+    )
+  }
+
+  const step1Data: Step1Data = {
+    info: {
+      referenciaOC: ocData.referenciaOC,
+      estado: ocData.estado,
+      proveedor: ocData.proveedor ?? '',
+      emailsProveedor: ocData.emailsProveedor ?? [''],
+      despacho: ocData.despacho ?? '',
+      fechaDespacho: (ocData as OCDetalle & { fechaDespacho?: string }).fechaDespacho ?? '',
+      emailsDespachante: ocData.emailsDespachante ?? [''],
+      paisOrigen: ocData.paisOrigen ?? '',
+      fechaOC: ocData.fechaOC ?? '',
+      llegadaEstimada: ocData.llegadaEstimada ?? '',
+      fechaPago: (ocData as OCDetalle & { fechaPago?: string }).fechaPago ?? '',
+      tipoCambio: ocData.tipoCambio ?? '',
+      divisa: ocData.divisa ?? 'ARS/USD',
+      notas: ocData.notas ?? '',
+    },
+    productos: ocData.productos ?? [],
+  }
 
   const tipoCambio = step1Data.info.tipoCambio ?? '1'
 
@@ -123,14 +153,34 @@ export function Step2Form() {
   const updateOtroImpuesto = (id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) =>
     setOtrosImpuestos(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
 
-  const handleVolver  = () => router.push('/importador/oc/nueva?step=1')
-  const handleGuardar = () => {
+  const handleVolver = () => router.push(`/importador/oc/${ocId}`)
+
+  const handleGuardar = async () => {
+    setIsLoading(true)
+    setServerError(null)
+    const result = await updateOC(ocId, {
+      gastosDespacho,
+      gastosDespachante,
+      gastosAdicionales,
+      impuestos,
+      otrosGastos,
+      otrosImpuestos,
+      estado: step1Data.info.estado,
+    })
+    setIsLoading(false)
+    if ('error' in result) {
+      setServerError(result.error)
+      return
+    }
     setToastVisible(true)
     setTimeout(() => {
       setToastVisible(false)
       router.push('/importador/dashboard')
     }, 2000)
   }
+
+  // Suppress unused import warning — Decimal is used by calc functions indirectly
+  void Decimal
 
   return (
     <>
@@ -281,6 +331,10 @@ export function Step2Form() {
           tipoCambio={tipoCambio}
         />
 
+        {serverError && (
+          <p className="text-sm text-red-600 text-center">{serverError}</p>
+        )}
+
         {/* Footer navegación */}
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-acento">
           <button
@@ -293,9 +347,10 @@ export function Step2Form() {
           <button
             type="button"
             onClick={handleGuardar}
-            className="bg-principal text-white font-bold px-6 py-3 rounded-lg hover:bg-titulares transition-colors min-h-[44px]"
+            disabled={isLoading}
+            className="bg-principal text-white font-bold px-6 py-3 rounded-lg hover:bg-titulares transition-colors min-h-[44px] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Guardar OC
+            {isLoading ? 'Guardando...' : 'Guardar OC'}
           </button>
         </div>
       </div>
