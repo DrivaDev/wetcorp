@@ -49,6 +49,7 @@ export interface OCDetalle extends OC {
     facturaDespachante: string | null
     conocimientoEmbarque: string | null
     certificadoOrigen: string | null
+    certificadoAnalisis: string | null
     otro: string | null
   }
 }
@@ -185,6 +186,7 @@ const emptyDocumentos = {
   facturaDespachante: null,
   conocimientoEmbarque: null,
   certificadoOrigen: null,
+  certificadoAnalisis: null,
   otro: null,
 }
 
@@ -288,6 +290,7 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
       facturaDespachante: null,
       conocimientoEmbarque: null,
       certificadoOrigen: null,
+      certificadoAnalisis: null,
       otro: null,
     },
   },
@@ -333,6 +336,7 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
       facturaDespachante: 'factura-despacho-0498.pdf',
       conocimientoEmbarque: null,
       certificadoOrigen: null,
+      certificadoAnalisis: null,
       otro: null,
     },
   },
