@@ -16,9 +16,9 @@ export function Navbar({ rol }: NavbarProps) {
   return (
     <nav className="sticky top-0 z-10 flex items-center justify-between px-4 sm:px-6 bg-[#1C1917] border-b border-white/10 min-h-[64px]">
       <div className="flex items-center gap-3">
-        <Image src="/isotipo.svg" alt="DrivaOC" width={32} height={32} priority />
+        <Image src="/isotipo.svg" alt="Sistema integral COMEX" width={32} height={32} priority />
         <div className="flex flex-col">
-          <span className="text-white text-sm font-medium leading-none">DrivaOC</span>
+          <span className="text-white text-sm font-medium leading-none">Sistema integral COMEX</span>
           <span className="text-white/40 text-xs font-light mt-0.5">{ROL_LABEL[rol]}</span>
         </div>
       </div>

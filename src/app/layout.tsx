@@ -10,8 +10,11 @@ const firaSans = Fira_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'DrivaOC',
+  title: 'Sistema integral COMEX',
   description: 'Sistema de gestión de órdenes de compra para importadores',
+  icons: {
+    icon: '/isotipo.svg',
+  },
 }
 
 export default function RootLayout({
