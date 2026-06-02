@@ -100,7 +100,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
     paisOrigen: d.paisOrigen ?? '',
     fechaOC: d.fechaOC ?? '',
     llegadaEstimada: d.llegadaEstimada ?? '',
-    tipoCambio: fromCentavos(d.tipoCambio),
+    tipoCambio: d.tipoCambio != null && d.tipoCambio !== 0 ? d.tipoCambio.toString() : '',
     divisa: (d.divisa ?? 'ARS/USD') as 'ARS/USD' | 'ARS/EUR',
     notas: d.notas ?? '',
     fechaDespacho: d.fechaDespacho ?? '',
@@ -199,7 +199,7 @@ export async function createOC(data: {
       fechaOC: data.info.fechaOC,
       llegadaEstimada: data.info.llegadaEstimada,
       fechaPago: data.info.fechaPago,
-      tipoCambio: toCentavos(data.info.tipoCambio),
+      tipoCambio: parseFloat(data.info.tipoCambio || '0'),
       divisa: data.info.divisa,
       notas: data.info.notas,
       productos: data.productos.map(p => ({
