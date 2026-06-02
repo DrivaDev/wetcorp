@@ -17,8 +17,14 @@ import type { GastoField } from '@/components/wizard/GastosCard'
 import type { Step1Data } from '@/lib/wizard-types'
 import type { OCDetalle } from '@/lib/mock-ocs'
 
+type OCDetailFull = OCDetalle & {
+  fechaDespacho?: string
+  fechaPago?: string
+  otrosImpuestos?: import('@/lib/wizard-types').OtroGastoRow[]
+}
+
 interface OCDetailViewProps {
-  oc: OCDetalle
+  oc: OCDetailFull
 }
 
 const camposDespacho: GastoField[] = [
@@ -56,12 +62,12 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
       proveedor: oc.proveedor,
       emailsProveedor: oc.emailsProveedor,
       despacho: oc.despacho,
-      fechaDespacho: '',
+      fechaDespacho: oc.fechaDespacho ?? '',
       emailsDespachante: oc.emailsDespachante,
       paisOrigen: oc.paisOrigen,
       fechaOC: oc.fechaOC,
       llegadaEstimada: oc.llegadaEstimada,
-      fechaPago: '',
+      fechaPago: oc.fechaPago ?? '',
       tipoCambio: oc.tipoCambio,
       divisa: oc.divisa,
       notas: oc.notas,
@@ -132,7 +138,17 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         subtotalUSD={totalImpuestosUSD}
         tipoCambio={oc.tipoCambio}
         readOnly
-      />
+      >
+        {oc.otrosImpuestos && oc.otrosImpuestos.length > 0 && (
+          <OtrosGastosSection
+            rows={oc.otrosImpuestos}
+            subtotalUSD={calcSubtotalOtros(oc.otrosImpuestos, oc.tipoCambio)}
+            tipoCambio={oc.tipoCambio}
+            readOnly
+            titulo=""
+          />
+        )}
+      </GastosCard>
 
       <DocumentSlots readOnly documentos={oc.documentos} />
 

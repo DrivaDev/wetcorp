@@ -56,6 +56,36 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
             <p className="text-sm font-normal text-titulares mb-1">Estado</p>
             <p className={readOnlyClass}>{ESTADO_LABELS[info.estado]}</p>
           </div>
+          {info.despacho && (
+            <div>
+              <p className="text-sm font-normal text-titulares mb-1">Despacho</p>
+              <p className={readOnlyClass}>{info.despacho}</p>
+            </div>
+          )}
+          {info.fechaDespacho && (
+            <div>
+              <p className="text-sm font-normal text-titulares mb-1">Fecha despacho</p>
+              <p className={readOnlyClass}>{info.fechaDespacho}</p>
+            </div>
+          )}
+          {info.fechaPago && (
+            <div>
+              <p className="text-sm font-normal text-titulares mb-1">Fecha de pago</p>
+              <p className={readOnlyClass}>{info.fechaPago}</p>
+            </div>
+          )}
+          {info.emailsProveedor?.length > 0 && info.emailsProveedor[0] && (
+            <div className="sm:col-span-2">
+              <p className="text-sm font-normal text-titulares mb-1">Emails proveedor</p>
+              <p className={readOnlyClass}>{info.emailsProveedor.join(', ')}</p>
+            </div>
+          )}
+          {info.emailsDespachante?.length > 0 && info.emailsDespachante[0] && (
+            <div className="sm:col-span-2">
+              <p className="text-sm font-normal text-titulares mb-1">Emails despachante</p>
+              <p className={readOnlyClass}>{info.emailsDespachante.join(', ')}</p>
+            </div>
+          )}
           {info.notas && (
             <div className="sm:col-span-2">
               <p className="text-sm font-normal text-titulares mb-1">Notas</p>
