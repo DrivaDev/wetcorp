@@ -1,6 +1,7 @@
 'use client'
 import { Decimal } from 'decimal.js'
 import { usdToARS, formatARS, formatUSD } from '@/lib/wizard-calculations'
+import React from 'react'
 
 export interface GastoField {
   key: string
@@ -16,6 +17,7 @@ interface GastosCardProps {
   tipoCambio: string
   onChange?: (key: string, value: string) => void
   readOnly?: boolean
+  children?: React.ReactNode
 }
 
 const inputClass =
@@ -32,6 +34,7 @@ export function GastosCard({
   tipoCambio,
   onChange,
   readOnly,
+  children,
 }: GastosCardProps) {
   const subtotalARS = usdToARS(subtotalUSD.toString(), tipoCambio)
 
@@ -61,6 +64,8 @@ export function GastosCard({
           </div>
         ))}
       </div>
+
+      {children}
 
       <div className="mt-4 pt-4 border-t border-acento/50 flex justify-between items-center">
         <span className="text-sm font-normal text-titulares">Subtotal</span>

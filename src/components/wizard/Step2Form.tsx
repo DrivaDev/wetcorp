@@ -23,6 +23,7 @@ import type {
   OtroGastoRow,
   Impuestos,
 } from '@/lib/wizard-types'
+import { Trash2, Plus } from 'lucide-react'
 import { ResumenStep1 } from './ResumenStep1'
 import { GastosCard } from './GastosCard'
 import type { GastoField } from './GastosCard'
@@ -215,21 +216,58 @@ export function Step2Form() {
             titulo="Impuestos"
             campos={camposImpuestos}
             values={impuestos as unknown as Record<string, string>}
-            subtotalUSD={calcSubtotalImpuestos(impuestos, tipoCambio)}
+            subtotalUSD={totalImpuestosUSD}
             tipoCambio={tipoCambio}
             onChange={updateImpuestos}
-          />
-
-          <OtrosGastosSection
-            titulo="Otros impuestos"
-            addLabel="Agregar impuesto"
-            rows={otrosImpuestos}
-            subtotalUSD={calcSubtotalOtros(otrosImpuestos, tipoCambio)}
-            tipoCambio={tipoCambio}
-            onAdd={addOtroImpuesto}
-            onRemove={removeOtroImpuesto}
-            onChange={updateOtroImpuesto}
-          />
+          >
+            {/* Impuestos adicionales dinámicos */}
+            <div className="flex flex-col gap-3 border-t border-acento/30 pt-4">
+              {otrosImpuestos.map((row) => (
+                <div key={row.id} className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    placeholder="Descripción del impuesto"
+                    value={row.descripcion}
+                    onChange={(e) => updateOtroImpuesto(row.id, 'descripcion', e.target.value)}
+                    className="flex-1 h-10 px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={row.monto}
+                    onChange={(e) => updateOtroImpuesto(row.id, 'monto', e.target.value)}
+                    className="w-[120px] h-10 px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150"
+                  />
+                  <select
+                    value={row.divisa}
+                    onChange={(e) => updateOtroImpuesto(row.id, 'divisa', e.target.value as 'ARS' | 'USD')}
+                    className="w-[90px] h-10 px-3 rounded-lg border border-acento bg-white text-base text-texto focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150 cursor-pointer appearance-none"
+                  >
+                    <option value="ARS">ARS</option>
+                    <option value="USD">USD</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => removeOtroImpuesto(row.id)}
+                    aria-label="Eliminar impuesto"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addOtroImpuesto}
+                className="flex items-center gap-2 text-sm font-normal text-principal hover:text-titulares transition-colors min-h-[44px]"
+              >
+                <Plus size={16} />
+                Agregar impuesto
+              </button>
+            </div>
+          </GastosCard>
         </div>
 
         {/* Documentos */}
