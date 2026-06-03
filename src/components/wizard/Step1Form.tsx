@@ -8,7 +8,7 @@ import type { InfoGeneralState, ProductRow } from '@/lib/wizard-types'
 import { PAISES } from '@/lib/paises'
 import { isStep1Valid } from '@/lib/wizard-calculations'
 import { ProductosTable } from './ProductosTable'
-import { createOC, updateOCInfo } from '@/actions/oc'
+import { createOC, updateOCInfo, checkReferenciaOC } from '@/actions/oc'
 
 const inputClass =
   'w-full px-4 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150'
@@ -85,6 +85,14 @@ export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [referenciaError, setReferenciaError] = useState<string | null>(null)
+
+  const handleReferenciaBlur = async () => {
+    const val = info.referenciaOC.trim()
+    if (!val) return
+    const { exists } = await checkReferenciaOC(val, ocId)
+    setReferenciaError(exists ? 'Ya existe una OC con esta referencia' : null)
+  }
   const [info, setInfo] = useState<InfoGeneralState>(initialData?.info ?? EMPTY_INFO)
   const [productos, setProductos] = useState<ProductRow[]>(
     initialData?.productos?.length
@@ -173,11 +181,15 @@ export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
             type="text"
             value={info.referenciaOC}
             placeholder="Ej: OC-2025-001"
-            onChange={(e) => setField('referenciaOC', e.target.value)}
-            className={fieldError(info.referenciaOC) ? inputErrorClass : inputClass}
+            onChange={(e) => { setField('referenciaOC', e.target.value); setReferenciaError(null) }}
+            onBlur={handleReferenciaBlur}
+            className={(fieldError(info.referenciaOC) || !!referenciaError) ? inputErrorClass : inputClass}
           />
           {fieldError(info.referenciaOC) && (
             <p className="mt-1 text-xs text-red-600">Este campo es obligatorio</p>
+          )}
+          {referenciaError && (
+            <p className="mt-1 text-xs text-red-600">{referenciaError}</p>
           )}
           {serverError && (
             <p className="mt-1 text-xs text-red-600">{serverError}</p>

@@ -166,6 +166,19 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
   }
 }
 
+export async function checkReferenciaOC(
+  referencia: string,
+  excludeId?: string
+): Promise<{ exists: boolean }> {
+  const { userId } = await auth()
+  if (!userId) return { exists: false }
+  await connectDB()
+  const query: Record<string, unknown> = { importadorId: userId, referenciaOC: referencia.trim() }
+  if (excludeId) query._id = { $ne: excludeId }
+  const existente = await OC.findOne(query).lean()
+  return { exists: !!existente }
+}
+
 export async function createOC(data: {
   info: InfoGeneralState
   productos: ProductRow[]
