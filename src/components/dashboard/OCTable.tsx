@@ -1,11 +1,13 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Eye, Pencil, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { OC, EstadoOC } from '@/lib/mock-ocs'
 import { DeleteModal } from './DeleteModal'
 import { EmptyState } from './EmptyState'
+import { deleteOC } from '@/actions/oc'
 
 type Rol = 'importador' | 'proveedor' | 'despachante'
 
@@ -87,6 +89,17 @@ function SkeletonCells({ rol }: { rol: Rol }) {
 
 export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<OC | null>(null)
+  const [deleting, setDeleting] = useState(false)
+  const router = useRouter()
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    setDeleting(true)
+    await deleteOC(deleteTarget.id)
+    setDeleteTarget(null)
+    setDeleting(false)
+    router.refresh()
+  }
 
   const minWidth = rol === 'importador' ? 'min-w-[920px]' : 'min-w-[720px]'
 
@@ -176,8 +189,9 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
         open={deleteTarget !== null}
         ocNumero={deleteTarget?.numeroOC ?? ''}
         proveedor={deleteTarget?.proveedor ?? ''}
-        onConfirm={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
+        loading={deleting}
       />
     </>
   )

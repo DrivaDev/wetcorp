@@ -6,9 +6,10 @@ interface DeleteModalProps {
   proveedor: string
   onConfirm: () => void
   onCancel: () => void
+  loading?: boolean
 }
 
-export function DeleteModal({ open, ocNumero, proveedor, onConfirm, onCancel }: DeleteModalProps) {
+export function DeleteModal({ open, ocNumero, proveedor, onConfirm, onCancel, loading }: DeleteModalProps) {
   if (!open) return null
 
   return (
@@ -27,9 +28,10 @@ export function DeleteModal({ open, ocNumero, proveedor, onConfirm, onCancel }: 
           </button>
           <button
             onClick={onConfirm}
-            className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg font-medium min-h-[44px] transition-colors duration-150"
+            disabled={loading}
+            className="bg-red-600 text-white hover:bg-red-700 px-4 py-2 rounded-lg font-medium min-h-[44px] transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Eliminar
+            {loading ? 'Eliminando...' : 'Eliminar'}
           </button>
         </div>
       </div>
