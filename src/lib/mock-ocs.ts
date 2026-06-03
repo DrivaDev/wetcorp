@@ -50,6 +50,7 @@ export interface OCDetalle extends OC {
     conocimientoEmbarque: string | null
     certificadoOrigen: string | null
     certificadoAnalisis: string | null
+    packingList: string | null
     otro: string | null
   }
 }
@@ -189,6 +190,7 @@ const emptyDocumentos = {
   conocimientoEmbarque: null,
   certificadoOrigen: null,
   certificadoAnalisis: null,
+  packingList: null,
   otro: null,
 }
 
@@ -295,6 +297,7 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
       conocimientoEmbarque: null,
       certificadoOrigen: null,
       certificadoAnalisis: null,
+      packingList: null,
       otro: null,
     },
   },
@@ -343,6 +346,7 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
       conocimientoEmbarque: null,
       certificadoOrigen: null,
       certificadoAnalisis: null,
+      packingList: null,
       otro: null,
     },
   },

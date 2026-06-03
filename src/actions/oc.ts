@@ -156,6 +156,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
       conocimientoEmbarque: d.documentos?.conocimientoEmbarque ?? null,
       certificadoOrigen: d.documentos?.certificadoOrigen ?? null,
       certificadoAnalisis: d.documentos?.certificadoAnalisis ?? null,
+      packingList: d.documentos?.packingList ?? null,
       otro: d.documentos?.otro ?? null,
     },
   }
@@ -440,4 +441,54 @@ export async function updateOCInfo(
   })
 
   return { data: { id } }
+}
+
+export async function updateOCDocumento(
+  id: string,
+  slot: string,
+  url: string
+): Promise<{ data: { id: string } } | { error: string }> {
+  const VALID_SLOTS = [
+    'facturaProveedor', 'facturaDespachante', 'conocimientoEmbarque',
+    'certificadoOrigen', 'certificadoAnalisis', 'packingList', 'otro',
+  ] as const
+  if (!VALID_SLOTS.includes(slot as typeof VALID_SLOTS[number])) {
+    return { error: 'Slot inválido' }
+  }
+
+  const { userId, sessionClaims } = await auth()
+  if (!userId) return { error: 'No autorizado' }
+  const rol = (sessionClaims?.metadata as { role?: string })?.role
+
+  await connectDB()
+
+  const existing = await OC.findById(id).lean() as {
+    importadorId?: string
+    emailsProveedor?: string[]
+    emailsDespachante?: string[]
+    estado?: string
+  } | null
+  if (!existing) return { error: 'OC no encontrada' }
+
+  if (rol === 'importador') {
+    if (existing.importadorId !== userId) return { error: 'Sin acceso' }
+  } else if (rol === 'proveedor' || rol === 'despachante') {
+    const clerkUser = await (await clerkClient()).users.getUser(userId)
+    const emails = clerkUser.emailAddresses
+      .map(e => e.emailAddress?.toLowerCase() ?? '')
+      .filter(Boolean)
+    const allowed = rol === 'proveedor'
+      ? (existing.emailsProveedor ?? []).some(e => emails.includes(e))
+      : (existing.emailsDespachante ?? []).some(e => emails.includes(e))
+    if (!allowed) return { error: 'Sin acceso' }
+  } else {
+    return { error: 'Sin acceso' }
+  }
+
+  try {
+    await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: url } })
+    return { data: { id } }
+  } catch {
+    return { error: 'Error al guardar el documento' }
+  }
 }
