@@ -728,30 +728,31 @@ async function syncToSheets(ocId: string): Promise<void> {
       }
     }
 
+    const n = (v: string) => parseFloat(v) || 0
     const rowData = [
-      doc.estado,
-      doc.fechaOC,
-      doc.referenciaOC,
-      doc.paisOrigen,
-      doc.despacho ?? '',
-      doc.fechaDespacho ?? '',
-      fob.toFixed(2),
-      gastosDespachoTyped.sim,
-      gastosDespachoTyped.derechos,
-      gastosDespachoTyped.otros,
-      gastosDespachante.terminal,
-      gastosDespachante.fleteInternacional,
-      gastosDespachante.fleteInterno,
-      gastosDespachante.senasa,
-      gastosDespachante.despachante,
-      gastosAdicionales.depositoFiscal,
-      gastosAdicionales.digitalizacion,
-      gastosAdicionales.estanciaCamion,
-      otrosGastosText,
-      totalImpuestos.toFixed(2),
-      documentosText,
-      gastos.toFixed(2),
-      landed.toFixed(2),
+      doc.estado,                              // A - texto
+      doc.fechaOC,                             // B - texto
+      doc.referenciaOC,                        // C - texto
+      doc.paisOrigen,                          // D - texto
+      doc.despacho ?? '',                      // E - texto
+      doc.fechaDespacho ?? '',                 // F - texto
+      n(fob.toFixed(2)),                       // G - número
+      n(gastosDespachoTyped.sim),              // H - número
+      n(gastosDespachoTyped.derechos),         // I - número
+      n(gastosDespachoTyped.otros),            // J - número
+      n(gastosDespachante.terminal),           // K - número
+      n(gastosDespachante.fleteInternacional), // L - número
+      n(gastosDespachante.fleteInterno),       // M - número
+      n(gastosDespachante.senasa),             // N - número
+      n(gastosDespachante.despachante),        // O - número
+      n(gastosAdicionales.depositoFiscal),     // P - número
+      n(gastosAdicionales.digitalizacion),     // Q - número
+      n(gastosAdicionales.estanciaCamion),     // R - número
+      otrosGastosText,                         // S - texto
+      n(totalImpuestos.toFixed(2)),            // T - número
+      documentosText,                          // U - URL texto
+      n(gastos.toFixed(2)),                    // V - número
+      n(landed.toFixed(2)),                    // W - número
     ]
 
     // Obtener sheetId (necesario para deleteDimension)
