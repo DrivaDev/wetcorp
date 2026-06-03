@@ -78,9 +78,10 @@ const EMPTY_INFO: InfoGeneralState = {
 interface Step1FormProps {
   initialData?: { info: InfoGeneralState; productos: ProductRow[] }
   ocId?: string
+  rol?: string
 }
 
-export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
+export function Step1Form({ initialData, ocId, rol = 'importador' }: Step1FormProps = {}) {
   const router = useRouter()
   const [submitted, setSubmitted] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
@@ -144,7 +145,7 @@ export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
         setServerError(result.error)
         return
       }
-      router.push(`/importador/oc/${ocId}?step=2`)
+      router.push(`/${rol}/oc/${ocId}?step=2`)
       return
     }
 
@@ -155,7 +156,7 @@ export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
       setServerError(result.error)
       return
     }
-    router.push(`/importador/oc/${result.data.id}?step=2`)
+    router.push(`/importador/oc/${result.data.id}?step=2`) // createOC solo importador
   }
 
   const isValid = isStep1Valid(info, productos)

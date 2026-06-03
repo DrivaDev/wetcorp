@@ -8,9 +8,10 @@ interface WizardPageProps {
   initialStep: string
   ocData?: OCDetalle & { id?: string; otrosImpuestos?: OtroGastoRow[]; fechaDespacho?: string; fechaPago?: string }
   ocId?: string
+  rol?: string
 }
 
-export function WizardPage({ initialStep, ocData, ocId }: WizardPageProps) {
+export function WizardPage({ initialStep, ocData, ocId, rol }: WizardPageProps) {
   if (initialStep === '2') {
     return <Step2Form ocData={ocData ?? null} ocId={ocId ?? ''} />
   }
@@ -35,7 +36,7 @@ export function WizardPage({ initialStep, ocData, ocId }: WizardPageProps) {
       info,
       productos: ocData.productos ?? [],
     }
-    return <Step1Form initialData={initialData} ocId={ocId} />
+    return <Step1Form initialData={initialData} ocId={ocId} rol={rol} />
   }
-  return <Step1Form />
+  return <Step1Form rol={rol} />
 }
