@@ -685,6 +685,11 @@ async function syncToSheets(ocId: string): Promise<void> {
     // URL firmada de Cloudinary válida 7 días — funciona sin sesión de la app (para links en Sheets)
     const expires7d = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
     const { v2: cld } = await import('cloudinary')
+    cld.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    })
     const toSignedUrl = (rawUrl: string): string => {
       try {
         const match = rawUrl.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/)
