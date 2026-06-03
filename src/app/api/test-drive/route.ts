@@ -49,12 +49,16 @@ export async function GET() {
       supportsAllDrives: true,
     })
 
-    // Eliminar carpeta de prueba
-    await drive.files.delete({ fileId: testFolder.data.id!, supportsAllDrives: true })
+    // Intentar borrar carpeta de prueba (puede fallar si el rol es Contributor — no bloquea el sync)
+    try {
+      await drive.files.delete({ fileId: testFolder.data.id!, supportsAllDrives: true })
+    } catch {
+      // Contributor no puede borrar en Shared Drive — OK para nuestro uso
+    }
 
     return Response.json({
       ok: true,
-      message: 'Drive API OK — acceso a carpeta padre verificado',
+      message: 'Drive API OK — crear carpeta funciona (delete omitido si rol es Contributor)',
       parentFolderId,
       clientEmail,
       existingFiles: res.data.files?.map(f => ({ name: f.name, type: f.mimeType })) ?? [],
