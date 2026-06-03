@@ -585,11 +585,15 @@ async function syncToSheets(ocId: string): Promise<void> {
       estado: string
       fechaOC: string
       paisOrigen: string
+      despacho: string
+      fechaDespacho: string
       productos: Array<{ producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
       gastosDespacho: Record<string, number>
       gastosDespachante: Record<string, number>
       gastosAdicionales: Record<string, number>
+      impuestos: Record<string, number>
       otrosGastos: Array<{ descripcion: string; monto: number; divisa: string }>
+      documentos: Record<string, string | null>
       tipoCambio: number
     } | null
     if (!doc) return
@@ -653,35 +657,75 @@ async function syncToSheets(ocId: string): Promise<void> {
     const gastos = calcTotalGastos(gastosDespachoTyped, gastosDespachante, gastosAdicionales, otrosGastos, tc)
     const landed = calcLandedCost(fob, gastos)
 
+    const imp = doc.impuestos as Record<string, number> ?? {}
+    const totalImpuestos = new Decimal(fromCentavos(imp.iva))
+      .plus(new Decimal(fromCentavos(imp.ivaAd)))
+      .plus(new Decimal(fromCentavos(imp.iibb)))
+      .plus(new Decimal(fromCentavos(imp.iigg)))
+
+    const otrosGastosText = otrosGastos.length > 0
+      ? otrosGastos.map(g => `${g.descripcion} ${g.monto} ${g.divisa}`).join(', ')
+      : ''
+
+    const docSlotLabels: Record<string, string> = {
+      facturaProveedor: 'Factura Proveedor',
+      facturaDespachante: 'Factura Despachante',
+      conocimientoEmbarque: 'Conocimiento de Embarque',
+      certificadoOrigen: 'Certificado de Origen',
+      certificadoAnalisis: 'Certificado de Análisis',
+      packingList: 'Packing List',
+      otro: 'Otro',
+    }
+    const documentosText = Object.entries(doc.documentos ?? {})
+      .filter(([, url]) => !!url)
+      .map(([key]) => docSlotLabels[key] ?? key)
+      .join(', ')
+
     const rowData = [
-      doc.referenciaOC,
-      doc.proveedor,
       doc.estado,
       doc.fechaOC,
+      doc.referenciaOC,
       doc.paisOrigen,
+      doc.despacho ?? '',
+      doc.fechaDespacho ?? '',
       fob.toFixed(2),
+      gastosDespachoTyped.sim,
+      gastosDespachoTyped.derechos,
+      gastosDespachoTyped.otros,
+      gastosDespachante.terminal,
+      gastosDespachante.fleteInternacional,
+      gastosDespachante.fleteInterno,
+      gastosDespachante.senasa,
+      gastosDespachante.despachante,
+      gastosAdicionales.depositoFiscal,
+      gastosAdicionales.digitalizacion,
+      gastosAdicionales.estanciaCamion,
+      otrosGastosText,
+      totalImpuestos.toFixed(2),
+      documentosText,
       gastos.toFixed(2),
       landed.toFixed(2),
     ]
 
     const getRes = await sheets.spreadsheets.values.get({
       spreadsheetId,
-      range: 'A:A',
+      range: 'C:C',
     })
     const rows = getRes.data.values ?? []
     const rowIndex = rows.findIndex(r => r[0] === doc.referenciaOC)
 
+    const colEnd = 'W'
     if (rowIndex >= 0) {
       await sheets.spreadsheets.values.update({
         spreadsheetId,
-        range: `A${rowIndex + 1}:H${rowIndex + 1}`,
+        range: `A${rowIndex + 1}:${colEnd}${rowIndex + 1}`,
         valueInputOption: 'USER_ENTERED',
         requestBody: { values: [rowData] },
       })
     } else {
       await sheets.spreadsheets.values.append({
         spreadsheetId,
-        range: 'A:H',
+        range: `A:${colEnd}`,
         valueInputOption: 'USER_ENTERED',
         insertDataOption: 'INSERT_ROWS',
         requestBody: { values: [rowData] },
