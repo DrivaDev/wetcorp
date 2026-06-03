@@ -102,9 +102,20 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
                 )
               ) : (
                 <>
-                  <span className="text-sm font-normal text-texto/50 hidden sm:block shrink-0 max-w-[160px] truncate">
-                    {url ? 'Archivo adjunto' : 'Sin archivo'}
-                  </span>
+                  {url && (
+                    <a
+                      href={`/api/download-doc?url=${encodeURIComponent(url)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
+                    >
+                      <ExternalLink size={14} />
+                      Ver archivo
+                    </a>
+                  )}
+                  {!url && (
+                    <span className="text-sm font-normal text-texto/50 hidden sm:block shrink-0">Sin archivo</span>
+                  )}
 
                   <input
                     ref={el => { inputRefs.current[key] = el }}
