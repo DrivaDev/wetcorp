@@ -1,11 +1,14 @@
 import { redirect } from 'next/navigation'
-import type { ReactNode } from 'react'
+import { getOCById } from '@/actions/oc'
+import { WizardPage } from '@/components/wizard/WizardPage'
 
 interface Props {
   ocId: string
   rol: string
 }
 
-export async function EditWizardLoader({ ocId, rol }: Props): Promise<ReactNode> {
-  redirect(`/${rol}/oc/${ocId}`)
+export async function EditWizardLoader({ ocId, rol }: Props) {
+  const result = await getOCById(ocId)
+  if ('error' in result) redirect(`/${rol}/dashboard`)
+  return <WizardPage initialStep="1" ocData={result.data.oc} ocId={ocId} />
 }
