@@ -16,7 +16,7 @@ import type {
   OtroGastoRow,
 } from '@/lib/wizard-types'
 
-type SerializedOC = OCDetalle & {
+export type SerializedOC = OCDetalle & {
   id: string
   numeroOC: string
   emailProveedor: string

@@ -11,9 +11,11 @@
   "dependencies": {
     "@clerk/nextjs": "^7.4.1",
     "@react-email/components": "^1.0.12",
+    "@react-pdf/renderer": "^4.5.1",
     "cloudinary": "^2.10.0",
     "clsx": "^2.1.1",
     "decimal.js": "^10.6.0",
+    "googleapis": "^173.0.0",
     "lucide-react": "^1.16.0",
     "mongoose": "^9.6.3",
     "next": "16.2.6",
