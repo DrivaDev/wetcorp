@@ -4,6 +4,8 @@ import { auth, clerkClient } from '@clerk/nextjs/server'
 import { connectDB } from '@/lib/mongodb'
 import { OC } from '@/lib/models/OC'
 import type { EstadoOC, OCDetalle } from '@/lib/mock-ocs'
+import { Resend } from 'resend'
+import { OCNotificationEmail } from '@/components/emails/OCNotificationEmail'
 import type {
   InfoGeneralState,
   ProductRow,
@@ -209,6 +211,7 @@ export async function createOC(data: {
         valorUSD: toCentavos(p.valorUSD),
       })),
     })
+    void sendOCNotification(oc._id.toString(), userId)
     return { data: { id: oc._id.toString() } }
   } catch (err: unknown) {
     if (
@@ -321,6 +324,7 @@ export async function updateOC(
     estado: data.estado,
   })
 
+  void sendOCNotification(id, userId)
   return { data: { id } }
 }
 
@@ -440,6 +444,7 @@ export async function updateOCInfo(
     })),
   })
 
+  void sendOCNotification(id, userId)
   return { data: { id } }
 }
 
@@ -487,8 +492,72 @@ export async function updateOCDocumento(
 
   try {
     await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: url } })
+    void sendOCNotification(id, userId)
     return { data: { id } }
   } catch {
     return { error: 'Error al guardar el documento' }
+  }
+}
+
+async function sendOCNotification(ocId: string, editorUserId: string): Promise<void> {
+  try {
+    await connectDB()
+    const doc = await OC.findById(ocId).lean() as Record<string, unknown> & {
+      importadorId: string
+      estado: string
+      emailsProveedor: string[]
+      emailsDespachante: string[]
+      referenciaOC: string
+      proveedor: string
+      fechaOC: string
+      notas: string
+    } | null
+    if (!doc) return
+    if (doc.estado === 'borrador') return
+
+    const editorClerkUser = await (await clerkClient()).users.getUser(editorUserId)
+    const editorEmails = editorClerkUser.emailAddresses
+      .map(e => e.emailAddress?.toLowerCase() ?? '')
+      .filter(Boolean)
+    const editorRole = (editorClerkUser.publicMetadata as { role?: string })?.role
+
+    const importadorClerkUser = await (await clerkClient()).users.getUser(doc.importadorId)
+    const importadorEmail = importadorClerkUser.emailAddresses[0]?.emailAddress?.toLowerCase() ?? ''
+
+    let recipients: string[] = []
+    if (editorRole === 'importador') {
+      recipients = [...doc.emailsProveedor, ...doc.emailsDespachante]
+    } else if (editorRole === 'proveedor') {
+      const otrosProveedor = doc.emailsProveedor.filter(e => !editorEmails.includes(e))
+      recipients = [importadorEmail, ...doc.emailsDespachante, ...otrosProveedor]
+    } else if (editorRole === 'despachante') {
+      const otrosDespachante = doc.emailsDespachante.filter(e => !editorEmails.includes(e))
+      recipients = [importadorEmail, ...doc.emailsProveedor, ...otrosDespachante]
+    }
+
+    recipients = recipients.filter(r => r !== '' && !editorEmails.includes(r))
+    if (recipients.length === 0) return
+
+    const resend = new Resend(process.env.RESEND_API_KEY)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://sistema-comex.vercel.app'
+    const link = `${baseUrl}/importador/oc/${ocId}`
+
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL!,
+      to: recipients,
+      subject: `Actualización OC ${doc.referenciaOC}`,
+      react: OCNotificationEmail({
+        oc: {
+          referenciaOC: doc.referenciaOC,
+          proveedor: doc.proveedor,
+          estado: doc.estado,
+          fechaOC: doc.fechaOC,
+          notas: doc.notas,
+        },
+        link,
+      }),
+    })
+  } catch (err) {
+    console.error('[sendOCNotification] failed:', err)
   }
 }
