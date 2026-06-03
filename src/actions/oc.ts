@@ -416,7 +416,7 @@ export async function updateOCInfo(
 
   await connectDB()
 
-  const existing = await OC.findById(id).lean() as { importadorId?: string } | null
+  const existing = await OC.findById(id).lean() as { importadorId?: string; estado?: string } | null
   if (!existing || existing.importadorId !== userId) return { error: 'Sin acceso' }
 
   const emailsProveedor = data.info.emailsProveedor
@@ -450,7 +450,9 @@ export async function updateOCInfo(
   })
 
   void syncToSheets(id)
-  void sendOCNotification(id, userId)
+  if (data.info.estado !== 'borrador') {
+    void sendOCNotification(id, userId)
+  }
   return { data: { id } }
 }
 
