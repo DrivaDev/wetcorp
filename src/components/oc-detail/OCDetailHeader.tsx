@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Pencil } from 'lucide-react'
+import { Pencil, Download } from 'lucide-react'
 import { EstadoBadge } from '@/components/ui/EstadoBadge'
 import { OCDetailActions } from './OCDetailActions'
 import type { OCDetalle } from '@/lib/mock-ocs'
@@ -26,6 +26,13 @@ export function OCDetailHeader({ oc, rol }: OCDetailHeaderProps) {
             <EstadoBadge estado={oc.estado} />
           </div>
           <div className="flex items-center gap-2">
+            <a
+              href={`/api/oc/${oc.id}/pdf`}
+              download
+              className="flex items-center gap-2 px-4 py-2 rounded-lg border border-acento text-acento font-medium text-sm hover:bg-acento hover:text-white transition-colors min-h-[44px]"
+            >
+              <Download size={16} /> Exportar PDF
+            </a>
             <Link
               href={`/${rol}/oc/${oc.id}/editar`}
               className="flex items-center gap-2 px-4 py-2 rounded-lg border border-principal text-principal font-medium text-sm hover:bg-principal hover:text-white transition-colors min-h-[44px]"

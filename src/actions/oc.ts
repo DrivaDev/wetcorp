@@ -6,6 +6,7 @@ import { OC } from '@/lib/models/OC'
 import type { EstadoOC, OCDetalle } from '@/lib/mock-ocs'
 import { Resend } from 'resend'
 import { OCNotificationEmail } from '@/components/emails/OCNotificationEmail'
+import { google } from 'googleapis'
 import type {
   InfoGeneralState,
   ProductRow,
@@ -211,6 +212,7 @@ export async function createOC(data: {
         valorUSD: toCentavos(p.valorUSD),
       })),
     })
+    void syncToSheets(oc._id.toString())
     void sendOCNotification(oc._id.toString(), userId)
     return { data: { id: oc._id.toString() } }
   } catch (err: unknown) {
@@ -324,6 +326,7 @@ export async function updateOC(
     estado: data.estado,
   })
 
+  void syncToSheets(id)
   void sendOCNotification(id, userId)
   return { data: { id } }
 }
@@ -444,6 +447,7 @@ export async function updateOCInfo(
     })),
   })
 
+  void syncToSheets(id)
   void sendOCNotification(id, userId)
   return { data: { id } }
 }
@@ -559,5 +563,113 @@ async function sendOCNotification(ocId: string, editorUserId: string): Promise<v
     })
   } catch (err) {
     console.error('[sendOCNotification] failed:', err)
+  }
+}
+
+async function syncToSheets(ocId: string): Promise<void> {
+  try {
+    await connectDB()
+    const doc = await OC.findById(ocId).lean() as Record<string, unknown> & {
+      referenciaOC: string
+      proveedor: string
+      estado: string
+      fechaOC: string
+      paisOrigen: string
+      productos: Array<{ produto?: string; producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
+      gastosDespacho: Record<string, number>
+      gastosDespachante: Record<string, number>
+      gastosAdicionales: Record<string, number>
+      otrosGastos: Array<{ descripcion: string; monto: number; divisa: string }>
+      tipoCambio: number
+    } | null
+    if (!doc) return
+
+    const auth = new google.auth.GoogleAuth({
+      credentials: {
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+      },
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    })
+
+    const sheets = google.sheets({ version: 'v4', auth })
+    const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID!
+
+    const tc = doc.tipoCambio?.toString() ?? '0'
+    const productos = (doc.productos ?? []).map(p => ({
+      id: '',
+      producto: p.producto ?? '',
+      descripcion: p.descripcion ?? '',
+      cantidad: String(p.cantidad ?? 0),
+      valorUSD: fromCentavos(p.valorUSD),
+    }))
+    const gastosDespachoTyped = {
+      sim: fromCentavos((doc.gastosDespacho as Record<string, number>)?.sim),
+      derechos: fromCentavos((doc.gastosDespacho as Record<string, number>)?.derechos),
+      tasaEstadistica: fromCentavos((doc.gastosDespacho as Record<string, number>)?.tasaEstadistica),
+      otros: fromCentavos((doc.gastosDespacho as Record<string, number>)?.otros),
+    }
+    const gastosDespachante = {
+      terminal: fromCentavos((doc.gastosDespachante as Record<string, number>)?.terminal),
+      fleteInternacional: fromCentavos((doc.gastosDespachante as Record<string, number>)?.fleteInternacional),
+      fleteInterno: fromCentavos((doc.gastosDespachante as Record<string, number>)?.fleteInterno),
+      senasa: fromCentavos((doc.gastosDespachante as Record<string, number>)?.senasa),
+      despachante: fromCentavos((doc.gastosDespachante as Record<string, number>)?.despachante),
+      gastosOperativos: fromCentavos((doc.gastosDespachante as Record<string, number>)?.gastosOperativos),
+      gastosBancarios: fromCentavos((doc.gastosDespachante as Record<string, number>)?.gastosBancarios),
+    }
+    const gastosAdicionales = {
+      depositoFiscal: fromCentavos((doc.gastosAdicionales as Record<string, number>)?.depositoFiscal),
+      digitalizacion: fromCentavos((doc.gastosAdicionales as Record<string, number>)?.digitalizacion),
+      estanciaCamion: fromCentavos((doc.gastosAdicionales as Record<string, number>)?.estanciaCamion),
+    }
+    const otrosGastos = (doc.otrosGastos ?? []).map(g => ({
+      id: '',
+      descripcion: g.descripcion,
+      monto: fromCentavos(g.monto),
+      divisa: g.divisa as 'ARS' | 'USD',
+    }))
+
+    const { calcFOBTotal, calcTotalGastos, calcLandedCost } = await import('@/lib/wizard-calculations')
+    const fob = calcFOBTotal(productos)
+    const gastos = calcTotalGastos(gastosDespachoTyped, gastosDespachante, gastosAdicionales, otrosGastos, tc)
+    const landed = calcLandedCost(fob, gastos)
+
+    const rowData = [
+      doc.referenciaOC,
+      doc.proveedor,
+      doc.estado,
+      doc.fechaOC,
+      doc.paisOrigen,
+      fob.toFixed(2),
+      gastos.toFixed(2),
+      landed.toFixed(2),
+    ]
+
+    const getRes = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: 'A:A',
+    })
+    const rows = getRes.data.values ?? []
+    const rowIndex = rows.findIndex(r => r[0] === doc.referenciaOC)
+
+    if (rowIndex >= 0) {
+      await sheets.spreadsheets.values.update({
+        spreadsheetId,
+        range: `A${rowIndex + 1}:H${rowIndex + 1}`,
+        valueInputOption: 'USER_ENTERED',
+        requestBody: { values: [rowData] },
+      })
+    } else {
+      await sheets.spreadsheets.values.append({
+        spreadsheetId,
+        range: 'A:H',
+        valueInputOption: 'USER_ENTERED',
+        insertDataOption: 'INSERT_ROWS',
+        requestBody: { values: [rowData] },
+      })
+    }
+  } catch (err) {
+    console.error('[syncToSheets] failed:', err)
   }
 }
