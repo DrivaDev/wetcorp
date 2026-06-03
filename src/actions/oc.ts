@@ -715,11 +715,12 @@ async function syncToSheets(ocId: string): Promise<void> {
     const parentFolderId = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID
     if (parentFolderId && docsConUrl.length > 0) {
       try {
-        // Buscar carpeta existente
+        // Buscar carpeta existente (supportsAllDrives para Shared Drives)
         const folderSearch = await drive.files.list({
           q: `name = '${doc.referenciaOC}' and '${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
           fields: 'files(id)',
-          spaces: 'drive',
+          supportsAllDrives: true,
+          includeItemsFromAllDrives: true,
         })
         let folderId: string
         if (folderSearch.data.files && folderSearch.data.files.length > 0) {
@@ -732,6 +733,7 @@ async function syncToSheets(ocId: string): Promise<void> {
               parents: [parentFolderId],
             },
             fields: 'id',
+            supportsAllDrives: true,
           })
           folderId = created.data.id!
         }
@@ -746,18 +748,22 @@ async function syncToSheets(ocId: string): Promise<void> {
           const fileSearch = await drive.files.list({
             q: `name = '${fileName}' and '${folderId}' in parents and trashed = false`,
             fields: 'files(id)',
+            supportsAllDrives: true,
+            includeItemsFromAllDrives: true,
           })
           const stream = Readable.from(buffer)
           if (fileSearch.data.files && fileSearch.data.files.length > 0) {
             await drive.files.update({
               fileId: fileSearch.data.files[0].id!,
               media: { mimeType: 'application/pdf', body: stream },
+              supportsAllDrives: true,
             })
           } else {
             await drive.files.create({
               requestBody: { name: fileName, parents: [folderId] },
               media: { mimeType: 'application/pdf', body: stream },
               fields: 'id',
+              supportsAllDrives: true,
             })
           }
         }

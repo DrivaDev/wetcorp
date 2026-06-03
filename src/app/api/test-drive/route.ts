@@ -29,11 +29,13 @@ export async function GET() {
 
     const drive = google.drive({ version: 'v3', auth: gauth })
 
-    // Listar archivos en la carpeta padre para verificar acceso
+    // Listar archivos en la carpeta padre para verificar acceso (supportsAllDrives para Shared Drives)
     const res = await drive.files.list({
       q: `'${parentFolderId}' in parents and trashed = false`,
       fields: 'files(id, name, mimeType)',
       pageSize: 5,
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
     })
 
     // Crear carpeta de prueba
@@ -44,10 +46,11 @@ export async function GET() {
         parents: [parentFolderId],
       },
       fields: 'id, name',
+      supportsAllDrives: true,
     })
 
     // Eliminar carpeta de prueba
-    await drive.files.delete({ fileId: testFolder.data.id! })
+    await drive.files.delete({ fileId: testFolder.data.id!, supportsAllDrives: true })
 
     return Response.json({
       ok: true,
