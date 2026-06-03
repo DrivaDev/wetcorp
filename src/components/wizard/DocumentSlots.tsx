@@ -157,7 +157,15 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
 
   const handleUploadSuccess = (slot: string, url: string) => {
     if (ocId) {
-      updateOCDocumento(ocId, slot, url).then(() => setOpenSlot(null))
+      updateOCDocumento(ocId, slot, url).then((result) => {
+        if ('error' in result) {
+          console.error('Error saving document:', result.error)
+        }
+        setOpenSlot(null)
+      }).catch((err) => {
+        console.error('Error saving document:', err)
+        setOpenSlot(null)
+      })
     } else {
       setOpenSlot(null)
     }
