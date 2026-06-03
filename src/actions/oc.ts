@@ -166,6 +166,34 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
   }
 }
 
+// Verifica acceso multi-rol a una OC (igual lógica que getOCById)
+async function checkOCAccess(
+  id: string,
+  userId: string,
+  rol: string | undefined
+): Promise<{ ok: true; existing: Record<string, unknown> } | { ok: false; error: string }> {
+  const existing = await OC.findById(id).lean() as Record<string, unknown> & {
+    importadorId?: string
+    estado?: string
+    emailsProveedor?: string[]
+    emailsDespachante?: string[]
+  } | null
+  if (!existing) return { ok: false, error: 'OC no encontrada' }
+  if (rol === 'importador') {
+    if (existing.importadorId !== userId) return { ok: false, error: 'Sin acceso' }
+  } else if (rol === 'proveedor' || rol === 'despachante') {
+    const clerkUser = await (await clerkClient()).users.getUser(userId)
+    const emails = clerkUser.emailAddresses
+      .map(e => e.emailAddress?.toLowerCase() ?? '')
+      .filter(Boolean)
+    const lista = rol === 'proveedor' ? (existing.emailsProveedor ?? []) : (existing.emailsDespachante ?? [])
+    if (!emails.some(e => (lista as string[]).includes(e))) return { ok: false, error: 'Sin acceso' }
+  } else {
+    return { ok: false, error: 'Sin acceso' }
+  }
+  return { ok: true, existing }
+}
+
 export async function checkReferenciaOC(
   referencia: string,
   excludeId?: string
@@ -294,12 +322,12 @@ export async function updateOC(
 ): Promise<{ data: { id: string } } | { error: string }> {
   const { userId, sessionClaims } = await auth()
   const rol = (sessionClaims?.metadata as { role?: string })?.role
-  if (!userId || rol !== 'importador') return { error: 'No autorizado' }
+  if (!userId) return { error: 'No autorizado' }
 
   await connectDB()
 
-  const existing = await OC.findById(id).lean() as { importadorId?: string } | null
-  if (!existing || existing.importadorId !== userId) return { error: 'Sin acceso' }
+  const access = await checkOCAccess(id, userId, rol)
+  if (!access.ok) return { error: access.error }
 
   await OC.findByIdAndUpdate(id, {
     gastosDespacho: {
@@ -424,13 +452,14 @@ export async function updateOCInfo(
     productos: ProductRow[]
   }
 ): Promise<{ data: { id: string } } | { error: string }> {
-  const { userId } = await auth()
+  const { userId, sessionClaims } = await auth()
+  const rol = (sessionClaims?.metadata as { role?: string })?.role
   if (!userId) return { error: 'No autorizado' }
 
   await connectDB()
 
-  const existing = await OC.findById(id).lean() as { importadorId?: string; estado?: string } | null
-  if (!existing || existing.importadorId !== userId) return { error: 'Sin acceso' }
+  const access = await checkOCAccess(id, userId, rol)
+  if (!access.ok) return { error: access.error }
 
   const emailsProveedor = data.info.emailsProveedor
     .map(e => e.toLowerCase().trim())
