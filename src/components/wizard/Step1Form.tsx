@@ -159,6 +159,12 @@ export function Step1Form({ initialData, ocId }: Step1FormProps = {}) {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-8">
       <h1 className="text-2xl font-bold text-titulares">Paso 1: Información General</h1>
 
+      {serverError && (
+        <div className="bg-red-50 border border-red-300 rounded-lg px-4 py-3 text-sm font-normal text-red-700">
+          {serverError}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Referencia OC */}
         <div className="flex flex-col gap-1">

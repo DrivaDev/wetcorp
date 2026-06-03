@@ -745,7 +745,7 @@ async function syncToSheets(ocId: string): Promise<void> {
       range: 'C:C',
     })
     const rows = getRes.data.values ?? []
-    const rowIndex = rows.findIndex(r => r[0] === doc.referenciaOC)
+    const rowIndex = rows.findIndex(r => r[0]?.toString().trim() === doc.referenciaOC?.trim())
 
     const colEnd = 'W'
     if (rowIndex >= 0) {
