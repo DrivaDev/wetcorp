@@ -681,11 +681,12 @@ async function syncToSheets(ocId: string): Promise<void> {
     }
     const docsConUrl = Object.entries(doc.documentos ?? {})
       .filter(([, url]) => !!url) as [string, string][]
-    // Siempre HYPERLINK — URL nunca visible. Múltiples: concatenados con CHAR(10)
+    // HYPERLINK con punto y coma (Sheets en español/latinoamérica usa ; como separador)
+    // Múltiples docs: concatenados con CHAR(10) para línea separada por doc
     const documentosText = docsConUrl.length === 0
       ? ''
       : '=' + docsConUrl
-          .map(([key, url]) => `HYPERLINK("${url}","${docSlotLabels[key] ?? key}")`)
+          .map(([key, url]) => `HYPERLINK("${url}";"${docSlotLabels[key] ?? key}")`)
           .join('&CHAR(10)&')
 
     const rowData = [
