@@ -1,8 +1,22 @@
 export const runtime = 'nodejs'
 
 import { auth } from '@clerk/nextjs/server'
+import { v2 as cloudinary } from 'cloudinary'
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 const CLOUDINARY_RE = /^https:\/\/res\.cloudinary\.com\//
+
+// Extrae el public_id desde una URL de Cloudinary raw
+// Ej: .../raw/upload/v123/drivaoc-docs/file.pdf → drivaoc-docs/file.pdf
+function extractPublicId(url: string): string {
+  const match = url.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/)
+  return match ? match[1] : ''
+}
 
 export async function GET(request: Request) {
   const { userId } = await auth()
@@ -15,17 +29,38 @@ export async function GET(request: Request) {
     return new Response('URL inválida', { status: 400 })
   }
 
-  const upstream = await fetch(url)
-  if (!upstream.ok) {
-    return new Response('No se pudo obtener el archivo', { status: 502 })
+  const filename = url.split('/').pop() ?? 'documento.pdf'
+
+  // Si tenemos credenciales de Cloudinary → generar URL firmada (bypasea restricciones de acceso)
+  if (process.env.CLOUDINARY_API_SECRET) {
+    const publicId = extractPublicId(url)
+    if (publicId) {
+      const signedUrl = cloudinary.url(publicId, {
+        resource_type: 'raw',
+        sign_url: true,
+        type: 'upload',
+        expires_at: Math.floor(Date.now() / 1000) + 300, // 5 min
+      })
+      // Fetch con URL firmada
+      const upstream = await fetch(signedUrl)
+      if (upstream.ok) {
+        const buffer = await upstream.arrayBuffer()
+        return new Response(buffer, {
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `inline; filename="${filename}"`,
+          },
+        })
+      }
+    }
   }
 
+  // Fallback: fetch directo (funciona si el recurso es público)
+  const upstream = await fetch(url)
+  if (!upstream.ok) {
+    return new Response(`No se pudo obtener el archivo (${upstream.status})`, { status: 502 })
+  }
   const buffer = await upstream.arrayBuffer()
-
-  // Extraer nombre del archivo desde la URL (último segmento)
-  const rawName = url.split('/').pop() ?? 'documento'
-  const filename = rawName.endsWith('.pdf') ? rawName : `${rawName}.pdf`
-
   return new Response(buffer, {
     headers: {
       'Content-Type': 'application/pdf',
