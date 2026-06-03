@@ -489,6 +489,7 @@ export async function updateOCDocumento(
   if (rol === 'importador') {
     if (existing.importadorId !== userId) return { error: 'Sin acceso' }
   } else if (rol === 'proveedor' || rol === 'despachante') {
+    if (existing.estado === 'borrador') return { error: 'Sin acceso' }
     const clerkUser = await (await clerkClient()).users.getUser(userId)
     const emails = clerkUser.emailAddresses
       .map(e => e.emailAddress?.toLowerCase() ?? '')
