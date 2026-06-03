@@ -7,6 +7,7 @@ import type { EstadoOC, OCDetalle } from '@/lib/mock-ocs'
 import { Resend } from 'resend'
 import { OCNotificationEmail } from '@/components/emails/OCNotificationEmail'
 import { google } from 'googleapis'
+import Decimal from 'decimal.js'
 import type {
   InfoGeneralState,
   ProductRow,
@@ -44,7 +45,7 @@ function defaultStats(): StatsResult {
 
 function toCentavos(val: string | undefined): number {
   if (!val || val.trim() === '') return 0
-  return Math.round(parseFloat(val) * 100)
+  return new Decimal(val).times(100).toDecimalPlaces(0, Decimal.ROUND_HALF_UP).toNumber()
 }
 
 function fromCentavos(val: number | undefined): string {
