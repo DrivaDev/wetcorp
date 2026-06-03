@@ -686,36 +686,11 @@ async function syncToSheets(ocId: string): Promise<void> {
     const docsConUrl = Object.entries(doc.documentos ?? {})
       .filter(([, url]) => !!url) as [string, string][]
 
-    // Cloudinary signed URL para fetch server-side
-    const expiresShort = Math.floor(Date.now() / 1000) + 600 // 10 min, solo para fetch interno
-    const { v2: cld } = await import('cloudinary')
-    cld.config({
-      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-      api_key: process.env.CLOUDINARY_API_KEY,
-      api_secret: process.env.CLOUDINARY_API_SECRET,
-    })
-    const fetchFromCloudinary = async (rawUrl: string): Promise<Buffer | null> => {
-      try {
-        const match = rawUrl.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/)
-        if (!match) return null
-        const publicId = match[1]
-        for (const type of ['upload', 'authenticated', 'private'] as const) {
-          const signed = cld.utils.private_download_url(
-            publicId, 'pdf', { resource_type: 'raw', type, expires_at: expiresShort }
-          )
-          const res = await fetch(signed)
-          if (res.ok) return Buffer.from(await res.arrayBuffer())
-        }
-      } catch { /* no-op */ }
-      return null
-    }
-
-    // Crear o encontrar carpeta Drive para esta OC
+    // Crear o encontrar carpeta Drive para esta OC (archivos ya subidos al adjuntar docs)
     let documentosText = ''
     const parentFolderId = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID
-    if (parentFolderId && docsConUrl.length > 0) {
+    if (parentFolderId) {
       try {
-        // Buscar carpeta existente (supportsAllDrives para Shared Drives)
         const folderSearch = await drive.files.list({
           q: `name = '${doc.referenciaOC}' and '${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
           fields: 'files(id)',
@@ -727,49 +702,15 @@ async function syncToSheets(ocId: string): Promise<void> {
           folderId = folderSearch.data.files[0].id!
         } else {
           const created = await drive.files.create({
-            requestBody: {
-              name: doc.referenciaOC,
-              mimeType: 'application/vnd.google-apps.folder',
-              parents: [parentFolderId],
-            },
+            requestBody: { name: doc.referenciaOC, mimeType: 'application/vnd.google-apps.folder', parents: [parentFolderId] },
             fields: 'id',
             supportsAllDrives: true,
           })
           folderId = created.data.id!
         }
-
-        // Subir documentos a Drive en paralelo (evita timeout de Vercel)
-        const { Readable } = await import('stream')
-        await Promise.allSettled(docsConUrl.map(async ([key, rawUrl]) => {
-          const buffer = await fetchFromCloudinary(rawUrl)
-          if (!buffer) return
-          const fileName = `${docSlotLabels[key] ?? key}.pdf`
-          const fileSearch = await drive.files.list({
-            q: `name = '${fileName}' and '${folderId}' in parents and trashed = false`,
-            fields: 'files(id)',
-            supportsAllDrives: true,
-            includeItemsFromAllDrives: true,
-          })
-          const stream = Readable.from(buffer)
-          if (fileSearch.data.files && fileSearch.data.files.length > 0) {
-            await drive.files.update({
-              fileId: fileSearch.data.files[0].id!,
-              media: { mimeType: 'application/pdf', body: stream },
-              supportsAllDrives: true,
-            })
-          } else {
-            await drive.files.create({
-              requestBody: { name: fileName, parents: [folderId] },
-              media: { mimeType: 'application/pdf', body: stream },
-              fields: 'id',
-              supportsAllDrives: true,
-            })
-          }
-        }))
-
         documentosText = `=HYPERLINK("https://drive.google.com/drive/folders/${folderId}";"Clic aquí")`
       } catch (driveErr) {
-        console.error('[syncToSheets] Drive upload failed:', driveErr)
+        console.error('[syncToSheets] Drive folder failed:', driveErr)
       }
     }
 

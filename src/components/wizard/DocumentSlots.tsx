@@ -43,6 +43,7 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
     try {
       const formData = new FormData()
       formData.append('file', file)
+      formData.append('ocId', ocId)
       const res = await fetch('/api/upload-doc', { method: 'POST', body: formData })
       const json = await res.json() as { url?: string; error?: string }
       if (!res.ok || !json.url) {
