@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Plus, FileText, ExternalLink, Upload, X } from 'lucide-react'
+import { FileText, ExternalLink, Upload, X } from 'lucide-react'
 import { CldUploadWidget } from 'next-cloudinary'
 import { updateOCDocumento } from '@/actions/oc'
 
@@ -11,6 +11,7 @@ const FIXED_SLOTS = [
   'Certificado de Origen',
   'Certificado de Análisis',
   'Packing list',
+  'Otro',
 ]
 
 const FIXED_SLOT_KEYS: Record<string, string> = {
@@ -20,11 +21,7 @@ const FIXED_SLOT_KEYS: Record<string, string> = {
   'Certificado de Origen':  'certificadoOrigen',
   'Certificado de Análisis': 'certificadoAnalisis',
   'Packing list':           'packingList',
-}
-
-interface OtroSlot {
-  id: string
-  nombre: string
+  'Otro':                   'otro',
 }
 
 interface DocumentSlotsProps {
@@ -145,7 +142,6 @@ function DocumentRow({
 export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps = {}) {
   const [confirmSlot, setConfirmSlot] = useState<string | null>(null)
   const [openSlot, setOpenSlot] = useState<string | null>(null)
-  const [otrosSlots, setOtrosSlots] = useState<OtroSlot[]>([])
 
   const handleUploadAttempt = (slot: string, existingUrl: string | null | undefined) => {
     if (existingUrl) {
@@ -174,18 +170,6 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
   const handleWidgetClose = () => {
     setOpenSlot(null)
   }
-
-  const addOtro = () =>
-    setOtrosSlots((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), nombre: '' },
-    ])
-
-  const removeOtro = (id: string) =>
-    setOtrosSlots((prev) => prev.filter((s) => s.id !== id))
-
-  const updateNombre = (id: string, nombre: string) =>
-    setOtrosSlots((prev) => prev.map((s) => (s.id === id ? { ...s, nombre } : s)))
 
   return (
     <div className="flex flex-col gap-3">
@@ -216,34 +200,7 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
           )
         })}
 
-        {!readOnly && otrosSlots.map((slot) => (
-          <DocumentRow
-            key={slot.id}
-            nombre={slot.nombre}
-            slotKey="otro"
-            ocId={ocId}
-            existingUrl={documentos?.otro ?? null}
-            readOnly={readOnly}
-            openSlot={openSlot}
-            onNameChange={(v) => updateNombre(slot.id, v)}
-            onRemove={() => removeOtro(slot.id)}
-            onUploadAttempt={handleUploadAttempt}
-            onUploadSuccess={handleUploadSuccess}
-            onWidgetClose={handleWidgetClose}
-          />
-        ))}
       </div>
-
-      {!readOnly && (
-        <button
-          type="button"
-          onClick={addOtro}
-          className="flex items-center gap-2 text-sm font-normal text-principal hover:text-titulares transition-colors min-h-[44px] self-start"
-        >
-          <Plus size={16} />
-          Agregar otro documento
-        </button>
-      )}
 
       {confirmSlot !== null && (
         <div className="fixed inset-0 z-50 bg-texto/30 flex items-center justify-center p-4">
