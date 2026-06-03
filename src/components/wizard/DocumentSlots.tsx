@@ -103,7 +103,10 @@ function DocumentRow({
             signatureEndpoint="/api/sign-cloudinary-params"
             options={{ resourceType: 'raw', folder: 'drivaoc-docs' }}
             onSuccess={(result) => {
-              const url = (result.info as { secure_url: string }).secure_url
+              const info = result.info
+              if (typeof info !== 'object' || !info || !('secure_url' in info)) return
+              const url = (info as { secure_url: string }).secure_url
+              if (!url) return
               onUploadSuccess(slotKey, url)
             }}
             onClose={onWidgetClose}
