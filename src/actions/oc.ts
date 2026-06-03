@@ -589,16 +589,24 @@ async function syncToSheets(ocId: string): Promise<void> {
     } | null
     if (!doc) return
 
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY
+    const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+    const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID
+
+    if (!privateKey || !clientEmail || !spreadsheetId) {
+      console.warn('[syncToSheets] Missing Google Sheets env vars — skipping sync')
+      return
+    }
+
     const auth = new google.auth.GoogleAuth({
       credentials: {
-        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
+        client_email: clientEmail,
+        private_key: privateKey.replace(/\\n/g, '\n'),
       },
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     })
 
     const sheets = google.sheets({ version: 'v4', auth })
-    const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID!
 
     const tc = doc.tipoCambio?.toString() ?? '0'
     const productos = (doc.productos ?? []).map(p => ({
