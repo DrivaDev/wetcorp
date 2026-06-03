@@ -34,9 +34,15 @@ export async function POST(request: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer())
 
+    // Preservar extensión .pdf en el public_id → URL incluye .pdf → browser descarga como PDF
+    const safeName = (file.name || 'documento.pdf')
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .replace(/\.pdf$/i, '')
+    const publicId = `${Date.now()}_${safeName}.pdf`
+
     const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { resource_type: 'raw', folder: 'drivaoc-docs' },
+        { resource_type: 'raw', folder: 'drivaoc-docs', public_id: publicId },
         (error, result) => {
           if (error || !result) return reject(error ?? new Error('Upload failed'))
           resolve(result as { secure_url: string })
