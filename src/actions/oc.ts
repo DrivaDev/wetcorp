@@ -617,38 +617,41 @@ async function syncToSheets(ocId: string): Promise<void> {
 
     const sheets = google.sheets({ version: 'v4', auth })
 
+    // fc: fromCentavos con fallback '0' para Decimal (fromCentavos retorna '' en cero)
+    const fc = (val: number | undefined): string => fromCentavos(val) || '0'
+
     const tc = doc.tipoCambio?.toString() ?? '0'
     const productos = (doc.productos ?? []).map(p => ({
       id: '',
       producto: p.producto ?? '',
       descripcion: p.descripcion ?? '',
       cantidad: String(p.cantidad ?? 0),
-      valorUSD: fromCentavos(p.valorUSD),
+      valorUSD: fc(p.valorUSD),
     }))
     const gastosDespachoTyped = {
-      sim: fromCentavos((doc.gastosDespacho as Record<string, number>)?.sim),
-      derechos: fromCentavos((doc.gastosDespacho as Record<string, number>)?.derechos),
-      tasaEstadistica: fromCentavos((doc.gastosDespacho as Record<string, number>)?.tasaEstadistica),
-      otros: fromCentavos((doc.gastosDespacho as Record<string, number>)?.otros),
+      sim: fc((doc.gastosDespacho as Record<string, number>)?.sim),
+      derechos: fc((doc.gastosDespacho as Record<string, number>)?.derechos),
+      tasaEstadistica: fc((doc.gastosDespacho as Record<string, number>)?.tasaEstadistica),
+      otros: fc((doc.gastosDespacho as Record<string, number>)?.otros),
     }
     const gastosDespachante = {
-      terminal: fromCentavos((doc.gastosDespachante as Record<string, number>)?.terminal),
-      fleteInternacional: fromCentavos((doc.gastosDespachante as Record<string, number>)?.fleteInternacional),
-      fleteInterno: fromCentavos((doc.gastosDespachante as Record<string, number>)?.fleteInterno),
-      senasa: fromCentavos((doc.gastosDespachante as Record<string, number>)?.senasa),
-      despachante: fromCentavos((doc.gastosDespachante as Record<string, number>)?.despachante),
-      gastosOperativos: fromCentavos((doc.gastosDespachante as Record<string, number>)?.gastosOperativos),
-      gastosBancarios: fromCentavos((doc.gastosDespachante as Record<string, number>)?.gastosBancarios),
+      terminal: fc((doc.gastosDespachante as Record<string, number>)?.terminal),
+      fleteInternacional: fc((doc.gastosDespachante as Record<string, number>)?.fleteInternacional),
+      fleteInterno: fc((doc.gastosDespachante as Record<string, number>)?.fleteInterno),
+      senasa: fc((doc.gastosDespachante as Record<string, number>)?.senasa),
+      despachante: fc((doc.gastosDespachante as Record<string, number>)?.despachante),
+      gastosOperativos: fc((doc.gastosDespachante as Record<string, number>)?.gastosOperativos),
+      gastosBancarios: fc((doc.gastosDespachante as Record<string, number>)?.gastosBancarios),
     }
     const gastosAdicionales = {
-      depositoFiscal: fromCentavos((doc.gastosAdicionales as Record<string, number>)?.depositoFiscal),
-      digitalizacion: fromCentavos((doc.gastosAdicionales as Record<string, number>)?.digitalizacion),
-      estanciaCamion: fromCentavos((doc.gastosAdicionales as Record<string, number>)?.estanciaCamion),
+      depositoFiscal: fc((doc.gastosAdicionales as Record<string, number>)?.depositoFiscal),
+      digitalizacion: fc((doc.gastosAdicionales as Record<string, number>)?.digitalizacion),
+      estanciaCamion: fc((doc.gastosAdicionales as Record<string, number>)?.estanciaCamion),
     }
     const otrosGastos = (doc.otrosGastos ?? []).map(g => ({
       id: '',
       descripcion: g.descripcion,
-      monto: fromCentavos(g.monto),
+      monto: fc(g.monto),
       divisa: g.divisa as 'ARS' | 'USD',
     }))
 
@@ -658,10 +661,10 @@ async function syncToSheets(ocId: string): Promise<void> {
     const landed = calcLandedCost(fob, gastos)
 
     const imp = doc.impuestos as Record<string, number> ?? {}
-    const totalImpuestos = new Decimal(fromCentavos(imp.iva))
-      .plus(new Decimal(fromCentavos(imp.ivaAd)))
-      .plus(new Decimal(fromCentavos(imp.iibb)))
-      .plus(new Decimal(fromCentavos(imp.iigg)))
+    const totalImpuestos = new Decimal(fc(imp.iva))
+      .plus(new Decimal(fc(imp.ivaAd)))
+      .plus(new Decimal(fc(imp.iibb)))
+      .plus(new Decimal(fc(imp.iigg)))
 
     const otrosGastosText = otrosGastos.length > 0
       ? otrosGastos.map(g => `${g.descripcion} ${g.monto} ${g.divisa}`).join(', ')
