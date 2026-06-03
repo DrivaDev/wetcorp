@@ -354,7 +354,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
         </div>
 
         {/* Documentos */}
-        <DocumentSlots />
+        <DocumentSlots ocId={ocId} documentos={ocData?.documentos} />
 
         {/* Valores */}
         <ValueCards
