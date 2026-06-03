@@ -608,6 +608,7 @@ async function syncToSheets(ocId: string): Promise<void> {
       otrosGastos: Array<{ descripcion: string; monto: number; divisa: string }>
       documentos: Record<string, string | null>
       tipoCambio: number
+      divisa: string
     } | null
     if (!doc) return
 
@@ -732,34 +733,38 @@ async function syncToSheets(ocId: string): Promise<void> {
       }
     }
 
-    const n = (v: string) => parseFloat(v) || 0
+    // FX = moneda extranjera según tipo de cambio (USD o EUR)
+    const fx = doc.divisa === 'ARS/EUR' ? 'EUR' : 'USD'
+    const ars = (v: string | number) => `${parseFloat(String(v)) || 0} ARS`
+    const fxFmt = (v: string | number) => `${parseFloat(String(v)) || 0} ${fx}`
+
     const rowData = [
-      doc.estado,                              // A - texto
-      doc.fechaOC,                             // B - texto
-      doc.referenciaOC,                        // C - texto
-      doc.paisOrigen,                          // D - texto
-      doc.despacho ?? '',                      // E - texto
-      doc.fechaDespacho ?? '',                 // F - texto
-      n(fob.toFixed(2)),                       // G - número
-      n(gastosDespachoTyped.sim),              // H - número
-      n(gastosDespachoTyped.derechos),         // I - número
-      n(gastosDespachoTyped.tasaEstadistica),  // J - número
-      n(gastosDespachoTyped.otros),            // K - número
-      n(gastosDespachante.terminal),            // L - número
-      n(gastosDespachante.fleteInternacional),  // M - número
-      n(gastosDespachante.fleteInterno),        // N - número
-      n(gastosDespachante.senasa),              // O - número
-      n(gastosDespachante.despachante),         // P - número
-      n(gastosDespachante.gastosOperativos),    // Q - número
-      n(gastosDespachante.gastosBancarios),     // R - número
-      n(gastosAdicionales.depositoFiscal),      // S - número
-      n(gastosAdicionales.digitalizacion),      // T - número
-      n(gastosAdicionales.estanciaCamion),      // U - número
-      n(otrosGastosTotal.toFixed(2)),            // V - número (suma otros gastos en USD)
-      n(totalImpuestos.toFixed(2)),             // W - número
-      documentosText,                           // X - URL texto
-      n(gastos.toFixed(2)),                     // Y - número
-      n(landed.toFixed(2)),                     // Z - número
+      doc.estado,                                         // A - texto
+      doc.fechaOC,                                        // B - texto
+      doc.referenciaOC,                                   // C - texto
+      doc.paisOrigen,                                     // D - texto
+      doc.despacho ?? '',                                 // E - texto
+      doc.fechaDespacho ?? '',                            // F - texto
+      fxFmt(fob.toFixed(2)),                              // G - FOB (FX)
+      fxFmt(gastosDespachoTyped.sim),                     // H - SIM (FX)
+      fxFmt(gastosDespachoTyped.derechos),                // I - Derechos (FX)
+      fxFmt(gastosDespachoTyped.tasaEstadistica),         // J - Tasa estadística (FX)
+      fxFmt(gastosDespachoTyped.otros),                   // K - Otros despacho (FX)
+      ars(gastosDespachante.terminal),                    // L - Terminal (ARS)
+      fxFmt(gastosDespachante.fleteInternacional),        // M - Flete int'l (FX)
+      ars(gastosDespachante.fleteInterno),                // N - Flete interno (ARS)
+      ars(gastosDespachante.senasa),                      // O - SENASA (ARS)
+      ars(gastosDespachante.despachante),                 // P - Despachante (ARS)
+      ars(gastosDespachante.gastosOperativos),            // Q - Gastos operativos (ARS)
+      ars(gastosDespachante.gastosBancarios),             // R - Gastos bancarios (ARS)
+      ars(gastosAdicionales.depositoFiscal),              // S - Depósito fiscal (ARS)
+      ars(gastosAdicionales.digitalizacion),              // T - Digitalización (ARS)
+      ars(gastosAdicionales.estanciaCamion),              // U - Estancia camión (ARS)
+      fxFmt(otrosGastosTotal.toFixed(2)),                 // V - Otros gastos suma (FX)
+      fxFmt(totalImpuestos.toFixed(2)),                   // W - Total impuestos (FX)
+      documentosText,                                     // X - URL texto
+      fxFmt(gastos.toFixed(2)),                           // Y - Gastos importación (FX)
+      fxFmt(landed.toFixed(2)),                           // Z - Costo nacionalización (FX)
     ]
 
     // Obtener sheetId (necesario para deleteDimension)
