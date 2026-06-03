@@ -741,19 +741,21 @@ async function syncToSheets(ocId: string): Promise<void> {
       n(gastosDespachoTyped.derechos),         // I - número
       n(gastosDespachoTyped.tasaEstadistica),  // J - número
       n(gastosDespachoTyped.otros),            // K - número
-      n(gastosDespachante.terminal),           // L - número
-      n(gastosDespachante.fleteInternacional), // M - número
-      n(gastosDespachante.fleteInterno),       // N - número
-      n(gastosDespachante.senasa),             // O - número
-      n(gastosDespachante.despachante),        // P - número
-      n(gastosAdicionales.depositoFiscal),     // Q - número
-      n(gastosAdicionales.digitalizacion),     // R - número
-      n(gastosAdicionales.estanciaCamion),     // S - número
-      otrosGastosText,                         // T - texto
-      n(totalImpuestos.toFixed(2)),            // U - número
-      documentosText,                          // V - URL texto
-      n(gastos.toFixed(2)),                    // W - número
-      n(landed.toFixed(2)),                    // X - número
+      n(gastosDespachante.terminal),            // L - número
+      n(gastosDespachante.fleteInternacional),  // M - número
+      n(gastosDespachante.fleteInterno),        // N - número
+      n(gastosDespachante.senasa),              // O - número
+      n(gastosDespachante.despachante),         // P - número
+      n(gastosDespachante.gastosOperativos),    // Q - número
+      n(gastosDespachante.gastosBancarios),     // R - número
+      n(gastosAdicionales.depositoFiscal),      // S - número
+      n(gastosAdicionales.digitalizacion),      // T - número
+      n(gastosAdicionales.estanciaCamion),      // U - número
+      otrosGastosText,                          // V - texto
+      n(totalImpuestos.toFixed(2)),             // W - número
+      documentosText,                           // X - URL texto
+      n(gastos.toFixed(2)),                     // Y - número
+      n(landed.toFixed(2)),                     // Z - número
     ]
 
     // Obtener sheetId (necesario para deleteDimension)
@@ -788,7 +790,7 @@ async function syncToSheets(ocId: string): Promise<void> {
     // Siempre append fila fresca
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'A:X',
+      range: 'A:Z',
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
       requestBody: { values: [rowData] },
