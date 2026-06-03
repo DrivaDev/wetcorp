@@ -1,7 +1,7 @@
 'use client'
 import { useRef, useState } from 'react'
-import { FileText, ExternalLink, Upload, Loader2 } from 'lucide-react'
-import { updateOCDocumento } from '@/actions/oc'
+import { FileText, ExternalLink, Upload, Loader2, Trash2 } from 'lucide-react'
+import { updateOCDocumento, deleteOCDocumento } from '@/actions/oc'
 
 const SLOTS: { nombre: string; key: string }[] = [
   { nombre: 'Factura proveedor',      key: 'facturaProveedor' },
@@ -29,12 +29,33 @@ interface DocumentSlotsProps {
 
 export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps = {}) {
   const [uploading, setUploading] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [localUrls, setLocalUrls] = useState<Record<string, string>>({})
+  const [localUrls, setLocalUrls] = useState<Record<string, string | null>>({})
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
-  const getUrl = (key: string): string | null =>
-    localUrls[key] ?? (documentos?.[key as keyof typeof documentos] as string | null) ?? null
+  const getUrl = (key: string): string | null => {
+    if (key in localUrls) return localUrls[key]
+    return (documentos?.[key as keyof typeof documentos] as string | null) ?? null
+  }
+
+  const handleDelete = async (key: string) => {
+    if (!ocId) return
+    setError(null)
+    setDeleting(key)
+    try {
+      const result = await deleteOCDocumento(ocId, key)
+      if ('error' in result) {
+        setError(result.error)
+        return
+      }
+      setLocalUrls(prev => ({ ...prev, [key]: null }))
+    } catch {
+      setError('Error de conexión al eliminar el archivo')
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   const handleFileChange = async (key: string, file: File | null) => {
     if (!file || !ocId) return
@@ -81,6 +102,7 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
         {SLOTS.map(({ nombre, key }) => {
           const url = getUrl(key)
           const isUploading = uploading === key
+          const isDeleting = deleting === key
 
           return (
             <div key={key} className="flex items-center gap-3 px-4 py-3">
@@ -114,6 +136,17 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
                       Ver archivo
                     </a>
                   )}
+                  {url && (
+                    <button
+                      type="button"
+                      disabled={isDeleting || isUploading}
+                      onClick={() => handleDelete(key)}
+                      className="flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 border border-red-200 hover:border-red-400 rounded-lg p-1.5 transition-colors min-h-[36px] min-w-[36px] shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                      aria-label="Eliminar archivo"
+                    >
+                      {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                    </button>
+                  )}
                   {!url && (
                     <span className="text-sm font-normal text-texto/50 hidden sm:block shrink-0">Sin archivo</span>
                   )}
@@ -124,12 +157,12 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
                     accept="application/pdf"
                     className="hidden"
                     onChange={e => handleFileChange(key, e.target.files?.[0] ?? null)}
-                    disabled={isUploading}
+                    disabled={isUploading || isDeleting}
                   />
 
                   <button
                     type="button"
-                    disabled={isUploading}
+                    disabled={isUploading || isDeleting}
                     onClick={() => inputRefs.current[key]?.click()}
                     className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
                   >

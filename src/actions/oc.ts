@@ -1,5 +1,6 @@
 'use server'
 
+import { after } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { connectDB } from '@/lib/mongodb'
 import { OC } from '@/lib/models/OC'
@@ -254,7 +255,7 @@ export async function createOC(data: {
         valorUSD: toCentavos(p.valorUSD),
       })),
     })
-    await syncToSheets(oc._id.toString())
+    after(() => syncToSheets(oc._id.toString()))
     void sendOCNotification(oc._id.toString(), userId)
     return { data: { id: oc._id.toString() } }
   } catch (err: unknown) {
@@ -369,7 +370,7 @@ export async function updateOC(
     estado: data.estado,
   })
 
-  await syncToSheets(id)
+  after(() => syncToSheets(id))
   void sendOCNotification(id, userId)
   return { data: { id } }
 }
@@ -417,7 +418,10 @@ export async function getOCs(): Promise<
   }
 
   const [docs, aggResult] = await Promise.all([
-    OC.find(filter).sort({ createdAt: -1 }).lean(),
+    OC.find(filter)
+      .select('_id referenciaOC proveedor despacho emailsProveedor emailsDespachante estado createdAt importadorId')
+      .sort({ createdAt: -1 })
+      .lean(),
     OC.aggregate([
       { $match: filter },
       {
@@ -491,11 +495,47 @@ export async function updateOCInfo(
     })),
   })
 
-  await syncToSheets(id)
+  after(() => syncToSheets(id))
   if (data.info.estado !== 'borrador') {
     void sendOCNotification(id, userId)
   }
   return { data: { id } }
+}
+
+const VALID_SLOTS = [
+  'facturaProveedor', 'facturaDespachante', 'conocimientoEmbarque',
+  'certificadoOrigen', 'certificadoAnalisis', 'packingList', 'otro',
+] as const
+
+async function checkDocAccess(
+  id: string,
+  userId: string,
+  rol: string | undefined
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const existing = await OC.findById(id).select('importadorId emailsProveedor emailsDespachante estado').lean() as {
+    importadorId?: string
+    emailsProveedor?: string[]
+    emailsDespachante?: string[]
+    estado?: string
+  } | null
+  if (!existing) return { ok: false, error: 'OC no encontrada' }
+
+  if (rol === 'importador') {
+    if (existing.importadorId !== userId) return { ok: false, error: 'Sin acceso' }
+  } else if (rol === 'proveedor' || rol === 'despachante') {
+    if (existing.estado === 'borrador') return { ok: false, error: 'Sin acceso' }
+    const clerkUser = await (await clerkClient()).users.getUser(userId)
+    const emails = clerkUser.emailAddresses
+      .map(e => e.emailAddress?.toLowerCase() ?? '')
+      .filter(Boolean)
+    const allowed = rol === 'proveedor'
+      ? (existing.emailsProveedor ?? []).some(e => emails.includes(e))
+      : (existing.emailsDespachante ?? []).some(e => emails.includes(e))
+    if (!allowed) return { ok: false, error: 'Sin acceso' }
+  } else {
+    return { ok: false, error: 'Sin acceso' }
+  }
+  return { ok: true }
 }
 
 export async function updateOCDocumento(
@@ -503,10 +543,6 @@ export async function updateOCDocumento(
   slot: string,
   url: string
 ): Promise<{ data: { id: string } } | { error: string }> {
-  const VALID_SLOTS = [
-    'facturaProveedor', 'facturaDespachante', 'conocimientoEmbarque',
-    'certificadoOrigen', 'certificadoAnalisis', 'packingList', 'otro',
-  ] as const
   if (!VALID_SLOTS.includes(slot as typeof VALID_SLOTS[number])) {
     return { error: 'Slot inválido' }
   }
@@ -522,29 +558,8 @@ export async function updateOCDocumento(
 
   await connectDB()
 
-  const existing = await OC.findById(id).lean() as {
-    importadorId?: string
-    emailsProveedor?: string[]
-    emailsDespachante?: string[]
-    estado?: string
-  } | null
-  if (!existing) return { error: 'OC no encontrada' }
-
-  if (rol === 'importador') {
-    if (existing.importadorId !== userId) return { error: 'Sin acceso' }
-  } else if (rol === 'proveedor' || rol === 'despachante') {
-    if (existing.estado === 'borrador') return { error: 'Sin acceso' }
-    const clerkUser = await (await clerkClient()).users.getUser(userId)
-    const emails = clerkUser.emailAddresses
-      .map(e => e.emailAddress?.toLowerCase() ?? '')
-      .filter(Boolean)
-    const allowed = rol === 'proveedor'
-      ? (existing.emailsProveedor ?? []).some(e => emails.includes(e))
-      : (existing.emailsDespachante ?? []).some(e => emails.includes(e))
-    if (!allowed) return { error: 'Sin acceso' }
-  } else {
-    return { error: 'Sin acceso' }
-  }
+  const access = await checkDocAccess(id, userId, rol)
+  if (!access.ok) return { error: access.error }
 
   try {
     await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: url } })
@@ -552,6 +567,31 @@ export async function updateOCDocumento(
     return { data: { id } }
   } catch {
     return { error: 'Error al guardar el documento' }
+  }
+}
+
+export async function deleteOCDocumento(
+  id: string,
+  slot: string
+): Promise<{ data: { id: string } } | { error: string }> {
+  if (!VALID_SLOTS.includes(slot as typeof VALID_SLOTS[number])) {
+    return { error: 'Slot inválido' }
+  }
+
+  const { userId, sessionClaims } = await auth()
+  if (!userId) return { error: 'No autorizado' }
+  const rol = (sessionClaims?.metadata as { role?: string })?.role
+
+  await connectDB()
+
+  const access = await checkDocAccess(id, userId, rol)
+  if (!access.ok) return { error: access.error }
+
+  try {
+    await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: null } })
+    return { data: { id } }
+  } catch {
+    return { error: 'Error al eliminar el documento' }
   }
 }
 
