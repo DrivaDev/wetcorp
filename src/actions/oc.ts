@@ -213,7 +213,7 @@ export async function createOC(data: {
         valorUSD: toCentavos(p.valorUSD),
       })),
     })
-    void syncToSheets(oc._id.toString())
+    await syncToSheets(oc._id.toString())
     void sendOCNotification(oc._id.toString(), userId)
     return { data: { id: oc._id.toString() } }
   } catch (err: unknown) {
@@ -328,7 +328,7 @@ export async function updateOC(
     estado: data.estado,
   })
 
-  void syncToSheets(id)
+  await syncToSheets(id)
   void sendOCNotification(id, userId)
   return { data: { id } }
 }
@@ -449,7 +449,7 @@ export async function updateOCInfo(
     })),
   })
 
-  void syncToSheets(id)
+  await syncToSheets(id)
   if (data.info.estado !== 'borrador') {
     void sendOCNotification(id, userId)
   }
