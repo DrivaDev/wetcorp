@@ -721,7 +721,8 @@ async function syncToSheets(ocId: string): Promise<void> {
           })
           folderId = created.data.id!
         }
-        documentosText = `=HYPERLINK("https://drive.google.com/drive/folders/${folderId}";"Clic aquí")`
+        // URL plain text — Sheets auto-linkifica HTTPS; evita errores de fórmula por locale
+        documentosText = `https://drive.google.com/drive/folders/${folderId}`
       } catch (driveErr) {
         console.error('[syncToSheets] Drive folder failed:', driveErr)
       }
@@ -753,31 +754,43 @@ async function syncToSheets(ocId: string): Promise<void> {
       landed.toFixed(2),
     ]
 
+    // Obtener sheetId (necesario para deleteDimension)
+    const spreadsheetMeta = await sheets.spreadsheets.get({ spreadsheetId, fields: 'sheets.properties' })
+    const sheetId = spreadsheetMeta.data.sheets?.[0]?.properties?.sheetId ?? 0
+
     const getRes = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range: 'C:C',
     })
     const rows = getRes.data.values ?? []
-    const rowIndex = rows.findIndex(r => r[0]?.toString().trim() === doc.referenciaOC?.trim())
-    console.log('[syncToSheets] referenciaOC:', JSON.stringify(doc.referenciaOC), '| rows.length:', rows.length, '| rowIndex:', rowIndex, '| first3:', JSON.stringify(rows.slice(0, 3)))
 
-    const colEnd = 'W'
-    if (rowIndex >= 0) {
-      await sheets.spreadsheets.values.update({
+    // Encontrar TODAS las filas con esta referenciaOC (puede haber duplicados)
+    const matchingIndices: number[] = []
+    rows.forEach((r, i) => {
+      if (r[0]?.toString().trim() === doc.referenciaOC?.trim()) matchingIndices.push(i)
+    })
+
+    // Borrar todas las filas existentes en orden inverso (para no desplazar índices)
+    if (matchingIndices.length > 0) {
+      const deleteRequests = [...matchingIndices].reverse().map(idx => ({
+        deleteDimension: {
+          range: { sheetId, dimension: 'ROWS', startIndex: idx, endIndex: idx + 1 },
+        },
+      }))
+      await sheets.spreadsheets.batchUpdate({
         spreadsheetId,
-        range: `A${rowIndex + 1}:${colEnd}${rowIndex + 1}`,
-        valueInputOption: 'USER_ENTERED',
-        requestBody: { values: [rowData] },
-      })
-    } else {
-      await sheets.spreadsheets.values.append({
-        spreadsheetId,
-        range: `A:${colEnd}`,
-        valueInputOption: 'USER_ENTERED',
-        insertDataOption: 'INSERT_ROWS',
-        requestBody: { values: [rowData] },
+        requestBody: { requests: deleteRequests },
       })
     }
+
+    // Siempre append fila fresca
+    await sheets.spreadsheets.values.append({
+      spreadsheetId,
+      range: 'A:W',
+      valueInputOption: 'RAW',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values: [rowData] },
+    })
   } catch (err) {
     console.error('[syncToSheets] failed:', err)
   }
