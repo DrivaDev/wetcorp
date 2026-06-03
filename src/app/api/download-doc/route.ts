@@ -31,26 +31,28 @@ export async function GET(request: Request) {
 
   const filename = url.split('/').pop() ?? 'documento.pdf'
 
-  // Si tenemos credenciales de Cloudinary → generar URL firmada (bypasea restricciones de acceso)
+  // Si tenemos credenciales → probar URL firmada con cada type hasta que funcione
   if (process.env.CLOUDINARY_API_SECRET) {
     const publicId = extractPublicId(url)
     if (publicId) {
-      const signedUrl = cloudinary.url(publicId, {
-        resource_type: 'raw',
-        sign_url: true,
-        type: 'upload',
-        expires_at: Math.floor(Date.now() / 1000) + 300, // 5 min
-      })
-      // Fetch con URL firmada
-      const upstream = await fetch(signedUrl)
-      if (upstream.ok) {
-        const buffer = await upstream.arrayBuffer()
-        return new Response(buffer, {
-          headers: {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': `inline; filename="${filename}"`,
-          },
+      const expires = Math.floor(Date.now() / 1000) + 300
+      for (const type of ['upload', 'authenticated', 'private'] as const) {
+        const signedUrl = cloudinary.url(publicId, {
+          resource_type: 'raw',
+          sign_url: true,
+          type,
+          expires_at: expires,
         })
+        const upstream = await fetch(signedUrl)
+        if (upstream.ok) {
+          const buffer = await upstream.arrayBuffer()
+          return new Response(buffer, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `inline; filename="${filename}"`,
+            },
+          })
+        }
       }
     }
   }
