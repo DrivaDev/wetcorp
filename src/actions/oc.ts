@@ -681,12 +681,30 @@ async function syncToSheets(ocId: string): Promise<void> {
     }
     const docsConUrl = Object.entries(doc.documentos ?? {})
       .filter(([, url]) => !!url) as [string, string][]
+
+    // URL firmada de Cloudinary válida 7 días — funciona sin sesión de la app (para links en Sheets)
+    const expires7d = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
+    const { v2: cld } = await import('cloudinary')
+    const toSignedUrl = (rawUrl: string): string => {
+      try {
+        const match = rawUrl.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/)
+        if (!match) return rawUrl
+        const publicId = match[1]
+        for (const type of ['upload', 'authenticated', 'private'] as const) {
+          const signed = cld.utils.private_download_url(
+            publicId, 'pdf', { resource_type: 'raw', type, expires_at: expires7d }
+          )
+          if (signed) return signed
+        }
+      } catch { /* no-op */ }
+      return rawUrl
+    }
+
     // HYPERLINK con punto y coma (Sheets en español/latinoamérica usa ; como separador)
-    // Múltiples docs: concatenados con CHAR(10) para línea separada por doc
     const documentosText = docsConUrl.length === 0
       ? ''
       : '=' + docsConUrl
-          .map(([key, url]) => `HYPERLINK("${url}";"${docSlotLabels[key] ?? key}")`)
+          .map(([key, rawUrl]) => `HYPERLINK("${toSignedUrl(rawUrl)}";"${docSlotLabels[key] ?? key}")`)
           .join('&CHAR(10)&')
 
     const rowData = [
