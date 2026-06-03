@@ -278,8 +278,9 @@ export async function updateOC(
     estado: EstadoOC
   }
 ): Promise<{ data: { id: string } } | { error: string }> {
-  const { userId } = await auth()
-  if (!userId) return { error: 'No autorizado' }
+  const { userId, sessionClaims } = await auth()
+  const rol = (sessionClaims?.metadata as { role?: string })?.role
+  if (!userId || rol !== 'importador') return { error: 'No autorizado' }
 
   await connectDB()
 
