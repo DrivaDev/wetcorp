@@ -612,10 +612,14 @@ async function syncToSheets(ocId: string): Promise<void> {
         client_email: clientEmail,
         private_key: privateKey.replace(/\\n/g, '\n'),
       },
-      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+      scopes: [
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive',
+      ],
     })
 
     const sheets = google.sheets({ version: 'v4', auth })
+    const drive = google.drive({ version: 'v3', auth })
 
     // fc: fromCentavos con fallback '0' para Decimal (fromCentavos retorna '' en cero)
     const fc = (val: number | undefined): string => fromCentavos(val) || '0'
@@ -682,35 +686,87 @@ async function syncToSheets(ocId: string): Promise<void> {
     const docsConUrl = Object.entries(doc.documentos ?? {})
       .filter(([, url]) => !!url) as [string, string][]
 
-    // URL firmada de Cloudinary válida 7 días — funciona sin sesión de la app (para links en Sheets)
-    const expires7d = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
+    // Cloudinary signed URL para fetch server-side
+    const expiresShort = Math.floor(Date.now() / 1000) + 600 // 10 min, solo para fetch interno
     const { v2: cld } = await import('cloudinary')
     cld.config({
       cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
       api_key: process.env.CLOUDINARY_API_KEY,
       api_secret: process.env.CLOUDINARY_API_SECRET,
     })
-    const toSignedUrl = (rawUrl: string): string => {
+    const fetchFromCloudinary = async (rawUrl: string): Promise<Buffer | null> => {
       try {
         const match = rawUrl.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/)
-        if (!match) return rawUrl
+        if (!match) return null
         const publicId = match[1]
         for (const type of ['upload', 'authenticated', 'private'] as const) {
           const signed = cld.utils.private_download_url(
-            publicId, 'pdf', { resource_type: 'raw', type, expires_at: expires7d }
+            publicId, 'pdf', { resource_type: 'raw', type, expires_at: expiresShort }
           )
-          if (signed) return signed
+          const res = await fetch(signed)
+          if (res.ok) return Buffer.from(await res.arrayBuffer())
         }
       } catch { /* no-op */ }
-      return rawUrl
+      return null
     }
 
-    // HYPERLINK con punto y coma (Sheets en español/latinoamérica usa ; como separador)
-    const documentosText = docsConUrl.length === 0
-      ? ''
-      : '=' + docsConUrl
-          .map(([key, rawUrl]) => `HYPERLINK("${toSignedUrl(rawUrl)}";"${docSlotLabels[key] ?? key}")`)
-          .join('&CHAR(10)&')
+    // Crear o encontrar carpeta Drive para esta OC
+    let documentosText = ''
+    const parentFolderId = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID
+    if (parentFolderId && docsConUrl.length > 0) {
+      try {
+        // Buscar carpeta existente
+        const folderSearch = await drive.files.list({
+          q: `name = '${doc.referenciaOC}' and '${parentFolderId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
+          fields: 'files(id)',
+          spaces: 'drive',
+        })
+        let folderId: string
+        if (folderSearch.data.files && folderSearch.data.files.length > 0) {
+          folderId = folderSearch.data.files[0].id!
+        } else {
+          const created = await drive.files.create({
+            requestBody: {
+              name: doc.referenciaOC,
+              mimeType: 'application/vnd.google-apps.folder',
+              parents: [parentFolderId],
+            },
+            fields: 'id',
+          })
+          folderId = created.data.id!
+        }
+
+        // Subir cada documento a la carpeta Drive
+        const { Readable } = await import('stream')
+        for (const [key, rawUrl] of docsConUrl) {
+          const buffer = await fetchFromCloudinary(rawUrl)
+          if (!buffer) continue
+          const fileName = `${docSlotLabels[key] ?? key}.pdf`
+          // Buscar si ya existe el archivo en la carpeta
+          const fileSearch = await drive.files.list({
+            q: `name = '${fileName}' and '${folderId}' in parents and trashed = false`,
+            fields: 'files(id)',
+          })
+          const stream = Readable.from(buffer)
+          if (fileSearch.data.files && fileSearch.data.files.length > 0) {
+            await drive.files.update({
+              fileId: fileSearch.data.files[0].id!,
+              media: { mimeType: 'application/pdf', body: stream },
+            })
+          } else {
+            await drive.files.create({
+              requestBody: { name: fileName, parents: [folderId] },
+              media: { mimeType: 'application/pdf', body: stream },
+              fields: 'id',
+            })
+          }
+        }
+
+        documentosText = `=HYPERLINK("https://drive.google.com/drive/folders/${folderId}";"Clic aquí")`
+      } catch (driveErr) {
+        console.error('[syncToSheets] Drive upload failed:', driveErr)
+      }
+    }
 
     const rowData = [
       doc.estado,
