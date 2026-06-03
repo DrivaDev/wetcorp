@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-05-24)
 
 Phase: 6 of 7 (Files & Integrations)
 Plan: 0 of 3 in current phase
-Status: Ready to execute — Phase 6 planned ✓ 2026-06-02
+Status: Executing — Phase 6 in progress 2026-06-02
 Last activity: 2026-06-02 — Phase 6 planned ✓ (06-01: Cloudinary signed upload + packingList gap; 06-02: Resend + React Email; 06-03: PDF export + Google Sheets)
 
 Progress: [███████░░░] 71% (12/17 plans complete across all phases)
