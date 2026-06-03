@@ -42,7 +42,13 @@ export async function POST(request: Request) {
 
     const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
       cloudinary.uploader.upload_stream(
-        { resource_type: 'raw', folder: 'drivaoc-docs', public_id: publicId },
+        {
+          resource_type: 'raw',
+          folder: 'drivaoc-docs',
+          public_id: publicId,
+          type: 'upload',
+          access_mode: 'public',
+        },
         (error, result) => {
           if (error || !result) return reject(error ?? new Error('Upload failed'))
           resolve(result as { secure_url: string })
