@@ -70,7 +70,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
     llegadaEstimada: string
     fechaPago: string
     fechaDespacho: string
-    productos: Array<{ produto?: string; producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
+    productos: Array<{ producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
     gastosDespacho: Record<string, number>
     gastosDespachante: Record<string, number>
     gastosAdicionales: Record<string, number>
@@ -580,7 +580,7 @@ async function syncToSheets(ocId: string): Promise<void> {
       estado: string
       fechaOC: string
       paisOrigen: string
-      productos: Array<{ produto?: string; producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
+      productos: Array<{ producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
       gastosDespacho: Record<string, number>
       gastosDespachante: Record<string, number>
       gastosAdicionales: Record<string, number>
