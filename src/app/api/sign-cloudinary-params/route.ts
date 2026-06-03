@@ -1,5 +1,6 @@
 export const runtime = 'nodejs'
 
+import { auth } from '@clerk/nextjs/server'
 import { v2 as cloudinary } from 'cloudinary'
 
 cloudinary.config({
@@ -9,6 +10,11 @@ cloudinary.config({
 })
 
 export async function POST(request: Request) {
+  const { userId } = await auth()
+  if (!userId) {
+    return new Response('No autorizado', { status: 401 })
+  }
+
   try {
     const body = await request.json()
     const { paramsToSign } = body as { paramsToSign: Record<string, string> }
