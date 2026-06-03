@@ -465,6 +465,11 @@ export async function updateOCDocumento(
     return { error: 'Slot inválido' }
   }
 
+  const CLOUDINARY_URL_RE = /^https:\/\/res\.cloudinary\.com\//
+  if (!CLOUDINARY_URL_RE.test(url)) {
+    return { error: 'URL de documento inválida' }
+  }
+
   const { userId, sessionClaims } = await auth()
   if (!userId) return { error: 'No autorizado' }
   const rol = (sessionClaims?.metadata as { role?: string })?.role
