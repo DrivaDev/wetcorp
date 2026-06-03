@@ -738,13 +738,12 @@ async function syncToSheets(ocId: string): Promise<void> {
           folderId = created.data.id!
         }
 
-        // Subir cada documento a la carpeta Drive
+        // Subir documentos a Drive en paralelo (evita timeout de Vercel)
         const { Readable } = await import('stream')
-        for (const [key, rawUrl] of docsConUrl) {
+        await Promise.allSettled(docsConUrl.map(async ([key, rawUrl]) => {
           const buffer = await fetchFromCloudinary(rawUrl)
-          if (!buffer) continue
+          if (!buffer) return
           const fileName = `${docSlotLabels[key] ?? key}.pdf`
-          // Buscar si ya existe el archivo en la carpeta
           const fileSearch = await drive.files.list({
             q: `name = '${fileName}' and '${folderId}' in parents and trashed = false`,
             fields: 'files(id)',
@@ -766,7 +765,7 @@ async function syncToSheets(ocId: string): Promise<void> {
               supportsAllDrives: true,
             })
           }
-        }
+        }))
 
         documentosText = `=HYPERLINK("https://drive.google.com/drive/folders/${folderId}";"Clic aquí")`
       } catch (driveErr) {
