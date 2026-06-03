@@ -30,17 +30,20 @@ export async function GET() {
 
     const sheets = google.sheets({ version: 'v4', auth })
 
-    const res = await sheets.spreadsheets.values.get({
+    // Test write
+    await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'A1:A1',
+      range: 'A:A',
+      valueInputOption: 'USER_ENTERED',
+      insertDataOption: 'INSERT_ROWS',
+      requestBody: { values: [['TEST_OK', new Date().toISOString()]] },
     })
 
     return Response.json({
       ok: true,
-      message: 'Conexión exitosa con Google Sheets',
+      message: 'Lectura Y escritura OK — fila TEST_OK agregada a la Sheet',
       spreadsheetId,
       clientEmail,
-      cellA1: res.data.values?.[0]?.[0] ?? '(vacío)',
     })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
