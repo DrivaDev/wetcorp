@@ -1,28 +1,17 @@
 'use client'
-import { useState } from 'react'
-import { FileText, ExternalLink, Upload, X } from 'lucide-react'
-import { CldUploadWidget } from 'next-cloudinary'
+import { useRef, useState } from 'react'
+import { FileText, ExternalLink, Upload, Loader2 } from 'lucide-react'
 import { updateOCDocumento } from '@/actions/oc'
 
-const FIXED_SLOTS = [
-  'Factura proveedor',
-  'Factura despachante',
-  'B/L',
-  'Certificado de Origen',
-  'Certificado de Análisis',
-  'Packing list',
-  'Otro',
+const SLOTS: { nombre: string; key: string }[] = [
+  { nombre: 'Factura proveedor',      key: 'facturaProveedor' },
+  { nombre: 'Factura despachante',    key: 'facturaDespachante' },
+  { nombre: 'B/L',                    key: 'conocimientoEmbarque' },
+  { nombre: 'Certificado de Origen',  key: 'certificadoOrigen' },
+  { nombre: 'Certificado de Análisis',key: 'certificadoAnalisis' },
+  { nombre: 'Packing list',           key: 'packingList' },
+  { nombre: 'Otro',                   key: 'otro' },
 ]
-
-const FIXED_SLOT_KEYS: Record<string, string> = {
-  'Factura proveedor':      'facturaProveedor',
-  'Factura despachante':    'facturaDespachante',
-  'B/L':                    'conocimientoEmbarque',
-  'Certificado de Origen':  'certificadoOrigen',
-  'Certificado de Análisis': 'certificadoAnalisis',
-  'Packing list':           'packingList',
-  'Otro':                   'otro',
-}
 
 interface DocumentSlotsProps {
   readOnly?: boolean
@@ -38,197 +27,112 @@ interface DocumentSlotsProps {
   }
 }
 
-function DocumentRow({
-  nombre,
-  slotKey,
-  ocId,
-  existingUrl,
-  readOnly,
-  onNameChange,
-  onRemove,
-  onUploadAttempt,
-  openSlot,
-  onUploadSuccess,
-  onWidgetClose,
-}: {
-  nombre: string
-  slotKey: string
-  ocId?: string
-  existingUrl?: string | null
-  readOnly?: boolean
-  onNameChange?: (v: string) => void
-  onRemove?: () => void
-  onUploadAttempt: (slot: string, existingUrl: string | null | undefined) => void
-  openSlot: string | null
-  onUploadSuccess: (slot: string, url: string) => void
-  onWidgetClose: () => void
-}) {
-  return (
-    <div className="flex items-center gap-3 px-4 py-3">
-      <FileText size={18} className="text-acento shrink-0" />
-
-      {onNameChange ? (
-        <input
-          type="text"
-          value={nombre}
-          placeholder="Nombre del documento"
-          onChange={(e) => onNameChange(e.target.value)}
-          className="flex-1 text-base font-normal text-texto bg-transparent border-b border-acento/50 focus:outline-none focus:border-principal placeholder:text-texto/40"
-        />
-      ) : (
-        <span className="flex-1 text-base font-normal text-texto">{nombre}</span>
-      )}
-
-      {readOnly ? (
-        existingUrl ? (
-          <a
-            href={existingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
-          >
-            <ExternalLink size={14} />
-            Ver archivo
-          </a>
-        ) : (
-          <span className="text-sm font-normal text-texto/40 shrink-0">Sin archivo</span>
-        )
-      ) : (
-        <>
-          <span className="text-sm font-normal text-texto/50 hidden sm:block shrink-0 max-w-[180px] truncate">
-            {existingUrl ? 'Archivo adjunto' : 'Sin archivo adjunto'}
-          </span>
-
-          <CldUploadWidget
-            signatureEndpoint="/api/sign-cloudinary-params"
-            options={{ resourceType: 'raw', folder: 'drivaoc-docs' }}
-            onSuccess={(result) => {
-              const info = result.info
-              if (typeof info !== 'object' || !info || !('secure_url' in info)) return
-              const url = (info as { secure_url: string }).secure_url
-              if (!url) return
-              onUploadSuccess(slotKey, url)
-            }}
-            onClose={onWidgetClose}
-          >
-            {({ open }) => (
-              <>
-                {openSlot === slotKey && (() => { open(); return null })()}
-                <button
-                  type="button"
-                  onClick={() => onUploadAttempt(slotKey, existingUrl)}
-                  className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
-                >
-                  <Upload size={14} />
-                  {existingUrl ? 'Cambiar' : 'Adjuntar'}
-                </button>
-              </>
-            )}
-          </CldUploadWidget>
-
-          {onRemove && (
-            <button
-              type="button"
-              onClick={onRemove}
-              aria-label="Eliminar documento"
-              className="min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors shrink-0"
-            >
-              <X size={14} />
-            </button>
-          )}
-        </>
-      )}
-    </div>
-  )
-}
-
 export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps = {}) {
-  const [confirmSlot, setConfirmSlot] = useState<string | null>(null)
-  const [openSlot, setOpenSlot] = useState<string | null>(null)
+  const [uploading, setUploading] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [localUrls, setLocalUrls] = useState<Record<string, string>>({})
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
-  const handleUploadAttempt = (slot: string, existingUrl: string | null | undefined) => {
-    if (existingUrl) {
-      setConfirmSlot(slot)
-    } else {
-      setOpenSlot(slot)
+  const getUrl = (key: string): string | null =>
+    localUrls[key] ?? (documentos?.[key as keyof typeof documentos] as string | null) ?? null
+
+  const handleFileChange = async (key: string, file: File | null) => {
+    if (!file || !ocId) return
+    setError(null)
+    setUploading(key)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload-doc', { method: 'POST', body: formData })
+      const json = await res.json() as { url?: string; error?: string }
+      if (!res.ok || !json.url) {
+        setError(json.error ?? 'Error al subir el archivo')
+        return
+      }
+      const result = await updateOCDocumento(ocId, key, json.url)
+      if ('error' in result) {
+        setError(result.error)
+        return
+      }
+      setLocalUrls(prev => ({ ...prev, [key]: json.url! }))
+    } catch {
+      setError('Error de conexión al subir el archivo')
+    } finally {
+      setUploading(null)
+      if (inputRefs.current[key]) inputRefs.current[key]!.value = ''
     }
-  }
-
-  const handleUploadSuccess = (slot: string, url: string) => {
-    if (ocId) {
-      updateOCDocumento(ocId, slot, url).then((result) => {
-        if ('error' in result) {
-          console.error('Error saving document:', result.error)
-        }
-        setOpenSlot(null)
-      }).catch((err) => {
-        console.error('Error saving document:', err)
-        setOpenSlot(null)
-      })
-    } else {
-      setOpenSlot(null)
-    }
-  }
-
-  const handleWidgetClose = () => {
-    setOpenSlot(null)
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div>
         <h2 className="text-base font-bold text-titulares">Documentos</h2>
-        <p className="text-sm font-normal text-texto/60 mt-0.5">Solo se aceptan archivos PDF</p>
+        <p className="text-sm font-normal text-texto/60 mt-0.5">Solo se aceptan archivos PDF (máx. 10 MB)</p>
       </div>
+
+      {error && (
+        <p className="text-sm font-normal text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          {error}
+        </p>
+      )}
 
       <div className="rounded-xl border border-acento bg-white divide-y divide-acento/40 overflow-hidden">
-        {FIXED_SLOTS.map((nombre) => {
-          const slotKey = FIXED_SLOT_KEYS[nombre]
-          const existingUrl = documentos
-            ? documentos[slotKey as keyof typeof documentos] as string | null | undefined
-            : null
+        {SLOTS.map(({ nombre, key }) => {
+          const url = getUrl(key)
+          const isUploading = uploading === key
+
           return (
-            <DocumentRow
-              key={nombre}
-              nombre={nombre}
-              slotKey={slotKey}
-              ocId={ocId}
-              existingUrl={existingUrl}
-              readOnly={readOnly}
-              openSlot={openSlot}
-              onUploadAttempt={handleUploadAttempt}
-              onUploadSuccess={handleUploadSuccess}
-              onWidgetClose={handleWidgetClose}
-            />
+            <div key={key} className="flex items-center gap-3 px-4 py-3">
+              <FileText size={18} className="text-acento shrink-0" />
+              <span className="flex-1 text-base font-normal text-texto">{nombre}</span>
+
+              {readOnly ? (
+                url ? (
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
+                  >
+                    <ExternalLink size={14} />
+                    Ver archivo
+                  </a>
+                ) : (
+                  <span className="text-sm font-normal text-texto/40 shrink-0">Sin archivo</span>
+                )
+              ) : (
+                <>
+                  <span className="text-sm font-normal text-texto/50 hidden sm:block shrink-0 max-w-[160px] truncate">
+                    {url ? 'Archivo adjunto' : 'Sin archivo'}
+                  </span>
+
+                  <input
+                    ref={el => { inputRefs.current[key] = el }}
+                    type="file"
+                    accept="application/pdf"
+                    className="hidden"
+                    onChange={e => handleFileChange(key, e.target.files?.[0] ?? null)}
+                    disabled={isUploading}
+                  />
+
+                  <button
+                    type="button"
+                    disabled={isUploading}
+                    onClick={() => inputRefs.current[key]?.click()}
+                    className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isUploading ? (
+                      <><Loader2 size={14} className="animate-spin" /> Subiendo...</>
+                    ) : (
+                      <><Upload size={14} /> {url ? 'Cambiar' : 'Adjuntar'}</>
+                    )}
+                  </button>
+                </>
+              )}
+            </div>
           )
         })}
-
       </div>
-
-      {confirmSlot !== null && (
-        <div className="fixed inset-0 z-50 bg-texto/30 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-acento p-6 max-w-sm w-full flex flex-col gap-4">
-            <p className="text-base font-medium text-titulares">¿Reemplazar el archivo existente?</p>
-            <p className="text-sm font-normal text-texto/70">Esta acción reemplazará el PDF actual del slot.</p>
-            <div className="flex gap-3 justify-end">
-              <button
-                type="button"
-                onClick={() => setConfirmSlot(null)}
-                className="border border-acento text-texto hover:bg-fondo px-4 py-2 rounded-lg font-normal min-h-[44px] transition-colors duration-150"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={() => { setOpenSlot(confirmSlot); setConfirmSlot(null) }}
-                className="bg-principal text-white hover:bg-titulares px-4 py-2 rounded-lg font-medium min-h-[44px] transition-colors duration-150"
-              >
-                Reemplazar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
