@@ -683,9 +683,13 @@ async function syncToSheets(ocId: string): Promise<void> {
       .plus(new Decimal(fc(imp.iibb)))
       .plus(new Decimal(fc(imp.iigg)))
 
-    const otrosGastosText = otrosGastos.length > 0
-      ? otrosGastos.map(g => `${g.descripcion} ${g.monto} ${g.divisa}`).join(', ')
-      : ''
+    // Suma de otros gastos en USD (ARS convertido con tipoCambio)
+    const tcDecimal = new Decimal(tc || '1')
+    const otrosGastosTotal = otrosGastos.reduce((sum, g) => {
+      const monto = new Decimal(g.monto || '0')
+      const enUSD = g.divisa === 'USD' ? monto : monto.dividedBy(tcDecimal)
+      return sum.plus(enUSD)
+    }, new Decimal(0))
 
     const docSlotLabels: Record<string, string> = {
       facturaProveedor: 'Factura Proveedor',
@@ -751,7 +755,7 @@ async function syncToSheets(ocId: string): Promise<void> {
       n(gastosAdicionales.depositoFiscal),      // S - número
       n(gastosAdicionales.digitalizacion),      // T - número
       n(gastosAdicionales.estanciaCamion),      // U - número
-      otrosGastosText,                          // V - texto
+      n(otrosGastosTotal.toFixed(2)),            // V - número (suma otros gastos en USD)
       n(totalImpuestos.toFixed(2)),             // W - número
       documentosText,                           // X - URL texto
       n(gastos.toFixed(2)),                     // Y - número
