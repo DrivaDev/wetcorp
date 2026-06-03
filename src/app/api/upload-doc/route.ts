@@ -15,6 +15,10 @@ export async function POST(request: Request) {
     return Response.json({ error: 'No autorizado' }, { status: 401 })
   }
 
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return Response.json({ error: 'Cloudinary no configurado (faltan env vars)' }, { status: 500 })
+  }
+
   try {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
@@ -42,7 +46,8 @@ export async function POST(request: Request) {
 
     return Response.json({ url: result.secure_url })
   } catch (err) {
-    console.error('[upload-doc]', err)
-    return Response.json({ error: 'Error al subir el archivo' }, { status: 500 })
+    const msg = err instanceof Error ? err.message : String(err)
+    console.error('[upload-doc]', msg)
+    return Response.json({ error: msg }, { status: 500 })
   }
 }
