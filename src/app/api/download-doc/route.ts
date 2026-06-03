@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   return new Response(buffer, {
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="${filename}"`,
+      'Content-Disposition': `inline; filename="${filename}"`,
     },
   })
 }

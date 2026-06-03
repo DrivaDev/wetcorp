@@ -90,6 +90,8 @@ export function DocumentSlots({ readOnly, ocId, documentos }: DocumentSlotsProps
                 url ? (
                   <a
                     href={`/api/download-doc?url=${encodeURIComponent(url)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-sm font-normal text-principal hover:text-titulares border border-principal/40 hover:border-principal rounded-lg px-3 py-1.5 transition-colors min-h-[36px] shrink-0"
                   >
                     <ExternalLink size={14} />
