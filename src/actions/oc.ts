@@ -9,6 +9,12 @@ import { Resend } from 'resend'
 import { OCNotificationEmail } from '@/components/emails/OCNotificationEmail'
 import { google } from 'googleapis'
 import Decimal from 'decimal.js'
+import {
+  deleteCloudinaryFile,
+  deleteCloudinaryFiles,
+  deleteDriveFile,
+  deleteOCDriveFolder,
+} from '@/lib/cleanup-storage'
 import type {
   InfoGeneralState,
   ProductRow,
@@ -387,13 +393,11 @@ export async function deleteOC(
 
   const docUrls = Object.values(existing.documentos ?? {}).filter((u): u is string => !!u)
   const referenciaOC = existing.referenciaOC ?? ''
-  after(async () => {
-    const { deleteCloudinaryFiles, deleteOCDriveFolder } = await import('@/lib/cleanup-storage')
-    await Promise.allSettled([
-      deleteCloudinaryFiles(docUrls),
-      deleteOCDriveFolder(referenciaOC),
-    ])
-  })
+  after(() => Promise.allSettled([
+    deleteCloudinaryFiles(docUrls),
+    deleteOCDriveFolder(referenciaOC),
+    deleteOCFromSheets(referenciaOC),
+  ]))
 
   return { data: { ok: true } }
 }
@@ -597,13 +601,10 @@ export async function deleteOCDocumento(
     await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: null } })
     if (existingUrl) {
       const { referenciaOC } = access
-      after(async () => {
-        const { deleteCloudinaryFile, deleteDriveFile } = await import('@/lib/cleanup-storage')
-        await Promise.allSettled([
-          deleteCloudinaryFile(existingUrl),
-          deleteDriveFile(referenciaOC, existingUrl),
-        ])
-      })
+      after(() => Promise.allSettled([
+        deleteCloudinaryFile(existingUrl),
+        deleteDriveFile(referenciaOC, existingUrl),
+      ]))
     }
     return { data: { id } }
   } catch {
@@ -671,6 +672,42 @@ async function sendOCNotification(ocId: string, editorUserId: string): Promise<v
     })
   } catch (err) {
     console.error('[sendOCNotification] failed:', err)
+  }
+}
+
+async function deleteOCFromSheets(referenciaOC: string): Promise<void> {
+  try {
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY
+    const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+    const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID
+    if (!privateKey || !clientEmail || !spreadsheetId) return
+
+    const gauth = new google.auth.GoogleAuth({
+      credentials: { client_email: clientEmail, private_key: privateKey.replace(/\\n/g, '\n') },
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    })
+    const sheets = google.sheets({ version: 'v4', auth: gauth })
+
+    const spreadsheetMeta = await sheets.spreadsheets.get({ spreadsheetId, fields: 'sheets.properties' })
+    const sheetId = spreadsheetMeta.data.sheets?.[0]?.properties?.sheetId ?? 0
+
+    const getRes = await sheets.spreadsheets.values.get({ spreadsheetId, range: 'C:C' })
+    const rows = getRes.data.values ?? []
+
+    const matchingIndices: number[] = []
+    rows.forEach((r, i) => {
+      if (r[0]?.toString().trim() === referenciaOC.trim()) matchingIndices.push(i)
+    })
+    if (matchingIndices.length === 0) return
+
+    const deleteRequests = [...matchingIndices].reverse().map(idx => ({
+      deleteDimension: {
+        range: { sheetId, dimension: 'ROWS', startIndex: idx, endIndex: idx + 1 },
+      },
+    }))
+    await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: deleteRequests } })
+  } catch (err) {
+    console.error('[deleteOCFromSheets] failed:', err)
   }
 }
 
