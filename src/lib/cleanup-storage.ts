@@ -54,13 +54,29 @@ async function findOCFolder(referenciaOC: string): Promise<string | null> {
       fields: 'files(id)',
       supportsAllDrives: true,
       includeItemsFromAllDrives: true,
+      corpora: 'allDrives',
     })
     const folderId = res.data.files?.[0]?.id ?? null
-    console.log(`[cleanup] findOCFolder referenciaOC=${referenciaOC} folderId=${folderId}`)
+    console.log(`[cleanup] findOCFolder referenciaOC=${referenciaOC} folderId=${folderId ?? 'NOT FOUND'}`)
     return folderId
   } catch (err) {
     console.error('[cleanup] findOCFolder failed:', err)
     return null
+  }
+}
+
+async function driveDelete(drive: ReturnType<typeof google.drive>, fileId: string): Promise<void> {
+  try {
+    await drive.files.delete({ fileId, supportsAllDrives: true })
+    console.log(`[cleanup] Drive permanently deleted fileId=${fileId}`)
+  } catch (deleteErr) {
+    console.error(`[cleanup] drive.files.delete failed (fileId=${fileId}), trying trash:`, deleteErr)
+    try {
+      await drive.files.update({ fileId, requestBody: { trashed: true }, supportsAllDrives: true })
+      console.log(`[cleanup] Drive trashed fileId=${fileId}`)
+    } catch (trashErr) {
+      console.error(`[cleanup] drive.files.update trash also failed (fileId=${fileId}):`, trashErr)
+    }
   }
 }
 
@@ -114,7 +130,7 @@ export async function deleteDriveFile(referenciaOC: string, slot: string): Promi
 
   const folderId = await findOCFolder(referenciaOC)
   if (!folderId) {
-    console.warn(`[cleanup] deleteDriveFile: folder not found for referenciaOC=${referenciaOC}`)
+    console.error(`[cleanup] deleteDriveFile: folder NOT found for referenciaOC=${referenciaOC}`)
     return
   }
 
@@ -124,17 +140,17 @@ export async function deleteDriveFile(referenciaOC: string, slot: string): Promi
       fields: 'files(id)',
       supportsAllDrives: true,
       includeItemsFromAllDrives: true,
+      corpora: 'allDrives',
     })
     const fileId = res.data.files?.[0]?.id
     if (!fileId) {
-      console.warn(`[cleanup] deleteDriveFile: file ${filename} not found in folder ${folderId}`)
+      console.error(`[cleanup] deleteDriveFile: file '${filename}' NOT found in folder ${folderId}`)
       return
     }
-    console.log(`[cleanup] deleteDriveFile: deleting fileId=${fileId}`)
-    await g.drive.files.delete({ fileId, supportsAllDrives: true })
-    console.log(`[cleanup] deleteDriveFile: deleted ${filename}`)
+    console.log(`[cleanup] deleteDriveFile: found fileId=${fileId}, deleting...`)
+    await driveDelete(g.drive, fileId)
   } catch (err) {
-    console.error('[cleanup] Drive file delete failed:', err)
+    console.error('[cleanup] deleteDriveFile outer error:', err)
   }
 }
 
@@ -147,15 +163,10 @@ export async function deleteOCDriveFolder(referenciaOC: string): Promise<void> {
 
   const folderId = await findOCFolder(referenciaOC)
   if (!folderId) {
-    console.warn(`[cleanup] deleteOCDriveFolder: folder not found for referenciaOC=${referenciaOC}`)
+    console.error(`[cleanup] deleteOCDriveFolder: folder NOT found for referenciaOC=${referenciaOC}`)
     return
   }
 
-  try {
-    console.log(`[cleanup] deleteOCDriveFolder: deleting folderId=${folderId}`)
-    await g.drive.files.delete({ fileId: folderId, supportsAllDrives: true })
-    console.log(`[cleanup] deleteOCDriveFolder: deleted folder for ${referenciaOC}`)
-  } catch (err) {
-    console.error('[cleanup] Drive folder delete failed:', err)
-  }
+  console.log(`[cleanup] deleteOCDriveFolder: found folderId=${folderId}, deleting...`)
+  await driveDelete(g.drive, folderId)
 }
