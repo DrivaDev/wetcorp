@@ -394,11 +394,17 @@ export async function deleteOC(
   const docUrls = Object.values(existing.documentos ?? {}).filter((u): u is string => !!u)
   const referenciaOC = existing.referenciaOC ?? ''
 
-  after(() => Promise.allSettled([
+  console.log(`[deleteOC] referenciaOC=${referenciaOC} docUrls=${docUrls.length}`)
+  const results = await Promise.allSettled([
     deleteCloudinaryFiles(docUrls),
     deleteOCDriveFolder(referenciaOC),
     deleteOCFromSheets(referenciaOC),
-  ]))
+  ])
+  results.forEach((r, i) => {
+    if (r.status === 'rejected') {
+      console.error(`[deleteOC] step ${i} failed:`, r.reason)
+    }
+  })
 
   return { data: { ok: true } }
 }
@@ -602,13 +608,20 @@ export async function deleteOCDocumento(
     await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: null } })
     if (existingUrl) {
       const { referenciaOC } = access
-      after(() => Promise.allSettled([
+      console.log(`[deleteOCDocumento] slot=${slot} referenciaOC=${referenciaOC} url=${existingUrl}`)
+      const results = await Promise.allSettled([
         deleteCloudinaryFile(existingUrl),
         deleteDriveFile(referenciaOC, slot),
-      ]))
+      ])
+      results.forEach((r, i) => {
+        if (r.status === 'rejected') console.error(`[deleteOCDocumento] step ${i} failed:`, r.reason)
+      })
+    } else {
+      console.log(`[deleteOCDocumento] slot=${slot} — no existingUrl, skipping cleanup`)
     }
     return { data: { id } }
-  } catch {
+  } catch (err) {
+    console.error('[deleteOCDocumento] error:', err)
     return { error: 'Error al eliminar el documento' }
   }
 }

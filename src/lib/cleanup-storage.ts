@@ -23,8 +23,14 @@ function getGoogleDrive() {
   const privateKey = process.env.GOOGLE_PRIVATE_KEY
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
   const parentFolderId = process.env.GOOGLE_DRIVE_PARENT_FOLDER_ID
-  if (!privateKey || !clientEmail || !parentFolderId) return null
-
+  if (!privateKey || !clientEmail || !parentFolderId) {
+    console.warn('[cleanup] Drive skipped — missing env vars:', {
+      hasKey: !!privateKey,
+      hasEmail: !!clientEmail,
+      hasFolder: !!parentFolderId,
+    })
+    return null
+  }
   const auth = new google.auth.GoogleAuth({
     credentials: { client_email: clientEmail, private_key: privateKey.replace(/\\n/g, '\n') },
     scopes: ['https://www.googleapis.com/auth/drive'],
@@ -49,8 +55,11 @@ async function findOCFolder(referenciaOC: string): Promise<string | null> {
       supportsAllDrives: true,
       includeItemsFromAllDrives: true,
     })
-    return res.data.files?.[0]?.id ?? null
-  } catch {
+    const folderId = res.data.files?.[0]?.id ?? null
+    console.log(`[cleanup] findOCFolder referenciaOC=${referenciaOC} folderId=${folderId}`)
+    return folderId
+  } catch (err) {
+    console.error('[cleanup] findOCFolder failed:', err)
     return null
   }
 }
@@ -60,10 +69,15 @@ async function findOCFolder(referenciaOC: string): Promise<string | null> {
  */
 export async function deleteCloudinaryFile(url: string): Promise<void> {
   const publicId = extractPublicId(url)
-  if (!publicId) return
+  if (!publicId) {
+    console.warn('[cleanup] deleteCloudinaryFile: could not extract publicId from', url)
+    return
+  }
   initCloudinary()
+  console.log(`[cleanup] Cloudinary destroy publicId=${publicId}`)
   try {
-    await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' })
+    console.log(`[cleanup] Cloudinary destroy result:`, result)
   } catch (err) {
     console.error('[cleanup] Cloudinary delete failed:', err)
   }
@@ -96,9 +110,13 @@ export async function deleteDriveFile(referenciaOC: string, slot: string): Promi
   if (!g) return
 
   const filename = `${SLOT_FILENAMES[slot] ?? slot}.pdf`
+  console.log(`[cleanup] deleteDriveFile referenciaOC=${referenciaOC} filename=${filename}`)
 
   const folderId = await findOCFolder(referenciaOC)
-  if (!folderId) return
+  if (!folderId) {
+    console.warn(`[cleanup] deleteDriveFile: folder not found for referenciaOC=${referenciaOC}`)
+    return
+  }
 
   try {
     const res = await g.drive.files.list({
@@ -108,8 +126,13 @@ export async function deleteDriveFile(referenciaOC: string, slot: string): Promi
       includeItemsFromAllDrives: true,
     })
     const fileId = res.data.files?.[0]?.id
-    if (!fileId) return
+    if (!fileId) {
+      console.warn(`[cleanup] deleteDriveFile: file ${filename} not found in folder ${folderId}`)
+      return
+    }
+    console.log(`[cleanup] deleteDriveFile: deleting fileId=${fileId}`)
     await g.drive.files.delete({ fileId, supportsAllDrives: true })
+    console.log(`[cleanup] deleteDriveFile: deleted ${filename}`)
   } catch (err) {
     console.error('[cleanup] Drive file delete failed:', err)
   }
@@ -123,10 +146,15 @@ export async function deleteOCDriveFolder(referenciaOC: string): Promise<void> {
   if (!g) return
 
   const folderId = await findOCFolder(referenciaOC)
-  if (!folderId) return
+  if (!folderId) {
+    console.warn(`[cleanup] deleteOCDriveFolder: folder not found for referenciaOC=${referenciaOC}`)
+    return
+  }
 
   try {
+    console.log(`[cleanup] deleteOCDriveFolder: deleting folderId=${folderId}`)
     await g.drive.files.delete({ fileId: folderId, supportsAllDrives: true })
+    console.log(`[cleanup] deleteOCDriveFolder: deleted folder for ${referenciaOC}`)
   } catch (err) {
     console.error('[cleanup] Drive folder delete failed:', err)
   }
