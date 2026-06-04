@@ -374,10 +374,27 @@ export async function deleteOC(
   const [{ userId }] = await Promise.all([auth(), connectDB()])
   if (!userId) return { error: 'No autorizado' }
 
-  const existing = await OC.findById(id).lean() as { importadorId?: string } | null
+  const existing = await OC.findById(id)
+    .select('importadorId referenciaOC documentos')
+    .lean() as {
+    importadorId?: string
+    referenciaOC?: string
+    documentos?: Record<string, string | null>
+  } | null
   if (!existing || existing.importadorId !== userId) return { error: 'Sin acceso' }
 
   await OC.findByIdAndDelete(id)
+
+  const docUrls = Object.values(existing.documentos ?? {}).filter((u): u is string => !!u)
+  const referenciaOC = existing.referenciaOC ?? ''
+  after(async () => {
+    const { deleteCloudinaryFiles, deleteOCDriveFolder } = await import('@/lib/cleanup-storage')
+    await Promise.allSettled([
+      deleteCloudinaryFiles(docUrls),
+      deleteOCDriveFolder(referenciaOC),
+    ])
+  })
+
   return { data: { ok: true } }
 }
 
@@ -498,12 +515,16 @@ async function checkDocAccess(
   id: string,
   userId: string,
   rol: string | undefined
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const existing = await OC.findById(id).select('importadorId emailsProveedor emailsDespachante estado').lean() as {
+): Promise<{ ok: true; referenciaOC: string; documentos: Record<string, string | null> } | { ok: false; error: string }> {
+  const existing = await OC.findById(id)
+    .select('importadorId emailsProveedor emailsDespachante estado referenciaOC documentos')
+    .lean() as {
     importadorId?: string
     emailsProveedor?: string[]
     emailsDespachante?: string[]
     estado?: string
+    referenciaOC?: string
+    documentos?: Record<string, string | null>
   } | null
   if (!existing) return { ok: false, error: 'OC no encontrada' }
 
@@ -522,7 +543,7 @@ async function checkDocAccess(
   } else {
     return { ok: false, error: 'Sin acceso' }
   }
-  return { ok: true }
+  return { ok: true, referenciaOC: existing.referenciaOC ?? '', documentos: existing.documentos ?? {} }
 }
 
 export async function updateOCDocumento(
@@ -570,8 +591,20 @@ export async function deleteOCDocumento(
   const access = await checkDocAccess(id, userId, rol)
   if (!access.ok) return { error: access.error }
 
+  const existingUrl = access.documentos[slot] ?? null
+
   try {
     await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: null } })
+    if (existingUrl) {
+      const { referenciaOC } = access
+      after(async () => {
+        const { deleteCloudinaryFile, deleteDriveFile } = await import('@/lib/cleanup-storage')
+        await Promise.allSettled([
+          deleteCloudinaryFile(existingUrl),
+          deleteDriveFile(referenciaOC, existingUrl),
+        ])
+      })
+    }
     return { data: { id } }
   } catch {
     return { error: 'Error al eliminar el documento' }
