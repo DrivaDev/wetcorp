@@ -199,9 +199,8 @@ export async function checkReferenciaOC(
   referencia: string,
   excludeId?: string
 ): Promise<{ exists: boolean }> {
-  const { userId } = await auth()
+  const [{ userId }] = await Promise.all([auth(), connectDB()])
   if (!userId) return { exists: false }
-  await connectDB()
   const query: Record<string, unknown> = { importadorId: userId, referenciaOC: referencia.trim() }
   if (excludeId) query._id = { $ne: excludeId }
   const existente = await OC.findOne(query).lean()
@@ -212,11 +211,9 @@ export async function createOC(data: {
   info: InfoGeneralState
   productos: ProductRow[]
 }): Promise<{ data: { id: string } } | { error: string }> {
-  const { userId, sessionClaims } = await auth()
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
   const rol = (sessionClaims?.metadata as { role?: string })?.role
   if (!userId || rol !== 'importador') return { error: 'No autorizado' }
-
-  await connectDB()
 
   const existente = await OC.findOne({
     importadorId: userId,
@@ -272,11 +269,9 @@ export async function createOC(data: {
 export async function getOCById(
   id: string
 ): Promise<{ data: { oc: SerializedOC } } | { error: string }> {
-  const { userId, sessionClaims } = await auth()
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
   if (!userId) return { error: 'No autorizado' }
   const rol = (sessionClaims?.metadata as { role?: string })?.role
-
-  await connectDB()
 
   const doc = await OC.findById(id).lean()
   if (!doc) return { error: 'OC no encontrada' }
@@ -321,11 +316,9 @@ export async function updateOC(
     estado: EstadoOC
   }
 ): Promise<{ data: { id: string } } | { error: string }> {
-  const { userId, sessionClaims } = await auth()
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
   const rol = (sessionClaims?.metadata as { role?: string })?.role
   if (!userId) return { error: 'No autorizado' }
-
-  await connectDB()
 
   const access = await checkOCAccess(id, userId, rol)
   if (!access.ok) return { error: access.error }
@@ -378,10 +371,8 @@ export async function updateOC(
 export async function deleteOC(
   id: string
 ): Promise<{ data: { ok: true } } | { error: string }> {
-  const { userId } = await auth()
+  const [{ userId }] = await Promise.all([auth(), connectDB()])
   if (!userId) return { error: 'No autorizado' }
-
-  await connectDB()
 
   const existing = await OC.findById(id).lean() as { importadorId?: string } | null
   if (!existing || existing.importadorId !== userId) return { error: 'Sin acceso' }
@@ -393,11 +384,9 @@ export async function deleteOC(
 export async function getOCs(): Promise<
   { data: { ocs: SerializedOC[]; stats: StatsResult } } | { error: string }
 > {
-  const { userId, sessionClaims } = await auth()
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
   if (!userId) return { error: 'No autorizado' }
   const rol = (sessionClaims?.metadata as { role?: string })?.role
-
-  await connectDB()
 
   let filter: Record<string, unknown> = {}
 
@@ -456,11 +445,9 @@ export async function updateOCInfo(
     productos: ProductRow[]
   }
 ): Promise<{ data: { id: string } } | { error: string }> {
-  const { userId, sessionClaims } = await auth()
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
   const rol = (sessionClaims?.metadata as { role?: string })?.role
   if (!userId) return { error: 'No autorizado' }
-
-  await connectDB()
 
   const access = await checkOCAccess(id, userId, rol)
   if (!access.ok) return { error: access.error }
@@ -552,11 +539,9 @@ export async function updateOCDocumento(
     return { error: 'URL de documento inválida' }
   }
 
-  const { userId, sessionClaims } = await auth()
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
   if (!userId) return { error: 'No autorizado' }
   const rol = (sessionClaims?.metadata as { role?: string })?.role
-
-  await connectDB()
 
   const access = await checkDocAccess(id, userId, rol)
   if (!access.ok) return { error: access.error }
@@ -578,11 +563,9 @@ export async function deleteOCDocumento(
     return { error: 'Slot inválido' }
   }
 
-  const { userId, sessionClaims } = await auth()
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
   if (!userId) return { error: 'No autorizado' }
   const rol = (sessionClaims?.metadata as { role?: string })?.role
-
-  await connectDB()
 
   const access = await checkDocAccess(id, userId, rol)
   if (!access.ok) return { error: access.error }
