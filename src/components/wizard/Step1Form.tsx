@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { Plus, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { InfoGeneralState, ProductRow } from '@/lib/wizard-types'
-import { PAISES } from '@/lib/paises'
 import { isStep1Valid } from '@/lib/wizard-calculations'
+import { PaisCombobox } from './PaisCombobox'
 import { ProductosTable } from './ProductosTable'
 import { createOC, updateOCInfo, checkReferenciaOC } from '@/actions/oc'
 
@@ -361,19 +361,11 @@ export function Step1Form({ initialData, ocId, rol = 'importador' }: Step1FormPr
         {/* País de origen */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-normal text-texto">País de origen *</label>
-          <input
-            type="text"
-            list="paises-list"
+          <PaisCombobox
             value={info.paisOrigen}
-            placeholder="Escribí para buscar..."
-            onChange={(e) => setField('paisOrigen', e.target.value)}
-            className={fieldError(info.paisOrigen) ? inputErrorClass : inputClass}
+            onChange={(v) => setField('paisOrigen', v)}
+            hasError={fieldError(info.paisOrigen)}
           />
-          <datalist id="paises-list">
-            {PAISES.map((p) => (
-              <option key={p} value={p} />
-            ))}
-          </datalist>
           {fieldError(info.paisOrigen) && (
             <p className="mt-1 text-xs text-red-600">Este campo es obligatorio</p>
           )}

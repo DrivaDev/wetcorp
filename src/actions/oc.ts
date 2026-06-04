@@ -790,8 +790,17 @@ async function syncToSheets(ocId: string): Promise<void> {
     const ars = (v: string | number) => `${parseFloat(String(v)) || 0} ARS`
     const fxFmt = (v: string | number) => `${parseFloat(String(v)) || 0} ${fx}`
 
+    const ESTADO_LABELS: Record<string, string> = {
+      borrador:    'Borrador',
+      en_proceso:  'En proceso',
+      en_transito: 'En tránsito',
+      en_aduana:   'En aduana',
+      entregada:   'Entregada',
+      cancelada:   'Cancelada',
+    }
+
     const rowData = [
-      doc.estado,                                         // A - texto
+      ESTADO_LABELS[doc.estado] ?? doc.estado,            // A - texto
       doc.fechaOC,                                        // B - texto
       doc.referenciaOC,                                   // C - texto
       doc.paisOrigen,                                     // D - texto
