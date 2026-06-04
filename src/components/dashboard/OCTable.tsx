@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, Pencil, Trash2 } from 'lucide-react'
+import { Eye, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { OC, EstadoOC } from '@/lib/mock-ocs'
 import { DeleteModal } from './DeleteModal'
@@ -60,6 +60,7 @@ function TableHead({ rol }: { rol: Rol }) {
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[130px]">Despacho</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[140px]">Estado</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[110px]">Fecha</th>
+        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap">Notas</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[100px]">Acciones</th>
       </tr>
     </thead>
@@ -77,6 +78,7 @@ function SkeletonCells({ rol }: { rol: Rol }) {
       <td className="px-4 py-3"><div className="h-4 w-28 rounded bg-acento/30" /></td>
       <td className="px-4 py-3"><div className="h-5 w-20 rounded-full bg-acento/40" /></td>
       <td className="px-4 py-3"><div className="h-4 w-24 rounded bg-acento/30" /></td>
+      <td className="px-4 py-3"><div className="h-4 w-32 rounded bg-acento/20" /></td>
       <td className="px-4 py-3">
         <div className="flex gap-1">
           <div className="h-8 w-8 rounded-lg bg-acento/30" />
@@ -87,9 +89,12 @@ function SkeletonCells({ rol }: { rol: Rol }) {
   )
 }
 
+const NOTAS_PREVIEW = 60
+
 export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<OC | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [expandedNota, setExpandedNota] = useState<string | null>(null)
   const router = useRouter()
 
   const handleDelete = async () => {
@@ -153,6 +158,32 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
                   </span>
                 </td>
                 <td className="px-4 py-3 text-base text-texto">{formatFecha(oc.fecha)}</td>
+                <td className="px-4 py-3 max-w-[220px]">
+                  {oc.notas ? (
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm text-texto leading-snug">
+                        {expandedNota === oc.id
+                          ? oc.notas
+                          : oc.notas.length > NOTAS_PREVIEW
+                          ? oc.notas.slice(0, NOTAS_PREVIEW) + '…'
+                          : oc.notas}
+                      </span>
+                      {oc.notas.length > NOTAS_PREVIEW && (
+                        <button
+                          type="button"
+                          onClick={() => setExpandedNota(expandedNota === oc.id ? null : oc.id)}
+                          className="flex items-center gap-0.5 text-xs text-principal hover:text-titulares self-start"
+                        >
+                          {expandedNota === oc.id
+                            ? <><ChevronUp size={12} /> Ver menos</>
+                            : <><ChevronDown size={12} /> Ver más</>}
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-sm text-texto/30">—</span>
+                  )}
+                </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
                     <Link

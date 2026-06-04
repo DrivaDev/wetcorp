@@ -86,6 +86,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
     otrosGastos: Array<{ descripcion: string; monto: number; divisa: string }>
     otrosImpuestos: Array<{ descripcion: string; monto: number; divisa: string }>
     documentos: Record<string, string | null>
+    otrosDocumentos: Array<{ url: string; slot: string }>
     importadorId: string
   }
 
@@ -170,6 +171,14 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
       packingList: d.documentos?.packingList ?? null,
       otro: d.documentos?.otro ?? null,
     },
+    otrosDocumentos: (() => {
+      const arr = (d.otrosDocumentos ?? []).map(o => ({ url: o.url, slot: o.slot }))
+      // Backward compat: migrate legacy documentos.otro → otrosDocumentos
+      if (arr.length === 0 && d.documentos?.otro) {
+        return [{ url: d.documentos.otro, slot: 'otro-1' }]
+      }
+      return arr
+    })(),
   }
 }
 
@@ -381,17 +390,21 @@ export async function deleteOC(
   if (!userId) return { error: 'No autorizado' }
 
   const existing = await OC.findById(id)
-    .select('importadorId referenciaOC documentos')
+    .select('importadorId referenciaOC documentos otrosDocumentos')
     .lean() as {
     importadorId?: string
     referenciaOC?: string
     documentos?: Record<string, string | null>
+    otrosDocumentos?: Array<{ url: string; slot: string }>
   } | null
   if (!existing || existing.importadorId !== userId) return { error: 'Sin acceso' }
 
   await OC.findByIdAndDelete(id)
 
-  const docUrls = Object.values(existing.documentos ?? {}).filter((u): u is string => !!u)
+  const docUrls = [
+    ...Object.values(existing.documentos ?? {}).filter((u): u is string => !!u),
+    ...(existing.otrosDocumentos ?? []).map(o => o.url),
+  ]
   const referenciaOC = existing.referenciaOC ?? ''
 
   console.log(`[deleteOC] referenciaOC=${referenciaOC} docUrls=${docUrls.length}`)
@@ -436,7 +449,7 @@ export async function getOCs(): Promise<
 
   const [docs, aggResult] = await Promise.all([
     OC.find(filter)
-      .select('_id referenciaOC proveedor despacho emailsProveedor emailsDespachante estado createdAt importadorId')
+      .select('_id referenciaOC proveedor despacho emailsProveedor emailsDespachante estado createdAt importadorId notas')
       .sort({ createdAt: -1 })
       .lean(),
     OC.aggregate([
@@ -622,6 +635,68 @@ export async function deleteOCDocumento(
     return { data: { id } }
   } catch (err) {
     console.error('[deleteOCDocumento] error:', err)
+    return { error: 'Error al eliminar el documento' }
+  }
+}
+
+export async function addOtroDocumento(
+  id: string,
+  url: string,
+  slot: string
+): Promise<{ data: { id: string } } | { error: string }> {
+  if (!/^otro-\d+$/.test(slot)) return { error: 'Slot inválido' }
+  const CLOUDINARY_URL_RE = /^https:\/\/res\.cloudinary\.com\//
+  if (!CLOUDINARY_URL_RE.test(url)) return { error: 'URL inválida' }
+
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
+  if (!userId) return { error: 'No autorizado' }
+  const rol = (sessionClaims?.metadata as { role?: string })?.role
+
+  const access = await checkDocAccess(id, userId, rol)
+  if (!access.ok) return { error: access.error }
+
+  try {
+    await OC.findByIdAndUpdate(id, { $push: { otrosDocumentos: { url, slot } } })
+    return { data: { id } }
+  } catch {
+    return { error: 'Error al guardar el documento' }
+  }
+}
+
+export async function deleteOtroDocumento(
+  id: string,
+  slot: string
+): Promise<{ data: { id: string } } | { error: string }> {
+  if (!/^otro-\d+$/.test(slot)) return { error: 'Slot inválido' }
+
+  const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
+  if (!userId) return { error: 'No autorizado' }
+  const rol = (sessionClaims?.metadata as { role?: string })?.role
+
+  const access = await checkDocAccess(id, userId, rol)
+  if (!access.ok) return { error: access.error }
+
+  const item = access.documentos  // note: reuse checkDocAccess result for referenciaOC
+  const { referenciaOC } = access
+
+  // Find URL before removing
+  const existing = await OC.findById(id).select('otrosDocumentos').lean() as {
+    otrosDocumentos?: Array<{ url: string; slot: string }>
+  } | null
+  const target = existing?.otrosDocumentos?.find(o => o.slot === slot)
+  void item // suppress unused warning
+
+  try {
+    await OC.findByIdAndUpdate(id, { $pull: { otrosDocumentos: { slot } } })
+    if (target?.url) {
+      await Promise.allSettled([
+        deleteCloudinaryFile(target.url),
+        deleteDriveFile(referenciaOC, slot),
+      ])
+    }
+    return { data: { id } }
+  } catch (err) {
+    console.error('[deleteOtroDocumento] error:', err)
     return { error: 'Error al eliminar el documento' }
   }
 }

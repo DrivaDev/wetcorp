@@ -151,7 +151,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         )}
       </GastosCard>
 
-      <DocumentSlots readOnly documentos={oc.documentos} />
+      <DocumentSlots readOnly documentos={oc.documentos} otrosDocumentos={oc.otrosDocumentos} />
 
       <h2 className="text-base font-bold text-titulares">Valores Finales</h2>
 

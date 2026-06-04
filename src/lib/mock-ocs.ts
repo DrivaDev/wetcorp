@@ -25,6 +25,7 @@ export interface OC {
   numeroDespacho: string
   estado: EstadoOC
   fecha: string
+  notas?: string
 }
 
 export interface OCDetalle extends OC {
@@ -53,6 +54,7 @@ export interface OCDetalle extends OC {
     packingList: string | null
     otro: string | null
   }
+  otrosDocumentos?: { url: string; slot: string }[]
 }
 
 export const MOCK_OCS: OC[] = [

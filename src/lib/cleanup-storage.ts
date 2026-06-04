@@ -1,6 +1,11 @@
 import { v2 as cloudinary } from 'cloudinary'
 import { google } from 'googleapis'
 
+export function getSlotFilename(slot: string): string {
+  if (/^otro-\d+$/.test(slot)) return slot // otro-1, otro-2, etc.
+  return SLOT_FILENAMES[slot] ?? slot
+}
+
 export const SLOT_FILENAMES: Record<string, string> = {
   facturaProveedor:      'factura-proveedor',
   facturaDespachante:    'factura-despachante',

@@ -12,7 +12,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-import { SLOT_FILENAMES } from '@/lib/cleanup-storage'
+import { getSlotFilename } from '@/lib/cleanup-storage'
 
 async function uploadToDrive(buffer: Buffer, fileName: string, referenciaOC: string): Promise<void> {
   const privateKey = process.env.GOOGLE_PRIVATE_KEY
@@ -92,9 +92,7 @@ export async function POST(request: Request) {
     const safeName = (file.name || 'documento.pdf').replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.pdf$/i, '')
     const publicId = `${Date.now()}_${safeName}.pdf`
     // Drive filename: determinístico por slot (ej. factura-proveedor.pdf)
-    const driveFileName = slot && SLOT_FILENAMES[slot]
-      ? `${SLOT_FILENAMES[slot]}.pdf`
-      : `${safeName}.pdf`
+    const driveFileName = slot ? `${getSlotFilename(slot)}.pdf` : `${safeName}.pdf`
 
     // Cloudinary upload + Drive upload en paralelo
     const cloudinaryPromise = new Promise<{ secure_url: string }>((resolve, reject) => {

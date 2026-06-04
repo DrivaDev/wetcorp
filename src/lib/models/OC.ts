@@ -10,6 +10,14 @@ const ProductRowSchema = new Schema(
   { _id: false }
 )
 
+const OtroDocumentoSchema = new Schema(
+  {
+    url: { type: String, required: true },
+    slot: { type: String, required: true },
+  },
+  { _id: false }
+)
+
 const OtroGastoRowSchema = new Schema(
   {
     descripcion: { type: String, default: '' },
@@ -70,6 +78,7 @@ const OCSchema = new Schema(
     },
     otrosGastos: { type: [OtroGastoRowSchema], default: [] },
     otrosImpuestos: { type: [OtroGastoRowSchema], default: [] },
+    otrosDocumentos: { type: [OtroDocumentoSchema], default: [] },
     documentos: {
       facturaProveedor: { type: String, default: null },
       facturaDespachante: { type: String, default: null },
