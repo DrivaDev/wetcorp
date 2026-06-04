@@ -12,6 +12,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
+import { SLOT_FILENAMES } from '@/lib/cleanup-storage'
+
 async function uploadToDrive(buffer: Buffer, fileName: string, referenciaOC: string): Promise<void> {
   const privateKey = process.env.GOOGLE_PRIVATE_KEY
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
@@ -85,10 +87,14 @@ export async function POST(request: Request) {
     if (file.type !== 'application/pdf') return Response.json({ error: 'Solo se aceptan archivos PDF' }, { status: 400 })
     if (file.size > 10 * 1024 * 1024) return Response.json({ error: 'El archivo no puede superar 10 MB' }, { status: 400 })
 
+    const slot = formData.get('slot') as string | null
     const buffer = Buffer.from(await file.arrayBuffer())
     const safeName = (file.name || 'documento.pdf').replace(/[^a-zA-Z0-9._-]/g, '_').replace(/\.pdf$/i, '')
     const publicId = `${Date.now()}_${safeName}.pdf`
-    const fileName = `${safeName}.pdf`
+    // Drive filename: determinístico por slot (ej. factura-proveedor.pdf)
+    const driveFileName = slot && SLOT_FILENAMES[slot]
+      ? `${SLOT_FILENAMES[slot]}.pdf`
+      : `${safeName}.pdf`
 
     // Cloudinary upload + Drive upload en paralelo
     const cloudinaryPromise = new Promise<{ secure_url: string }>((resolve, reject) => {
@@ -106,7 +112,7 @@ export async function POST(request: Request) {
       drivePromise = connectDB()
         .then(() => OC.findById(ocId).lean() as Promise<{ referenciaOC?: string } | null>)
         .then(doc => {
-          if (doc?.referenciaOC) return uploadToDrive(buffer, fileName, doc.referenciaOC)
+          if (doc?.referenciaOC) return uploadToDrive(buffer, driveFileName, doc.referenciaOC)
         })
         .catch(err => console.error('[upload-doc] Drive upload failed:', err))
     }

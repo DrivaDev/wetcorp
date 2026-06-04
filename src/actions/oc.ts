@@ -393,6 +393,7 @@ export async function deleteOC(
 
   const docUrls = Object.values(existing.documentos ?? {}).filter((u): u is string => !!u)
   const referenciaOC = existing.referenciaOC ?? ''
+
   after(() => Promise.allSettled([
     deleteCloudinaryFiles(docUrls),
     deleteOCDriveFolder(referenciaOC),
@@ -603,7 +604,7 @@ export async function deleteOCDocumento(
       const { referenciaOC } = access
       after(() => Promise.allSettled([
         deleteCloudinaryFile(existingUrl),
-        deleteDriveFile(referenciaOC, existingUrl),
+        deleteDriveFile(referenciaOC, slot),
       ]))
     }
     return { data: { id } }

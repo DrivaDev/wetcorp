@@ -1,6 +1,16 @@
 import { v2 as cloudinary } from 'cloudinary'
 import { google } from 'googleapis'
 
+export const SLOT_FILENAMES: Record<string, string> = {
+  facturaProveedor:      'factura-proveedor',
+  facturaDespachante:    'factura-despachante',
+  conocimientoEmbarque:  'conocimiento-embarque',
+  certificadoOrigen:     'certificado-origen',
+  certificadoAnalisis:   'certificado-analisis',
+  packingList:           'packing-list',
+  otro:                  'otro',
+}
+
 function initCloudinary() {
   cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -26,15 +36,6 @@ function extractPublicId(url: string): string | null {
   // https://res.cloudinary.com/{cloud}/raw/upload/v{ver}/drivaoc-docs/{public_id}
   const match = url.match(/\/raw\/upload\/(?:v\d+\/)?(.+)$/)
   return match?.[1] ?? null
-}
-
-function cloudinaryUrlToFilename(url: string): string | null {
-  const publicId = extractPublicId(url)
-  if (!publicId) return null
-  const basename = publicId.split('/').pop()
-  if (!basename) return null
-  // 1234567890_safeName.pdf  →  safeName.pdf
-  return basename.replace(/^\d+_/, '')
 }
 
 async function findOCFolder(referenciaOC: string): Promise<string | null> {
@@ -87,14 +88,14 @@ export async function deleteCloudinaryFiles(urls: (string | null | undefined)[])
 }
 
 /**
- * Elimina un archivo específico de la carpeta Drive de la OC.
+ * Elimina el archivo de un slot específico de la carpeta Drive de la OC.
+ * El nombre del archivo en Drive es determinístico: SLOT_FILENAMES[slot].pdf
  */
-export async function deleteDriveFile(referenciaOC: string, cloudinaryUrl: string): Promise<void> {
+export async function deleteDriveFile(referenciaOC: string, slot: string): Promise<void> {
   const g = getGoogleDrive()
   if (!g) return
 
-  const filename = cloudinaryUrlToFilename(cloudinaryUrl)
-  if (!filename) return
+  const filename = `${SLOT_FILENAMES[slot] ?? slot}.pdf`
 
   const folderId = await findOCFolder(referenciaOC)
   if (!folderId) return
