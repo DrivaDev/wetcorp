@@ -40,14 +40,14 @@ export function OtrosGastosSection({
 
       <div className="flex flex-col gap-3">
         {rows.map((row) => (
-          <div key={row.id} className="flex items-center gap-3">
+          <div key={row.id} className="flex items-start gap-3">
             {readOnly ? (
               <>
                 <p className={`${readOnlyClass} flex-1`}>{row.descripcion || '—'}</p>
                 <p className={`${readOnlyClass} shrink-0`}>{row.monto} {row.divisa === 'USD' ? fx : 'ARS'}</p>
               </>
             ) : (
-              <>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1">
                 <input
                   type="text"
                   placeholder="Descripción del gasto"
@@ -55,32 +55,34 @@ export function OtrosGastosSection({
                   onChange={(e) => onChange?.(row.id, 'descripcion', e.target.value)}
                   className="flex-1 h-10 px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150"
                 />
-                <input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  value={row.monto}
-                  onChange={(e) => onChange?.(row.id, 'monto', e.target.value)}
-                  className="w-[120px] h-10 px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150"
-                />
-                <select
-                  value={row.divisa}
-                  onChange={(e) => onChange?.(row.id, 'divisa', e.target.value as 'ARS' | 'USD')}
-                  className="w-[90px] h-10 px-3 rounded-lg border border-acento bg-white text-base text-texto focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150 cursor-pointer appearance-none"
-                >
-                  <option value="ARS">ARS</option>
-                  <option value="USD">{fx}</option>
-                </select>
-                <button
-                  type="button"
-                  onClick={() => onRemove?.(row.id)}
-                  aria-label="Eliminar gasto"
-                  className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={row.monto}
+                    onChange={(e) => onChange?.(row.id, 'monto', e.target.value)}
+                    className="flex-1 sm:w-[120px] h-10 px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150"
+                  />
+                  <select
+                    value={row.divisa}
+                    onChange={(e) => onChange?.(row.id, 'divisa', e.target.value as 'ARS' | 'USD')}
+                    className="w-[90px] h-10 px-3 rounded-lg border border-acento bg-white text-base text-texto focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150 cursor-pointer appearance-none"
+                  >
+                    <option value="ARS">ARS</option>
+                    <option value="USD">{fx}</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => onRemove?.(row.id)}
+                    aria-label="Eliminar gasto"
+                    className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         ))}

@@ -117,20 +117,20 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-acento bg-fondo">
-          <p className="text-xs text-texto/50">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 border-t border-acento bg-fondo">
+          <p className="text-xs text-texto/50 hidden sm:block">
             Costo importación distribuido proporcionalmente al FOB
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-lg border border-acento text-texto text-sm font-medium hover:bg-acento/30 transition-colors min-h-[40px]"
+              className="flex-1 sm:flex-none px-4 py-2 rounded-lg border border-acento text-texto text-sm font-medium hover:bg-acento/30 transition-colors min-h-[44px]"
             >
               Cerrar
             </button>
             <button
               onClick={() => { onClose(); router.push(`/${rol}/oc/${oc.id}`) }}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-principal text-white text-sm font-medium hover:bg-titulares transition-colors min-h-[40px]"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-principal text-white text-sm font-medium hover:bg-titulares transition-colors min-h-[44px]"
             >
               Visualizar a detalle <ArrowRight size={15} />
             </button>
