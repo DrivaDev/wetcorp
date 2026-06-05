@@ -14,6 +14,8 @@ interface ProductosTableProps {
   onChange: (id: string, field: keyof Omit<ProductRow, 'id'>, value: string) => void
 }
 
+const cellInput = 'h-8 border-0 bg-transparent focus:bg-white focus:ring-1 focus:ring-principal rounded px-2 w-full text-sm text-texto placeholder:text-texto/40 focus:outline-none'
+
 export function ProductosTable({
   productos,
   tipoCambio,
@@ -27,61 +29,54 @@ export function ProductosTable({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="w-full overflow-x-auto rounded-xl border border-acento">
-        <table className="w-full text-base min-w-[700px]">
+      <div className="w-full rounded-xl border border-acento overflow-hidden">
+        <table className="w-full text-sm table-fixed">
+          <colgroup>
+            <col className="w-8" />
+            <col />
+            <col className="w-20" />
+            <col className="w-24" />
+            <col className="w-28" />
+            <col className="w-11" />
+          </colgroup>
           <thead className="bg-fondo border-b border-acento">
             <tr>
-              <th className="w-[40px] px-3 py-3 text-sm font-normal text-titulares text-left whitespace-nowrap">
-                #
-              </th>
-              <th className="min-w-[180px] px-3 py-3 text-sm font-normal text-titulares text-left whitespace-nowrap">
-                Producto *
-              </th>
-              <th className="min-w-[200px] px-3 py-3 text-sm font-normal text-titulares text-left whitespace-nowrap">
-                Descripción
-              </th>
-              <th className="w-[100px] px-3 py-3 text-sm font-normal text-titulares text-left whitespace-nowrap">
-                Cantidad *
-              </th>
-              <th className="w-[140px] px-3 py-3 text-sm font-normal text-titulares text-left whitespace-nowrap">
-                Valor unitario ({fx}) *
-              </th>
-              <th className="w-[120px] px-3 py-3 text-sm font-normal text-titulares text-right whitespace-nowrap">
-                Total ({fx})
-              </th>
-              <th className="w-[56px] px-3 py-3 text-sm font-normal text-titulares text-center whitespace-nowrap">
-                Acciones
-              </th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-left">#</th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-left">Producto / Descripción *</th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Cant. *</th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Valor ({fx}) *</th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-right whitespace-nowrap">Total ({fx})</th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-center"></th>
             </tr>
           </thead>
           <tbody>
             {productos.map((row, index) => (
               <tr
                 key={row.id}
-                className="border-b border-acento/50 hover:bg-acento/20 transition-colors duration-150"
+                className="border-b border-acento/50 hover:bg-acento/10 transition-colors duration-150"
               >
-                <td className="px-3 py-2 text-sm font-normal text-texto/60">
+                <td className="px-2 py-2 text-xs text-texto/50 align-top pt-3">
                   {index + 1}
                 </td>
                 <td className="px-2 py-2">
-                  <input
-                    type="text"
-                    value={row.producto}
-                    placeholder="Ej: Tela de algodón"
-                    onChange={(e) => onChange(row.id, 'producto', e.target.value)}
-                    className="h-9 border-0 bg-transparent focus:bg-white focus:ring-1 focus:ring-principal rounded px-2 w-full text-base text-texto placeholder:text-texto/40 focus:outline-none"
-                  />
+                  <div className="flex flex-col gap-1">
+                    <input
+                      type="text"
+                      value={row.producto}
+                      placeholder="Nombre del producto"
+                      onChange={(e) => onChange(row.id, 'producto', e.target.value)}
+                      className={cellInput}
+                    />
+                    <input
+                      type="text"
+                      value={row.descripcion}
+                      placeholder="Descripción opcional"
+                      onChange={(e) => onChange(row.id, 'descripcion', e.target.value)}
+                      className={cn(cellInput, 'text-xs text-texto/60')}
+                    />
+                  </div>
                 </td>
-                <td className="px-2 py-2">
-                  <input
-                    type="text"
-                    value={row.descripcion}
-                    placeholder="Descripción opcional"
-                    onChange={(e) => onChange(row.id, 'descripcion', e.target.value)}
-                    className="h-9 border-0 bg-transparent focus:bg-white focus:ring-1 focus:ring-principal rounded px-2 w-full text-base text-texto placeholder:text-texto/40 focus:outline-none"
-                  />
-                </td>
-                <td className="px-2 py-2">
+                <td className="px-2 py-2 align-top pt-3">
                   <input
                     type="number"
                     value={row.cantidad}
@@ -89,10 +84,10 @@ export function ProductosTable({
                     min="0"
                     step="any"
                     onChange={(e) => onChange(row.id, 'cantidad', e.target.value)}
-                    className="h-9 border-0 bg-transparent focus:bg-white focus:ring-1 focus:ring-principal rounded px-2 w-full text-base text-texto placeholder:text-texto/40 focus:outline-none"
+                    className={cellInput}
                   />
                 </td>
-                <td className="px-2 py-2">
+                <td className="px-2 py-2 align-top pt-3">
                   <input
                     type="number"
                     value={row.valorUSD}
@@ -100,30 +95,26 @@ export function ProductosTable({
                     min="0"
                     step="any"
                     onChange={(e) => onChange(row.id, 'valorUSD', e.target.value)}
-                    className="h-9 border-0 bg-transparent focus:bg-white focus:ring-1 focus:ring-principal rounded px-2 w-full text-base text-texto placeholder:text-texto/40 focus:outline-none"
+                    className={cellInput}
                   />
                 </td>
-                <td className="px-3 py-2 font-bold text-titulares text-right text-base">
+                <td className="px-2 py-2 font-bold text-titulares text-right align-top pt-3 whitespace-nowrap">
                   {formatNum(calcTotalFila(row))}
                 </td>
-                <td className="px-3 py-2 text-center">
+                <td className="px-2 py-2 text-center align-top">
                   <button
                     type="button"
                     onClick={() => onRemove(row.id)}
                     disabled={productos.length === 1}
-                    aria-label={
-                      productos.length === 1
-                        ? 'No es posible eliminar el único producto'
-                        : 'Eliminar producto'
-                    }
+                    aria-label={productos.length === 1 ? 'No se puede eliminar el único producto' : 'Eliminar producto'}
                     className={cn(
-                      'min-h-[44px] min-w-[44px] flex items-center justify-center',
+                      'min-h-[36px] min-w-[36px] flex items-center justify-center',
                       productos.length === 1
                         ? 'text-texto/20 cursor-not-allowed'
                         : 'rounded-lg text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors'
                     )}
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} />
                   </button>
                 </td>
               </tr>
@@ -131,17 +122,14 @@ export function ProductosTable({
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-acento bg-fondo">
-              <td
-                colSpan={5}
-                className="px-3 py-3 text-right text-sm font-normal text-titulares"
-              >
+              <td colSpan={4} className="px-2 py-3 text-right text-xs font-medium text-titulares">
                 FOB Total
               </td>
-              <td className="px-3 py-3 text-right">
-                <span className="block text-base font-bold text-titulares whitespace-nowrap">
+              <td className="px-2 py-3 text-right">
+                <span className="block text-sm font-bold text-titulares whitespace-nowrap">
                   {formatFX(fobTotal, fx)}
                 </span>
-                <span className="block text-sm font-normal text-titulares/60 whitespace-nowrap">
+                <span className="block text-xs font-normal text-titulares/60 whitespace-nowrap">
                   {formatARS(fobARS)}
                 </span>
               </td>

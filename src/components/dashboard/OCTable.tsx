@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, Pencil, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
+import { Eye, Pencil, Trash2, Loader2, X, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { OC, EstadoOC } from '@/lib/mock-ocs'
 import { DeleteModal } from './DeleteModal'
@@ -91,14 +91,12 @@ function SkeletonCells({ rol }: { rol: Rol }) {
   )
 }
 
-const NOTAS_PREVIEW = 60
-
 export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProps) {
   const [deleteTarget, setDeleteTarget] = useState<OC | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [expandedNota, setExpandedNota] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState<string | null>(null)
   const [previewOC, setPreviewOC] = useState<SerializedOC | null>(null)
+  const [notaModal, setNotaModal] = useState<string | null>(null)
   const router = useRouter()
 
   const handlePreview = async (ocId: string) => {
@@ -154,6 +152,34 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
           onClose={() => setPreviewOC(null)}
         />
       )}
+      {notaModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+          onClick={() => setNotaModal(null)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 flex flex-col gap-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-base font-bold text-titulares">Nota</h3>
+              <button
+                onClick={() => setNotaModal(null)}
+                className="p-1.5 rounded-lg text-texto/40 hover:text-texto hover:bg-acento/40 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <p className="text-sm text-texto whitespace-pre-wrap leading-relaxed">{notaModal}</p>
+            <button
+              onClick={() => setNotaModal(null)}
+              className="self-end px-4 py-2 rounded-lg border border-acento text-texto text-sm font-medium hover:bg-acento/30 transition-colors min-h-[40px]"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
       <div className="w-full overflow-x-auto rounded-xl border border-acento bg-white">
         <table className={cn('w-full text-base', minWidth)}>
           <TableHead rol={rol} />
@@ -178,27 +204,17 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
                   </span>
                 </td>
                 <td className="px-4 py-3 text-base text-texto">{formatFecha(oc.fecha)}</td>
-                <td className="px-4 py-3 max-w-[220px]">
+                <td className="px-4 py-3 max-w-[200px]">
                   {oc.notas ? (
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm text-texto leading-snug">
-                        {expandedNota === oc.id
-                          ? oc.notas
-                          : oc.notas.length > NOTAS_PREVIEW
-                          ? oc.notas.slice(0, NOTAS_PREVIEW) + '…'
-                          : oc.notas}
-                      </span>
-                      {oc.notas.length > NOTAS_PREVIEW && (
-                        <button
-                          type="button"
-                          onClick={() => setExpandedNota(expandedNota === oc.id ? null : oc.id)}
-                          className="flex items-center gap-0.5 text-xs text-principal hover:text-titulares self-start"
-                        >
-                          {expandedNota === oc.id
-                            ? <><ChevronUp size={12} /> Ver menos</>
-                            : <><ChevronDown size={12} /> Ver más</>}
-                        </button>
-                      )}
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm text-texto leading-snug line-clamp-2">{oc.notas}</p>
+                      <button
+                        type="button"
+                        onClick={() => setNotaModal(oc.notas!)}
+                        className="flex items-center gap-1 text-xs text-principal hover:text-titulares self-start"
+                      >
+                        <MessageSquare size={11} /> Ver nota
+                      </button>
                     </div>
                   ) : (
                     <span className="text-sm text-texto/30">—</span>
