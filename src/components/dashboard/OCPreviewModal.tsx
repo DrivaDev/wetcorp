@@ -92,7 +92,6 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
               title="Copiar tabla en formato Excel"
             >
               {copied ? <Check size={15} className="text-acento-dark" /> : <ClipboardCopy size={15} />}
-              <span className="hidden sm:inline">{copied ? 'Copiado' : 'Copiar Excel'}</span>
             </button>
             <button
               onClick={onClose}
