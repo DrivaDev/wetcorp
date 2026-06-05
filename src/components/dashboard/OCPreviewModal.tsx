@@ -1,7 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { X, ArrowRight, ClipboardCopy, Check } from 'lucide-react'
+import { X, ArrowRight, Copy, Check } from 'lucide-react'
 import Decimal from 'decimal.js'
 import {
   calcFOBTotal,
@@ -91,7 +91,7 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
               aria-label="Copiar para Excel"
               title="Copiar tabla en formato Excel"
             >
-              {copied ? <Check size={15} className="text-acento-dark" /> : <ClipboardCopy size={15} />}
+              {copied ? <Check size={15} className="text-acento-dark" /> : <Copy size={15} />}
             </button>
             <button
               onClick={onClose}
