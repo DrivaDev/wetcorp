@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { FileText, Truck, Package, CheckCircle2 } from 'lucide-react'
 import type { OC, EstadoOC } from '@/lib/mock-ocs'
 import { StatCard } from '@/components/dashboard/StatCard'
@@ -26,7 +26,7 @@ export function DashboardClient({ ocs, stats, rol, titulo }: DashboardClientProp
   const [searchDespachante, setSearchDespachante] = useState('')
   const [estadoFiltro, setEstadoFiltro] = useState<EstadoOC | ''>('')
 
-  const ocsFiltradas = ocs.filter((oc) => {
+  const ocsFiltradas = useMemo(() => ocs.filter((oc) => {
     const matchProveedor =
       rol === 'importador'
         ? oc.proveedor.toLowerCase().includes(searchProveedor.toLowerCase())
@@ -37,7 +37,7 @@ export function DashboardClient({ ocs, stats, rol, titulo }: DashboardClientProp
         : true
     const matchEstado = estadoFiltro === '' || oc.estado === estadoFiltro
     return matchProveedor && matchDespachante && matchEstado
-  })
+  }), [ocs, rol, searchProveedor, searchDespachante, estadoFiltro])
 
   const hasFilters =
     searchProveedor !== '' || searchDespachante !== '' || estadoFiltro !== ''

@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { CheckCircle2 } from 'lucide-react'
 import {
@@ -11,7 +11,6 @@ import {
   calcTotalGastos,
   calcFOBTotal,
   usdToARS,
-  formatUSD,
   formatFX,
   formatARS,
 } from '@/lib/wizard-calculations'
@@ -129,31 +128,33 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
   const fx = divisa === 'ARS/EUR' ? 'EUR' : 'USD'
 
   // Gastos de importación
-  const subtotalDespachoUSD  = calcSubtotalDespacho(gastosDespacho, tipoCambio)
-  const subtotalDespachante  = calcSubtotalDespachante(gastosDespachante, tipoCambio)
-  const subtotalAdicionales  = calcSubtotalAdicionales(gastosAdicionales, tipoCambio)
-  const subtotalOtros        = calcSubtotalOtros(otrosGastos, tipoCambio)
-  const totalGastosUSD       = calcTotalGastos(gastosDespacho, gastosDespachante, gastosAdicionales, otrosGastos, tipoCambio)
-  const fobUSD               = calcFOBTotal(step1Data.productos)
+  const subtotalDespachoUSD  = useMemo(() => calcSubtotalDespacho(gastosDespacho, tipoCambio), [gastosDespacho, tipoCambio])
+  const subtotalDespachante  = useMemo(() => calcSubtotalDespachante(gastosDespachante, tipoCambio), [gastosDespachante, tipoCambio])
+  const subtotalAdicionales  = useMemo(() => calcSubtotalAdicionales(gastosAdicionales, tipoCambio), [gastosAdicionales, tipoCambio])
+  const subtotalOtros        = useMemo(() => calcSubtotalOtros(otrosGastos, tipoCambio), [otrosGastos, tipoCambio])
+  const totalGastosUSD       = useMemo(() => calcTotalGastos(gastosDespacho, gastosDespachante, gastosAdicionales, otrosGastos, tipoCambio), [gastosDespacho, gastosDespachante, gastosAdicionales, otrosGastos, tipoCambio])
+  const fobUSD               = useMemo(() => calcFOBTotal(step1Data.productos), [step1Data.productos])
 
   // Impuestos (no cuentan para costo de despacho)
-  const totalImpuestosUSD = calcSubtotalImpuestos(impuestos, tipoCambio)
-    .plus(calcSubtotalOtros(otrosImpuestos, tipoCambio))
+  const totalImpuestosUSD = useMemo(
+    () => calcSubtotalImpuestos(impuestos, tipoCambio).plus(calcSubtotalOtros(otrosImpuestos, tipoCambio)),
+    [impuestos, otrosImpuestos, tipoCambio]
+  )
 
-  const updateDespacho    = (key: string, val: string) => setGastosDespacho(prev => ({ ...prev, [key]: val }))
-  const updateDespachante = (key: string, val: string) => setGastosDespachante(prev => ({ ...prev, [key]: val }))
-  const updateAdicionales = (key: string, val: string) => setGastosAdicionales(prev => ({ ...prev, [key]: val }))
-  const updateImpuestos   = (key: string, val: string) => setImpuestos(prev => ({ ...prev, [key]: val }))
+  const updateDespacho    = useCallback((key: string, val: string) => setGastosDespacho(prev => ({ ...prev, [key]: val })), [])
+  const updateDespachante = useCallback((key: string, val: string) => setGastosDespachante(prev => ({ ...prev, [key]: val })), [])
+  const updateAdicionales = useCallback((key: string, val: string) => setGastosAdicionales(prev => ({ ...prev, [key]: val })), [])
+  const updateImpuestos   = useCallback((key: string, val: string) => setImpuestos(prev => ({ ...prev, [key]: val })), [])
 
-  const addOtroGasto    = () => setOtrosGastos(prev => [...prev, { id: crypto.randomUUID(), descripcion: '', monto: '', divisa: 'ARS' }])
-  const removeOtroGasto = (id: string) => setOtrosGastos(prev => prev.filter(r => r.id !== id))
-  const updateOtroGasto = (id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) =>
-    setOtrosGastos(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
+  const addOtroGasto    = useCallback(() => setOtrosGastos(prev => [...prev, { id: crypto.randomUUID(), descripcion: '', monto: '', divisa: 'ARS' }]), [])
+  const removeOtroGasto = useCallback((id: string) => setOtrosGastos(prev => prev.filter(r => r.id !== id)), [])
+  const updateOtroGasto = useCallback((id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) =>
+    setOtrosGastos(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r)), [])
 
-  const addOtroImpuesto    = () => setOtrosImpuestos(prev => [...prev, { id: crypto.randomUUID(), descripcion: '', monto: '', divisa: 'ARS' }])
-  const removeOtroImpuesto = (id: string) => setOtrosImpuestos(prev => prev.filter(r => r.id !== id))
-  const updateOtroImpuesto = (id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) =>
-    setOtrosImpuestos(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r))
+  const addOtroImpuesto    = useCallback(() => setOtrosImpuestos(prev => [...prev, { id: crypto.randomUUID(), descripcion: '', monto: '', divisa: 'ARS' }]), [])
+  const removeOtroImpuesto = useCallback((id: string) => setOtrosImpuestos(prev => prev.filter(r => r.id !== id)), [])
+  const updateOtroImpuesto = useCallback((id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) =>
+    setOtrosImpuestos(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r)), [])
 
   const handleVolver = () => router.push(`/importador/oc/${ocId}`)
 

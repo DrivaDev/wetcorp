@@ -234,7 +234,7 @@ export async function createOC(data: {
   const existente = await OC.findOne({
     importadorId: userId,
     referenciaOC: data.info.referenciaOC.trim(),
-  })
+  }).select('_id').lean()
   if (existente) return { error: 'Ya existe una OC con esta referencia' }
 
   const emailsProveedor = data.info.emailsProveedor
@@ -707,7 +707,9 @@ export async function deleteOtroDocumento(
 async function sendOCNotification(ocId: string, editorUserId: string, isNew: boolean): Promise<void> {
   try {
     await connectDB()
-    const doc = await OC.findById(ocId).lean() as Record<string, unknown> & {
+    const doc = await OC.findById(ocId)
+      .select('importadorId estado emailsProveedor emailsDespachante referenciaOC proveedor fechaOC notas paisOrigen llegadaEstimada')
+      .lean() as Record<string, unknown> & {
       importadorId: string
       estado: string
       emailsProveedor: string[]
@@ -835,7 +837,6 @@ async function deleteOCFromSheets(referenciaOC: string): Promise<void> {
 
 async function syncToSheets(ocId: string): Promise<void> {
   try {
-    await connectDB()
     const doc = await OC.findById(ocId).lean() as Record<string, unknown> & {
       referenciaOC: string
       proveedor: string

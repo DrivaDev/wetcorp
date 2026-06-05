@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { ChevronDown, Search, X } from 'lucide-react'
 import { PAISES } from '@/lib/paises'
 import { cn } from '@/lib/utils'
@@ -16,9 +16,11 @@ export function PaisCombobox({ value, onChange, hasError }: PaisComboboxProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
-  const filtered = query.trim()
-    ? PAISES.filter((p) => p.toLowerCase().includes(query.toLowerCase()))
-    : PAISES
+  const filtered = useMemo(() =>
+    query.trim()
+      ? PAISES.filter((p) => p.toLowerCase().includes(query.toLowerCase()))
+      : PAISES,
+  [query])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

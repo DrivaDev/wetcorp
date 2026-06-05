@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { X, ArrowRight, Copy, Check } from 'lucide-react'
 import Decimal from 'decimal.js'
 import {
@@ -22,25 +22,29 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
   const router = useRouter()
   const [copied, setCopied] = useState(false)
 
-  const tc = oc.tipoCambio ?? '0'
-  const totalGastos = calcTotalGastos(
-    oc.gastosDespacho,
-    oc.gastosDespachante,
-    oc.gastosAdicionales,
-    oc.otrosGastos ?? [],
-    tc
-  )
-  const totalImpuestos = calcSubtotalImpuestos(oc.impuestos, tc)
-  const totalGastosConImp = totalGastos.plus(totalImpuestos)
-
-  const costosRows = calcCostoImportacionPorProducto(oc.productos ?? [], totalGastosConImp)
-
-  const totalFOB = calcFOBTotal(oc.productos ?? [])
-  const totalCostoImport = costosRows.reduce((acc, r) => acc.plus(r.costoImport), new Decimal(0))
-  const totalCostoTotal = costosRows.reduce((acc, r) => acc.plus(r.costoTotal), new Decimal(0))
-
   const fx = oc.divisa === 'ARS/EUR' ? 'EUR' : 'USD'
-  const fmt = (d: Decimal) => `${fx} ${d.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
+
+  const { costosRows, totalFOB, totalCostoImport, totalCostoTotal } = useMemo(() => {
+    const tc = oc.tipoCambio ?? '0'
+    const totalGastos = calcTotalGastos(
+      oc.gastosDespacho,
+      oc.gastosDespachante,
+      oc.gastosAdicionales,
+      oc.otrosGastos ?? [],
+      tc
+    )
+    const totalImpuestos = calcSubtotalImpuestos(oc.impuestos, tc)
+    const totalGastosConImp = totalGastos.plus(totalImpuestos)
+    const rows = calcCostoImportacionPorProducto(oc.productos ?? [], totalGastosConImp)
+    const fob = calcFOBTotal(oc.productos ?? [])
+    const costoImport = rows.reduce((acc, r) => acc.plus(r.costoImport), new Decimal(0))
+    const costoTotal = rows.reduce((acc, r) => acc.plus(r.costoTotal), new Decimal(0))
+    return { costosRows: rows, totalFOB: fob, totalCostoImport: costoImport, totalCostoTotal: costoTotal }
+  }, [oc])
+
+  const fmt = useMemo(() =>
+    (d: Decimal) => `${fx} ${d.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`,
+  [fx])
 
   const handleCopyExcel = async () => {
     const headers = ['Producto', 'Descripción', 'Cant.', `FOB (${fx})`, `Costo Import. (${fx})`, `Costo Total (${fx})`]
