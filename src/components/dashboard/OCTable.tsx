@@ -2,12 +2,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Eye, Pencil, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Eye, Pencil, Trash2, ChevronDown, ChevronUp, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { OC, EstadoOC } from '@/lib/mock-ocs'
 import { DeleteModal } from './DeleteModal'
 import { EmptyState } from './EmptyState'
-import { deleteOC } from '@/actions/oc'
+import { deleteOC, getOCById } from '@/actions/oc'
+import type { SerializedOC } from '@/actions/oc'
+import { OCPreviewModal } from './OCPreviewModal'
 
 type Rol = 'importador' | 'proveedor' | 'despachante'
 
@@ -95,7 +97,19 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
   const [deleteTarget, setDeleteTarget] = useState<OC | null>(null)
   const [deleting, setDeleting] = useState(false)
   const [expandedNota, setExpandedNota] = useState<string | null>(null)
+  const [previewLoading, setPreviewLoading] = useState<string | null>(null)
+  const [previewOC, setPreviewOC] = useState<SerializedOC | null>(null)
   const router = useRouter()
+
+  const handlePreview = async (ocId: string) => {
+    setPreviewLoading(ocId)
+    try {
+      const result = await getOCById(ocId)
+      if ('data' in result) setPreviewOC(result.data.oc)
+    } finally {
+      setPreviewLoading(null)
+    }
+  }
 
   const handleDelete = async () => {
     if (!deleteTarget) return
@@ -129,11 +143,17 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
     return <EmptyState rol={rol} hasFilters={hasFilters} />
   }
 
-  const eyeHref = (oc: OC) => `/${rol}/oc/${oc.id}`
   const pencilHref = (oc: OC) => `/${rol}/oc/${oc.id}/editar`
 
   return (
     <>
+      {previewOC && (
+        <OCPreviewModal
+          oc={previewOC}
+          rol={rol}
+          onClose={() => setPreviewOC(null)}
+        />
+      )}
       <div className="w-full overflow-x-auto rounded-xl border border-acento bg-white">
         <table className={cn('w-full text-base', minWidth)}>
           <TableHead rol={rol} />
@@ -186,13 +206,16 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <Link
-                      href={eyeHref(oc)}
-                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-texto hover:text-principal hover:bg-acento/30 transition-colors duration-150"
+                    <button
+                      onClick={() => handlePreview(oc.id)}
+                      disabled={previewLoading === oc.id}
+                      className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-texto hover:text-principal hover:bg-acento/30 transition-colors duration-150 disabled:opacity-50"
                       aria-label="Visualizar OC"
                     >
-                      <Eye size={18} />
-                    </Link>
+                      {previewLoading === oc.id
+                        ? <Loader2 size={18} className="animate-spin" />
+                        : <Eye size={18} />}
+                    </button>
                     <Link
                       href={pencilHref(oc)}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-texto hover:text-principal hover:bg-acento/30 transition-colors duration-150"

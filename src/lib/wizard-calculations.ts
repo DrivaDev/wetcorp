@@ -93,6 +93,26 @@ export function calcLandedCost(fobUSD: Decimal, gastosUSD: Decimal): Decimal {
   return fobUSD.plus(gastosUSD)
 }
 
+export interface ProductoCostoRow {
+  fobRow: Decimal
+  costoImport: Decimal
+  costoTotal: Decimal
+}
+
+export function calcCostoImportacionPorProducto(
+  productos: ProductRow[],
+  totalGastosUSD: Decimal
+): ProductoCostoRow[] {
+  const totalFOB = calcFOBTotal(productos)
+  return productos.map(p => {
+    const fobRow = calcTotalFila(p)
+    const costoImport = totalFOB.isZero()
+      ? new Decimal(0)
+      : fobRow.dividedBy(totalFOB).times(totalGastosUSD)
+    return { fobRow, costoImport, costoTotal: fobRow.plus(costoImport) }
+  })
+}
+
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function isValidEmail(v: string): boolean {
