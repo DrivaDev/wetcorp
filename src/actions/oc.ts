@@ -248,7 +248,7 @@ export async function createOC(data: {
     const oc = await OC.create({
       importadorId: userId,
       referenciaOC: data.info.referenciaOC.trim(),
-      estado: 'borrador',
+      estado: data.info.estado,
       proveedor: data.info.proveedor,
       emailsProveedor,
       emailsDespachante,
