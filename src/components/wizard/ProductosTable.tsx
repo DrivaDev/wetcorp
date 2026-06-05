@@ -59,7 +59,7 @@ export function ProductosTable({
                   {index + 1}
                 </td>
                 <td className="px-2 py-2">
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-0">
                     <input
                       type="text"
                       value={row.producto}
