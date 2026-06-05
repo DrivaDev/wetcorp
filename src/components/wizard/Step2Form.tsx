@@ -91,6 +91,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
   const [otrosImpuestos, setOtrosImpuestos] = useState<OtroGastoRow[]>(
     ocData?.otrosImpuestos ?? []
   )
+  const [notas, setNotas] = useState(ocData?.notas ?? '')
   const [toastVisible, setToastVisible] = useState(false)
   const [serverError, setServerError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -167,6 +168,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
       otrosGastos,
       otrosImpuestos,
       estado: step1Data.info.estado,
+      notas,
     })
     setIsLoading(false)
     if ('error' in result) {
@@ -375,6 +377,18 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
           tipoCambio={tipoCambio}
           fx={fx}
         />
+
+        {/* Notas */}
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-normal text-texto">Notas</label>
+          <textarea
+            value={notas}
+            placeholder="Observaciones adicionales (opcional)"
+            rows={3}
+            onChange={(e) => setNotas(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150 resize-none"
+          />
+        </div>
 
         {serverError && (
           <p className="text-sm text-red-600 text-center">{serverError}</p>

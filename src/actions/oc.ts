@@ -330,6 +330,7 @@ export async function updateOC(
     otrosGastos: OtroGastoRow[]
     otrosImpuestos: OtroGastoRow[]
     estado: EstadoOC
+    notas?: string
   }
 ): Promise<{ data: { id: string } } | { error: string }> {
   const [{ userId, sessionClaims }] = await Promise.all([auth(), connectDB()])
@@ -377,6 +378,7 @@ export async function updateOC(
       divisa: g.divisa,
     })),
     estado: data.estado,
+    ...(data.notas !== undefined && { notas: data.notas }),
   })
 
   after(() => syncToSheets(id))

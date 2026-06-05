@@ -447,17 +447,6 @@ export function Step1Form({ initialData, ocId, rol = 'importador' }: Step1FormPr
           )}
         </div>
 
-        {/* Notas */}
-        <div className="flex flex-col gap-1 col-span-full sm:col-span-2">
-          <label className="text-sm font-normal text-texto">Notas</label>
-          <textarea
-            value={info.notas}
-            placeholder="Observaciones adicionales (opcional)"
-            rows={3}
-            onChange={(e) => setField('notas', e.target.value)}
-            className={cn(inputClass, 'resize-none')}
-          />
-        </div>
       </div>
 
       <div className="flex flex-col gap-3">
