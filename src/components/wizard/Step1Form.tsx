@@ -426,6 +426,7 @@ export function Step1Form({ initialData, ocId, rol = 'importador' }: Step1FormPr
               min="0"
               step="any"
               onChange={(e) => setField('tipoCambio', e.target.value)}
+              onWheel={(e) => e.currentTarget.blur()}
               className={cn(
                 'flex-1 px-4 py-2 rounded-lg border bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 transition-colors duration-150',
                 tipoCambioError

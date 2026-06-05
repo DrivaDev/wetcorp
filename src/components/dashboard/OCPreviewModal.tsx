@@ -1,13 +1,13 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { X, ArrowRight } from 'lucide-react'
+import { useState } from 'react'
+import { X, ArrowRight, ClipboardCopy, Check } from 'lucide-react'
 import Decimal from 'decimal.js'
 import {
   calcFOBTotal,
   calcTotalGastos,
   calcSubtotalImpuestos,
   calcCostoImportacionPorProducto,
-  formatUSD,
 } from '@/lib/wizard-calculations'
 import { EstadoBadge } from '@/components/ui/EstadoBadge'
 import type { SerializedOC } from '@/actions/oc'
@@ -20,6 +20,7 @@ interface OCPreviewModalProps {
 
 export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
   const router = useRouter()
+  const [copied, setCopied] = useState(false)
 
   const tc = oc.tipoCambio ?? '0'
   const totalGastos = calcTotalGastos(
@@ -41,6 +42,36 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
   const fx = oc.divisa === 'ARS/EUR' ? 'EUR' : 'USD'
   const fmt = (d: Decimal) => `${fx} ${d.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}`
 
+  const handleCopyExcel = async () => {
+    const headers = ['Producto', 'Descripción', 'Cant.', `FOB (${fx})`, `Costo Import. (${fx})`, `Costo Total (${fx})`]
+    const rows = (oc.productos ?? []).map((p, i) => {
+      const row = costosRows[i]
+      return [
+        p.producto || '',
+        p.descripcion || '',
+        p.cantidad.toString(),
+        row.fobRow.toFixed(2),
+        row.costoImport.toFixed(2),
+        row.costoTotal.toFixed(2),
+      ]
+    })
+    const totalsRow = [
+      'Total', '',
+      '',
+      totalFOB.toFixed(2),
+      totalCostoImport.toFixed(2),
+      totalCostoTotal.toFixed(2),
+    ]
+
+    const tsv = [headers, ...rows, totalsRow]
+      .map(r => r.join('\t'))
+      .join('\n')
+
+    await navigator.clipboard.writeText(tsv)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
@@ -53,13 +84,24 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
             <h2 className="text-lg font-bold text-titulares">{oc.referenciaOC}</h2>
             <EstadoBadge estado={oc.estado} />
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg text-texto/50 hover:text-texto hover:bg-acento/40 transition-colors"
-            aria-label="Cerrar"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleCopyExcel}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-texto/70 hover:text-principal hover:bg-acento/30 transition-colors min-h-[36px]"
+              aria-label="Copiar para Excel"
+              title="Copiar tabla en formato Excel"
+            >
+              {copied ? <Check size={15} className="text-acento-dark" /> : <ClipboardCopy size={15} />}
+              <span className="hidden sm:inline">{copied ? 'Copiado' : 'Copiar Excel'}</span>
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg text-texto/50 hover:text-texto hover:bg-acento/40 transition-colors"
+              aria-label="Cerrar"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Meta */}

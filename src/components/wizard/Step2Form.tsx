@@ -251,6 +251,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
                       placeholder="0.00"
                       value={row.monto}
                       onChange={(e) => updateOtroGasto(row.id, 'monto', e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       className="flex-1 sm:w-[120px] h-10 px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150"
                     />
                     <select
@@ -333,6 +334,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
                       placeholder="0.00"
                       value={row.monto}
                       onChange={(e) => updateOtroImpuesto(row.id, 'monto', e.target.value)}
+                      onWheel={(e) => e.currentTarget.blur()}
                       className="flex-1 sm:w-[120px] h-10 px-3 py-2 rounded-lg border border-acento bg-white text-base text-texto placeholder:text-texto/50 focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150"
                     />
                     <select

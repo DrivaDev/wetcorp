@@ -84,6 +84,7 @@ export function ProductosTable({
                     min="0"
                     step="any"
                     onChange={(e) => onChange(row.id, 'cantidad', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={cellInput}
                   />
                 </td>
@@ -95,6 +96,7 @@ export function ProductosTable({
                     min="0"
                     step="any"
                     onChange={(e) => onChange(row.id, 'valorUSD', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
                     className={cellInput}
                   />
                 </td>

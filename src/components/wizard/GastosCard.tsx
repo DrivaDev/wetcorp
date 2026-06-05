@@ -60,6 +60,7 @@ export function GastosCard({
                 placeholder="0.00"
                 value={values[campo.key] ?? ''}
                 onChange={(e) => onChange?.(campo.key, e.target.value)}
+                onWheel={(e) => e.currentTarget.blur()}
                 className={inputClass}
               />
             )}
