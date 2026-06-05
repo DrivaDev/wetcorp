@@ -268,7 +268,7 @@ export async function createOC(data: {
       })),
     })
     after(() => syncToSheets(oc._id.toString()))
-    void sendOCNotification(oc._id.toString(), userId)
+    void sendOCNotification(oc._id.toString(), userId, true)
     return { data: { id: oc._id.toString() } }
   } catch (err: unknown) {
     if (
@@ -379,7 +379,7 @@ export async function updateOC(
   })
 
   after(() => syncToSheets(id))
-  void sendOCNotification(id, userId)
+  void sendOCNotification(id, userId, false)
   return { data: { id } }
 }
 
@@ -525,7 +525,7 @@ export async function updateOCInfo(
 
   after(() => syncToSheets(id))
   if (data.info.estado !== 'borrador') {
-    void sendOCNotification(id, userId)
+    void sendOCNotification(id, userId, false)
   }
   return { data: { id } }
 }
@@ -593,7 +593,7 @@ export async function updateOCDocumento(
 
   try {
     await OC.findByIdAndUpdate(id, { $set: { [`documentos.${slot}`]: url } })
-    void sendOCNotification(id, userId)
+    void sendOCNotification(id, userId, false)
     return { data: { id } }
   } catch {
     return { error: 'Error al guardar el documento' }
@@ -701,7 +701,7 @@ export async function deleteOtroDocumento(
   }
 }
 
-async function sendOCNotification(ocId: string, editorUserId: string): Promise<void> {
+async function sendOCNotification(ocId: string, editorUserId: string, isNew: boolean): Promise<void> {
   try {
     await connectDB()
     const doc = await OC.findById(ocId).lean() as Record<string, unknown> & {
@@ -713,6 +713,8 @@ async function sendOCNotification(ocId: string, editorUserId: string): Promise<v
       proveedor: string
       fechaOC: string
       notas: string
+      paisOrigen?: string
+      llegadaEstimada?: string
     } | null
     if (!doc) return
     if (doc.estado === 'borrador') return
@@ -726,39 +728,74 @@ async function sendOCNotification(ocId: string, editorUserId: string): Promise<v
     const importadorClerkUser = await (await clerkClient()).users.getUser(doc.importadorId)
     const importadorEmail = importadorClerkUser.emailAddresses[0]?.emailAddress?.toLowerCase() ?? ''
 
-    let recipients: string[] = []
+    // Build per-role recipient groups (exclude editor)
+    const filterOut = (emails: string[]) =>
+      emails.filter(r => r !== '' && !editorEmails.includes(r))
+
+    let importadorRecipients: string[] = []
+    let proveedorRecipients: string[] = []
+    let despachantesRecipients: string[] = []
+
     if (editorRole === 'importador') {
-      recipients = [...doc.emailsProveedor, ...doc.emailsDespachante]
+      proveedorRecipients = filterOut(doc.emailsProveedor)
+      despachantesRecipients = filterOut(doc.emailsDespachante)
     } else if (editorRole === 'proveedor') {
-      const otrosProveedor = doc.emailsProveedor.filter(e => !editorEmails.includes(e))
-      recipients = [importadorEmail, ...doc.emailsDespachante, ...otrosProveedor]
+      importadorRecipients = filterOut([importadorEmail])
+      proveedorRecipients = filterOut(doc.emailsProveedor)
+      despachantesRecipients = filterOut(doc.emailsDespachante)
     } else if (editorRole === 'despachante') {
-      const otrosDespachante = doc.emailsDespachante.filter(e => !editorEmails.includes(e))
-      recipients = [importadorEmail, ...doc.emailsProveedor, ...otrosDespachante]
+      importadorRecipients = filterOut([importadorEmail])
+      proveedorRecipients = filterOut(doc.emailsProveedor)
+      despachantesRecipients = filterOut(doc.emailsDespachante)
     }
 
-    recipients = recipients.filter(r => r !== '' && !editorEmails.includes(r))
-    if (recipients.length === 0) return
-
     const resend = new Resend(process.env.RESEND_API_KEY)
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://sistema-comex.vercel.app'
-    const link = `${baseUrl}/importador/oc/${ocId}`
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://wetcorp.vercel.app'
+    const from = 'compras@wet-corp.com'
+    const subject = isNew
+      ? `Nueva OC: ${doc.referenciaOC}`
+      : `OC actualizada: ${doc.referenciaOC}`
 
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL!,
-      to: recipients,
-      subject: `Actualización OC ${doc.referenciaOC}`,
-      react: OCNotificationEmail({
-        oc: {
-          referenciaOC: doc.referenciaOC,
-          proveedor: doc.proveedor,
-          estado: doc.estado,
-          fechaOC: doc.fechaOC,
-          notas: doc.notas,
-        },
-        link,
-      }),
-    })
+    const ocData = {
+      referenciaOC: doc.referenciaOC,
+      proveedor: doc.proveedor,
+      estado: doc.estado,
+      fechaOC: doc.fechaOC,
+      notas: doc.notas,
+      paisOrigen: doc.paisOrigen,
+      llegadaEstimada: doc.llegadaEstimada,
+    }
+
+    const sends: Promise<unknown>[] = []
+
+    if (importadorRecipients.length > 0) {
+      sends.push(resend.emails.send({
+        from,
+        to: importadorRecipients,
+        subject,
+        react: OCNotificationEmail({ oc: ocData, link: `${baseUrl}/importador/oc/${ocId}`, isNew }),
+      }))
+    }
+    if (proveedorRecipients.length > 0) {
+      sends.push(resend.emails.send({
+        from,
+        to: proveedorRecipients,
+        subject,
+        react: OCNotificationEmail({ oc: ocData, link: `${baseUrl}/proveedor/oc/${ocId}`, isNew }),
+      }))
+    }
+    if (despachantesRecipients.length > 0) {
+      sends.push(resend.emails.send({
+        from,
+        to: despachantesRecipients,
+        subject,
+        react: OCNotificationEmail({ oc: ocData, link: `${baseUrl}/despachante/oc/${ocId}`, isNew }),
+      }))
+    }
+
+    if (sends.length > 0) {
+      await Promise.allSettled(sends)
+    }
   } catch (err) {
     console.error('[sendOCNotification] failed:', err)
   }
