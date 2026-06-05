@@ -5,7 +5,8 @@ import { auth, clerkClient } from '@clerk/nextjs/server'
 import { connectDB } from '@/lib/mongodb'
 import { OC } from '@/lib/models/OC'
 import type { EstadoOC, OCDetalle } from '@/lib/mock-ocs'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
+import { render } from '@react-email/render'
 import { OCNotificationEmail } from '@/components/emails/OCNotificationEmail'
 import { google } from 'googleapis'
 import Decimal from 'decimal.js'
@@ -749,9 +750,16 @@ async function sendOCNotification(ocId: string, editorUserId: string, isNew: boo
       despachantesRecipients = filterOut(doc.emailsDespachante)
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    })
+
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://wetcorp.vercel.app'
-    const from = 'compras@wet-corp.com'
+    const from = `Sistema COMEX <${process.env.EMAIL_USER}>`
     const subject = isNew
       ? `Nueva OC: ${doc.referenciaOC}`
       : `OC actualizada: ${doc.referenciaOC}`
@@ -766,32 +774,18 @@ async function sendOCNotification(ocId: string, editorUserId: string, isNew: boo
       llegadaEstimada: doc.llegadaEstimada,
     }
 
+    const buildMail = async (recipients: string[], role: string) => {
+      const html = await render(
+        OCNotificationEmail({ oc: ocData, link: `${baseUrl}/${role}/oc/${ocId}`, isNew })
+      )
+      return transporter.sendMail({ from, to: recipients, subject, html })
+    }
+
     const sends: Promise<unknown>[] = []
 
-    if (importadorRecipients.length > 0) {
-      sends.push(resend.emails.send({
-        from,
-        to: importadorRecipients,
-        subject,
-        react: OCNotificationEmail({ oc: ocData, link: `${baseUrl}/importador/oc/${ocId}`, isNew }),
-      }))
-    }
-    if (proveedorRecipients.length > 0) {
-      sends.push(resend.emails.send({
-        from,
-        to: proveedorRecipients,
-        subject,
-        react: OCNotificationEmail({ oc: ocData, link: `${baseUrl}/proveedor/oc/${ocId}`, isNew }),
-      }))
-    }
-    if (despachantesRecipients.length > 0) {
-      sends.push(resend.emails.send({
-        from,
-        to: despachantesRecipients,
-        subject,
-        react: OCNotificationEmail({ oc: ocData, link: `${baseUrl}/despachante/oc/${ocId}`, isNew }),
-      }))
-    }
+    if (importadorRecipients.length > 0) sends.push(buildMail(importadorRecipients, 'importador'))
+    if (proveedorRecipients.length > 0) sends.push(buildMail(proveedorRecipients, 'proveedor'))
+    if (despachantesRecipients.length > 0) sends.push(buildMail(despachantesRecipients, 'despachante'))
 
     if (sends.length > 0) {
       await Promise.allSettled(sends)
