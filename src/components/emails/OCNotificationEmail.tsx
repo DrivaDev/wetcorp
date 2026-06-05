@@ -50,7 +50,7 @@ export function OCNotificationEmail({ oc, link, isNew }: OCNotificationEmailProp
           {/* Header */}
           <Section style={{ backgroundColor: colors.white, padding: '24px 32px', borderBottom: `3px solid ${colors.principal}` }}>
             <Img
-              src="https://wetcorp.vercel.app/logo-horizontal.svg"
+              src="https://wetcorp-comex.com.ar/logo-horizontal.svg"
               alt="Sistema integral COMEX"
               height={34}
               style={{ display: 'block' }}

@@ -760,7 +760,7 @@ async function sendOCNotification(ocId: string, editorUserId: string, isNew: boo
       },
     })
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://wetcorp.vercel.app'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://wetcorp-comex.com.ar'
     const from = `Sistema COMEX <${process.env.EMAIL_USER}>`
     const subject = isNew
       ? `Nueva OC: ${doc.referenciaOC}`
