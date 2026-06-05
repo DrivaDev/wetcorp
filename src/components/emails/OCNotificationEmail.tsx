@@ -48,7 +48,7 @@ export function OCNotificationEmail({ oc, link, isNew }: OCNotificationEmailProp
         <Container style={{ maxWidth: 600, margin: '0 auto', backgroundColor: colors.white, borderRadius: 12, overflow: 'hidden', border: `1px solid ${colors.border}` }}>
 
           {/* Header */}
-          <Section style={{ backgroundColor: colors.titulares, padding: '24px 32px' }}>
+          <Section style={{ backgroundColor: colors.white, padding: '24px 32px', borderBottom: `3px solid ${colors.principal}` }}>
             <Img
               src="https://wetcorp.vercel.app/logo-horizontal.svg"
               alt="Sistema integral COMEX"

@@ -1,24 +1,25 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { Building2, Package, Truck, Loader2 } from 'lucide-react'
+import { Package, Truck, Loader2 } from 'lucide-react'
 import { completeOnboarding } from './_actions'
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 
-type Role = 'importador' | 'proveedor' | 'despachante'
+type Role = 'proveedor' | 'despachante'
 
-const ROLE_REDIRECTS: Record<Role, string> = {
+const IMPORTADOR_EMAILS = ['driva.devv@gmail.com', 'compras@wet-corp.com']
+
+const ROLE_REDIRECTS = {
   importador:  '/importador/dashboard',
   proveedor:   '/proveedor/dashboard',
   despachante: '/despachante/dashboard',
-}
+} as const
 
 const ROLES: { id: Role; Icon: React.ElementType; title: string; description: string }[] = [
-  { id: 'importador',  Icon: Building2, title: 'Importador',   description: 'Gestiono mis órdenes de compra' },
-  { id: 'proveedor',   Icon: Package,   title: 'Proveedor',    description: 'Veo las OCs donde estoy asignado' },
-  { id: 'despachante', Icon: Truck,      title: 'Despachante',  description: 'Veo las OCs donde estoy asignado' },
+  { id: 'proveedor',   Icon: Package, title: 'Proveedor',   description: 'Veo las OCs donde estoy asignado' },
+  { id: 'despachante', Icon: Truck,   title: 'Despachante', description: 'Veo las OCs donde estoy asignado' },
 ]
 
 export default function OnboardingPage() {
@@ -27,6 +28,23 @@ export default function OnboardingPage() {
   const [selected, setSelected] = useState<Role | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const primaryEmail = user?.primaryEmailAddress?.emailAddress?.toLowerCase() ?? ''
+  const isImportador = IMPORTADOR_EMAILS.includes(primaryEmail)
+
+  useEffect(() => {
+    if (isImportador && user) {
+      setLoading(true)
+      completeOnboarding('importador' as never).then(result => {
+        if ('error' in result) {
+          setError(result.error)
+          setLoading(false)
+          return
+        }
+        user.reload().then(() => router.push(ROLE_REDIRECTS.importador))
+      })
+    }
+  }, [isImportador, user, router])
 
   const handleConfirm = async () => {
     if (!selected) return
@@ -49,6 +67,16 @@ export default function OnboardingPage() {
     }
   }
 
+  if (isImportador) {
+    return (
+      <div className="w-full max-w-2xl px-4 text-center">
+        <Image src="/logo-horizontal.svg" alt="Sistema integral COMEX" width={180} height={52} className="mx-auto mb-8 object-contain" />
+        <Loader2 size={32} className="animate-spin text-principal mx-auto mb-4" />
+        <p className="text-base text-texto/70">Configurando tu cuenta…</p>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full max-w-2xl px-4">
       <div className="text-center mb-8">
@@ -57,7 +85,7 @@ export default function OnboardingPage() {
         <p className="text-base text-texto/70 mt-2">¿Cómo vas a usar el sistema?</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-8">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mb-8">
         {ROLES.map(({ id, Icon, title, description }) => (
           <button
             key={id}
