@@ -1,13 +1,14 @@
 'use client'
 import { Decimal } from 'decimal.js'
 import { Plus, Trash2 } from 'lucide-react'
-import { usdToARS, formatARS, formatUSD } from '@/lib/wizard-calculations'
+import { usdToARS, formatARS, formatFX } from '@/lib/wizard-calculations'
 import type { OtroGastoRow } from '@/lib/wizard-types'
 
 interface OtrosGastosSectionProps {
   rows: OtroGastoRow[]
   subtotalUSD: Decimal
   tipoCambio: string
+  fx?: string
   onAdd?: () => void
   onRemove?: (id: string) => void
   onChange?: (id: string, field: keyof Omit<OtroGastoRow, 'id'>, value: string) => void
@@ -23,6 +24,7 @@ export function OtrosGastosSection({
   rows,
   subtotalUSD,
   tipoCambio,
+  fx = 'USD',
   onAdd,
   onRemove,
   onChange,
@@ -42,7 +44,7 @@ export function OtrosGastosSection({
             {readOnly ? (
               <>
                 <p className={`${readOnlyClass} flex-1`}>{row.descripcion || '—'}</p>
-                <p className={`${readOnlyClass} shrink-0`}>{row.monto} {row.divisa}</p>
+                <p className={`${readOnlyClass} shrink-0`}>{row.monto} {row.divisa === 'USD' ? fx : 'ARS'}</p>
               </>
             ) : (
               <>
@@ -68,7 +70,7 @@ export function OtrosGastosSection({
                   className="w-[90px] h-10 px-3 rounded-lg border border-acento bg-white text-base text-texto focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150 cursor-pointer appearance-none"
                 >
                   <option value="ARS">ARS</option>
-                  <option value="USD">USD</option>
+                  <option value="USD">{fx}</option>
                 </select>
                 <button
                   type="button"
@@ -98,7 +100,7 @@ export function OtrosGastosSection({
       <div className="mt-4 pt-4 border-t border-acento/50 flex justify-between items-center">
         <span className="text-sm font-normal text-titulares">Subtotal</span>
         <div className="text-right">
-          <p className="text-base font-bold text-titulares">{formatUSD(subtotalUSD)}</p>
+          <p className="text-base font-bold text-titulares">{formatFX(subtotalUSD, fx)}</p>
           <p className="text-sm font-normal text-titulares/60">{formatARS(subtotalARS)}</p>
         </div>
       </div>

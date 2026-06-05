@@ -1,6 +1,6 @@
 'use client'
 import { Decimal } from 'decimal.js'
-import { usdToARS, formatARS, formatUSD } from '@/lib/wizard-calculations'
+import { usdToARS, formatARS, formatFX } from '@/lib/wizard-calculations'
 import React from 'react'
 
 export interface GastoField {
@@ -15,6 +15,7 @@ interface GastosCardProps {
   values: Record<string, string>
   subtotalUSD: Decimal
   tipoCambio: string
+  fx?: string
   onChange?: (key: string, value: string) => void
   readOnly?: boolean
   children?: React.ReactNode
@@ -32,6 +33,7 @@ export function GastosCard({
   values,
   subtotalUSD,
   tipoCambio,
+  fx = 'USD',
   onChange,
   readOnly,
   children,
@@ -46,7 +48,7 @@ export function GastosCard({
         {campos.map((campo) => (
           <div key={campo.key}>
             <label className="block text-sm font-normal text-texto mb-1">
-              {campo.label}
+              {campo.divisa === 'USD' ? campo.label.replace('(USD)', `(${fx})`) : campo.label}
             </label>
             {readOnly ? (
               <p className={readOnlyClass}>{values[campo.key] || '—'}</p>
@@ -70,7 +72,7 @@ export function GastosCard({
       <div className="mt-4 pt-4 border-t border-acento/50 flex justify-between items-center">
         <span className="text-sm font-normal text-titulares">Subtotal</span>
         <div className="text-right">
-          <p className="text-base font-bold text-titulares">{formatUSD(subtotalUSD)}</p>
+          <p className="text-base font-bold text-titulares">{formatFX(subtotalUSD, fx)}</p>
           <p className="text-sm font-normal text-titulares/60">{formatARS(subtotalARS)}</p>
         </div>
       </div>

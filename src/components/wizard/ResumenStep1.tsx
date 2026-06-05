@@ -1,5 +1,5 @@
 'use client'
-import { calcTotalFila, calcFOBTotal, formatUSD, usdToARS, formatARS } from '@/lib/wizard-calculations'
+import { calcTotalFila, calcFOBTotal, formatFX, usdToARS, formatARS } from '@/lib/wizard-calculations'
 import type { Step1Data } from '@/lib/wizard-types'
 import type { EstadoOC } from '@/lib/mock-ocs'
 
@@ -21,6 +21,7 @@ const readOnlyClass =
 
 export function ResumenStep1({ step1Data }: ResumenStep1Props) {
   const { info, productos } = step1Data
+  const fx = info.divisa === 'ARS/EUR' ? 'EUR' : 'USD'
   const fobUSD = calcFOBTotal(productos)
   const fobARS = usdToARS(fobUSD.toString(), info.tipoCambio)
 
@@ -114,7 +115,7 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
                 </div>
                 <div className="text-right ml-4">
                   <p className="text-base font-bold text-titulares whitespace-nowrap">
-                    USD {total.toFixed(2)}
+                    {fx} {total.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -126,7 +127,7 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
           <span className="text-sm font-bold text-titulares">Valor FOB Total</span>
           <div className="text-right">
             <p className="text-base font-bold text-titulares whitespace-nowrap">
-              {formatUSD(fobUSD)}
+              {formatFX(fobUSD, fx)}
             </p>
             <p className="text-sm font-normal text-titulares/60 whitespace-nowrap">
               {formatARS(fobARS)}

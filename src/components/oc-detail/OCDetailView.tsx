@@ -76,6 +76,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
     productos: oc.productos,
   }
 
+  const fx = oc.divisa === 'ARS/EUR' ? 'EUR' : 'USD'
   const fobUSD = calcFOBTotal(oc.productos)
   const subtotalDespacho = calcSubtotalDespacho(oc.gastosDespacho, oc.tipoCambio)
   const subtotalDespachante = calcSubtotalDespachante(oc.gastosDespachante, oc.tipoCambio)
@@ -102,6 +103,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         values={oc.gastosDespacho as unknown as Record<string, string>}
         subtotalUSD={subtotalDespacho}
         tipoCambio={oc.tipoCambio}
+        fx={fx}
         readOnly
       />
 
@@ -111,6 +113,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         values={oc.gastosDespachante as unknown as Record<string, string>}
         subtotalUSD={subtotalDespachante}
         tipoCambio={oc.tipoCambio}
+        fx={fx}
         readOnly
       />
 
@@ -120,6 +123,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         values={oc.gastosAdicionales as unknown as Record<string, string>}
         subtotalUSD={subtotalAdicionales}
         tipoCambio={oc.tipoCambio}
+        fx={fx}
         readOnly
       />
 
@@ -127,6 +131,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         rows={oc.otrosGastos}
         subtotalUSD={subtotalOtros}
         tipoCambio={oc.tipoCambio}
+        fx={fx}
         readOnly
       />
 
@@ -138,6 +143,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         values={oc.impuestos as unknown as Record<string, string>}
         subtotalUSD={totalImpuestosUSD}
         tipoCambio={oc.tipoCambio}
+        fx={fx}
         readOnly
       >
         {oc.otrosImpuestos && oc.otrosImpuestos.length > 0 && (
@@ -145,6 +151,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
             rows={oc.otrosImpuestos}
             subtotalUSD={calcSubtotalOtros(oc.otrosImpuestos, oc.tipoCambio)}
             tipoCambio={oc.tipoCambio}
+            fx={fx}
             readOnly
             titulo=""
           />
@@ -160,6 +167,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
         totalGastosUSD={totalGastosUSD}
         totalImpuestosUSD={totalImpuestosUSD}
         tipoCambio={oc.tipoCambio}
+        fx={fx}
       />
     </main>
   )

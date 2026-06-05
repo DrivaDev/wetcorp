@@ -465,6 +465,7 @@ export function Step1Form({ initialData, ocId, rol = 'importador' }: Step1FormPr
         <ProductosTable
           productos={productos}
           tipoCambio={info.tipoCambio}
+          fx={info.divisa === 'ARS/EUR' ? 'EUR' : 'USD'}
           onAdd={addProducto}
           onRemove={removeProducto}
           onChange={updateProducto}

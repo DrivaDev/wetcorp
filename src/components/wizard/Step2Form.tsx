@@ -12,6 +12,7 @@ import {
   calcFOBTotal,
   usdToARS,
   formatUSD,
+  formatFX,
   formatARS,
 } from '@/lib/wizard-calculations'
 import type {
@@ -123,6 +124,8 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
   }
 
   const tipoCambio = step1Data.info.tipoCambio ?? '1'
+  const divisa = step1Data.info.divisa ?? 'ARS/USD'
+  const fx = divisa === 'ARS/EUR' ? 'EUR' : 'USD'
 
   // Gastos de importación
   const subtotalDespachoUSD  = calcSubtotalDespacho(gastosDespacho, tipoCambio)
@@ -205,6 +208,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
             values={gastosDespacho as unknown as Record<string, string>}
             subtotalUSD={subtotalDespachoUSD}
             tipoCambio={tipoCambio}
+            fx={fx}
             onChange={updateDespacho}
           />
 
@@ -214,6 +218,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
             values={gastosDespachante as unknown as Record<string, string>}
             subtotalUSD={subtotalDespachante}
             tipoCambio={tipoCambio}
+            fx={fx}
             onChange={updateDespachante}
           />
 
@@ -223,6 +228,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
             values={gastosAdicionales as unknown as Record<string, string>}
             subtotalUSD={subtotalAdicionales.plus(subtotalOtros)}
             tipoCambio={tipoCambio}
+            fx={fx}
             onChange={updateAdicionales}
           >
             <div className="flex flex-col gap-3 border-t border-acento/30 pt-4">
@@ -250,7 +256,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
                     className="w-[90px] h-10 px-3 rounded-lg border border-acento bg-white text-base text-texto focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150 cursor-pointer appearance-none"
                   >
                     <option value="ARS">ARS</option>
-                    <option value="USD">USD</option>
+                    <option value="USD">{fx}</option>
                   </select>
                   <button
                     type="button"
@@ -278,7 +284,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
             <span className="text-sm font-bold text-titulares">Total gastos de importación</span>
             <div className="text-right">
               <p className="text-base font-bold text-titulares whitespace-nowrap">
-                {formatUSD(totalGastosUSD)}
+                {formatFX(totalGastosUSD, fx)}
               </p>
               <p className="text-sm font-normal text-titulares/60 whitespace-nowrap">
                 {formatARS(usdToARS(totalGastosUSD.toString(), tipoCambio))}
@@ -301,6 +307,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
             values={impuestos as unknown as Record<string, string>}
             subtotalUSD={totalImpuestosUSD}
             tipoCambio={tipoCambio}
+            fx={fx}
             onChange={updateImpuestos}
           >
             {/* Impuestos adicionales dinámicos */}
@@ -329,7 +336,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
                     className="w-[90px] h-10 px-3 rounded-lg border border-acento bg-white text-base text-texto focus:outline-none focus:ring-2 focus:ring-principal/30 focus:border-principal transition-colors duration-150 cursor-pointer appearance-none"
                   >
                     <option value="ARS">ARS</option>
-                    <option value="USD">USD</option>
+                    <option value="USD">{fx}</option>
                   </select>
                   <button
                     type="button"
@@ -362,6 +369,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
           totalGastosUSD={totalGastosUSD}
           totalImpuestosUSD={totalImpuestosUSD}
           tipoCambio={tipoCambio}
+          fx={fx}
         />
 
         {serverError && (

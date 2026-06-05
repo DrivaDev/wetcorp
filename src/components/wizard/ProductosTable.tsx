@@ -3,11 +3,12 @@
 import { Trash2, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ProductRow } from '@/lib/wizard-types'
-import { calcTotalFila, calcFOBTotal, usdToARS, formatNum, formatUSD, formatARS } from '@/lib/wizard-calculations'
+import { calcTotalFila, calcFOBTotal, usdToARS, formatNum, formatFX, formatARS } from '@/lib/wizard-calculations'
 
 interface ProductosTableProps {
   productos: ProductRow[]
   tipoCambio: string
+  fx?: string
   onAdd: () => void
   onRemove: (id: string) => void
   onChange: (id: string, field: keyof Omit<ProductRow, 'id'>, value: string) => void
@@ -16,6 +17,7 @@ interface ProductosTableProps {
 export function ProductosTable({
   productos,
   tipoCambio,
+  fx = 'USD',
   onAdd,
   onRemove,
   onChange,
@@ -42,10 +44,10 @@ export function ProductosTable({
                 Cantidad *
               </th>
               <th className="w-[140px] px-3 py-3 text-sm font-normal text-titulares text-left whitespace-nowrap">
-                Valor unitario (USD) *
+                Valor unitario ({fx}) *
               </th>
               <th className="w-[120px] px-3 py-3 text-sm font-normal text-titulares text-right whitespace-nowrap">
-                Total (USD)
+                Total ({fx})
               </th>
               <th className="w-[56px] px-3 py-3 text-sm font-normal text-titulares text-center whitespace-nowrap">
                 Acciones
@@ -137,7 +139,7 @@ export function ProductosTable({
               </td>
               <td className="px-3 py-3 text-right">
                 <span className="block text-base font-bold text-titulares whitespace-nowrap">
-                  {formatUSD(fobTotal)}
+                  {formatFX(fobTotal, fx)}
                 </span>
                 <span className="block text-sm font-normal text-titulares/60 whitespace-nowrap">
                   {formatARS(fobARS)}

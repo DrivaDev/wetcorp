@@ -158,6 +158,10 @@ export function formatUSD(d: Decimal): string {
   return `USD ${fmtUSD.format(d.toNumber())}`
 }
 
+export function formatFX(d: Decimal, fx = 'USD'): string {
+  return `${fx} ${fmtUSD.format(d.toNumber())}`
+}
+
 export function formatARS(d: Decimal): string {
   return `$ ${fmtARS.format(d.toNumber())}`
 }
