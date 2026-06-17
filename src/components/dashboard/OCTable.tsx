@@ -61,7 +61,7 @@ function TableHead({ rol }: { rol: Rol }) {
         )}
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[130px]">Despacho</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[140px]">Estado</th>
-        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[110px]">Fecha</th>
+        <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[110px]">Llegada est.</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap">Notas</th>
         <th className="px-4 py-3 text-left text-sm font-medium text-titulares whitespace-nowrap w-[100px]">Acciones</th>
       </tr>
@@ -203,7 +203,7 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
                     {ESTADO_LABELS[oc.estado]}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-base text-texto">{formatFecha(oc.fecha)}</td>
+                <td className="px-4 py-3 text-base text-texto">{oc.llegadaEstimada ? formatFecha(oc.llegadaEstimada) : <span className="text-texto/30">—</span>}</td>
                 <td className="px-4 py-3 max-w-[200px]">
                   {oc.notas ? (
                     <div className="flex flex-col gap-1">

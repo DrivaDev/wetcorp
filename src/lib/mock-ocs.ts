@@ -25,6 +25,7 @@ export interface OC {
   numeroDespacho: string
   estado: EstadoOC
   fecha: string
+  llegadaEstimada: string
   notas?: string
 }
 
@@ -68,6 +69,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: '',
     estado: 'borrador',
     fecha: '2025-01-15',
+    llegadaEstimada: '',
   },
   {
     id: '2',
@@ -79,6 +81,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: '',
     estado: 'en_proceso',
     fecha: '2025-02-03',
+    llegadaEstimada: '',
   },
   {
     id: '3',
@@ -90,6 +93,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: 'D-2025-00341',
     estado: 'en_transito',
     fecha: '2025-03-20',
+    llegadaEstimada: '',
   },
   {
     id: '4',
@@ -101,6 +105,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: 'D-2025-00498',
     estado: 'en_aduana',
     fecha: '2025-04-10',
+    llegadaEstimada: '',
   },
   {
     id: '5',
@@ -112,6 +117,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: 'D-2025-00512',
     estado: 'entregada',
     fecha: '2025-05-05',
+    llegadaEstimada: '',
   },
   {
     id: '6',
@@ -123,6 +129,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: '',
     estado: 'cancelada',
     fecha: '2025-06-18',
+    llegadaEstimada: '',
   },
   {
     id: '7',
@@ -134,6 +141,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: '',
     estado: 'borrador',
     fecha: '2025-07-22',
+    llegadaEstimada: '',
   },
   {
     id: '8',
@@ -145,6 +153,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: '',
     estado: 'en_proceso',
     fecha: '2025-08-14',
+    llegadaEstimada: '',
   },
   {
     id: '9',
@@ -156,6 +165,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: 'D-2025-00887',
     estado: 'en_transito',
     fecha: '2025-09-30',
+    llegadaEstimada: '',
   },
   {
     id: '10',
@@ -167,6 +177,7 @@ export const MOCK_OCS: OC[] = [
     numeroDespacho: 'D-2025-00934',
     estado: 'entregada',
     fecha: '2025-12-01',
+    llegadaEstimada: '',
   },
 ]
 

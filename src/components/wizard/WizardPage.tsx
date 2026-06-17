@@ -21,6 +21,7 @@ export function WizardPage({ initialStep, ocData, ocId, rol }: WizardPageProps) 
       estado: ocData.estado,
       proveedor: ocData.proveedor ?? '',
       emailsProveedor: ocData.emailsProveedor ?? [''],
+      despachante: ocData.despachante ?? '',
       despacho: ocData.despacho ?? '',
       fechaDespacho: ocData.fechaDespacho ?? '',
       emailsDespachante: ocData.emailsDespachante ?? [''],

@@ -39,6 +39,7 @@ const OCSchema = new Schema(
     },
     proveedor: { type: String, default: '' },
     emailsProveedor: { type: [String], default: [] },
+    despachante: { type: String, default: '' },
     emailsDespachante: { type: [String], default: [] },
     despacho: { type: String, default: '' },
     fechaDespacho: { type: String, default: '' },

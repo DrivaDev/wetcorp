@@ -109,6 +109,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
       estado: ocData.estado,
       proveedor: ocData.proveedor ?? '',
       emailsProveedor: ocData.emailsProveedor ?? [''],
+      despachante: (ocData as OCDetalle & { despachante?: string }).despachante ?? '',
       despacho: ocData.despacho ?? '',
       fechaDespacho: (ocData as OCDetalle & { fechaDespacho?: string }).fechaDespacho ?? '',
       emailsDespachante: ocData.emailsDespachante ?? [''],

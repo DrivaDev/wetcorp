@@ -62,6 +62,7 @@ export function OCDetailView({ oc }: OCDetailViewProps) {
       estado: oc.estado,
       proveedor: oc.proveedor,
       emailsProveedor: oc.emailsProveedor,
+      despachante: oc.despachante ?? '',
       despacho: oc.despacho,
       fechaDespacho: oc.fechaDespacho ?? '',
       emailsDespachante: oc.emailsDespachante,

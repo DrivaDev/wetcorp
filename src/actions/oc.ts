@@ -67,6 +67,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
     referenciaOC: string
     proveedor: string
     emailsProveedor: string[]
+    despachante: string
     emailsDespachante: string[]
     despacho: string
     estado: string
@@ -100,7 +101,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
     numeroOC: d.referenciaOC,
     proveedor: d.proveedor ?? '',
     emailProveedor: d.emailsProveedor?.[0] ?? '',
-    despachante: d.despacho ?? '',
+    despachante: d.despachante ?? '',
     emailDespachante: d.emailsDespachante?.[0] ?? '',
     numeroDespacho: '',
     estado: d.estado as EstadoOC,
@@ -251,6 +252,7 @@ export async function createOC(data: {
       estado: data.info.estado,
       proveedor: data.info.proveedor,
       emailsProveedor,
+      despachante: data.info.despachante,
       emailsDespachante,
       despacho: data.info.despacho,
       fechaDespacho: data.info.fechaDespacho,
@@ -452,7 +454,7 @@ export async function getOCs(): Promise<
 
   const [docs, aggResult] = await Promise.all([
     OC.find(filter)
-      .select('_id referenciaOC proveedor despacho emailsProveedor emailsDespachante estado createdAt importadorId notas')
+      .select('_id referenciaOC proveedor despachante despacho emailsProveedor emailsDespachante estado createdAt importadorId notas llegadaEstimada')
       .sort({ createdAt: -1 })
       .lean(),
     OC.aggregate([
@@ -508,6 +510,7 @@ export async function updateOCInfo(
     estado: data.info.estado,
     proveedor: data.info.proveedor,
     emailsProveedor,
+    despachante: data.info.despachante,
     emailsDespachante,
     despacho: data.info.despacho,
     fechaDespacho: data.info.fechaDespacho,

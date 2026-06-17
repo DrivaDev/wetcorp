@@ -63,9 +63,10 @@ const EMPTY_INFO: InfoGeneralState = {
   estado: 'borrador',
   proveedor: '',
   emailsProveedor: [''],
+  despachante: '',
+  emailsDespachante: [''],
   despacho: '',
   fechaDespacho: '',
-  emailsDespachante: [''],
   paisOrigen: '',
   fechaOC: '',
   llegadaEstimada: '',
@@ -304,6 +305,18 @@ export function Step1Form({ initialData, ocId, rol = 'importador' }: Step1FormPr
               Agregar otro mail
             </button>
           </div>
+        </div>
+
+        {/* Nombre despachante */}
+        <div className="flex flex-col gap-1 sm:col-span-2">
+          <label className="text-sm font-normal text-texto">Despachante</label>
+          <input
+            type="text"
+            value={info.despachante}
+            placeholder="Nombre del despachante"
+            onChange={(e) => setField('despachante', e.target.value)}
+            className={inputClass}
+          />
         </div>
 
         {/* Mails despachante */}
