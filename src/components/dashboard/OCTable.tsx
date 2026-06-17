@@ -203,7 +203,7 @@ export function OCTable({ ocs, rol, isLoading, hasFilters = false }: OCTableProp
                     {ESTADO_LABELS[oc.estado]}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-base text-texto">{oc.llegadaEstimada ? formatFecha(oc.llegadaEstimada) : <span className="text-texto/30">—</span>}</td>
+                <td className="px-4 py-3 text-base text-texto">{oc.llegadaEstimada || <span className="text-texto/30">—</span>}</td>
                 <td className="px-4 py-3 max-w-[200px]">
                   {oc.notas ? (
                     <div className="flex flex-col gap-1">
