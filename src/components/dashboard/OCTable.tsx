@@ -21,7 +21,7 @@ interface OCTableProps {
 }
 
 function getBadgeClasses(estado: EstadoOC): string {
-  const base = 'text-sm px-2 py-0.5 rounded-full'
+  const base = 'text-sm px-2 py-0.5 rounded-full whitespace-nowrap'
   const map: Record<EstadoOC, string> = {
     borrador:    `${base} bg-fondo text-titulares border border-acento font-light`,
     en_proceso:  `${base} bg-acento/50 text-titulares font-light`,
