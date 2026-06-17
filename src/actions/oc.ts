@@ -103,7 +103,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
     emailProveedor: d.emailsProveedor?.[0] ?? '',
     despachante: d.despachante ?? '',
     emailDespachante: d.emailsDespachante?.[0] ?? '',
-    numeroDespacho: '',
+    numeroDespacho: d.despacho ?? '',
     estado: d.estado as EstadoOC,
     fecha,
     referenciaOC: d.referenciaOC,
