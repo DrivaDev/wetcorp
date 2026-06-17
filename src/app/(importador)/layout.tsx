@@ -12,8 +12,8 @@ export default function ImportadorLayout({
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <main className="flex-1 overflow-auto bg-fondo">
           {children}
+          <Footer />
         </main>
-        <Footer />
       </div>
     </div>
   )
