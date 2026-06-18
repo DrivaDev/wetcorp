@@ -10,6 +10,7 @@ const SLOTS: { nombre: string; key: string }[] = [
   { nombre: 'Certificado de Origen',  key: 'certificadoOrigen' },
   { nombre: 'Certificado de Análisis',key: 'certificadoAnalisis' },
   { nombre: 'Packing list',           key: 'packingList' },
+  { nombre: 'Hoja de seguridad',      key: 'hojaSeguridad' },
 ]
 
 interface DocumentSlotsProps {
@@ -22,6 +23,7 @@ interface DocumentSlotsProps {
     certificadoOrigen: string | null
     certificadoAnalisis?: string | null
     packingList?: string | null
+    hojaSeguridad?: string | null
     otro: string | null
   }
   otrosDocumentos?: { url: string; slot: string }[]

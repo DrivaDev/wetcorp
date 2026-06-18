@@ -171,6 +171,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
       certificadoOrigen: d.documentos?.certificadoOrigen ?? null,
       certificadoAnalisis: d.documentos?.certificadoAnalisis ?? null,
       packingList: d.documentos?.packingList ?? null,
+      hojaSeguridad: d.documentos?.hojaSeguridad ?? null,
       otro: d.documentos?.otro ?? null,
     },
     otrosDocumentos: (() => {
@@ -538,7 +539,7 @@ export async function updateOCInfo(
 
 const VALID_SLOTS = [
   'facturaProveedor', 'facturaDespachante', 'conocimientoEmbarque',
-  'certificadoOrigen', 'certificadoAnalisis', 'packingList', 'otro',
+  'certificadoOrigen', 'certificadoAnalisis', 'packingList', 'hojaSeguridad', 'otro',
 ] as const
 
 async function checkDocAccess(
@@ -947,6 +948,7 @@ async function syncToSheets(ocId: string): Promise<void> {
       certificadoOrigen: 'Certificado de Origen',
       certificadoAnalisis: 'Certificado de Análisis',
       packingList: 'Packing List',
+      hojaSeguridad: 'Hoja de Seguridad',
       otro: 'Otro',
     }
     const docsConUrl = Object.entries(doc.documentos ?? {})

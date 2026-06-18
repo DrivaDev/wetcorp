@@ -87,6 +87,7 @@ const OCSchema = new Schema(
       certificadoOrigen: { type: String, default: null },
       certificadoAnalisis: { type: String, default: null },
       packingList: { type: String, default: null },
+      hojaSeguridad: { type: String, default: null },
       otro: { type: String, default: null },
     },
   },
