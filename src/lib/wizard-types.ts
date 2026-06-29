@@ -6,6 +6,7 @@ export interface ProductRow {
   descripcion: string
   cantidad: string
   valorUSD: string
+  derechos: string
 }
 
 export interface InfoGeneralState {
@@ -28,7 +29,6 @@ export interface InfoGeneralState {
 
 export interface GastosDespacho {
   sim: string
-  derechos: string
   otros: string
   tasaEstadistica: string
 }

@@ -182,7 +182,7 @@ export const MOCK_OCS: OC[] = [
   },
 ]
 
-const emptyGastosDespacho: GastosDespacho = { sim: '', derechos: '', otros: '', tasaEstadistica: '' }
+const emptyGastosDespacho: GastosDespacho = { sim: '', otros: '', tasaEstadistica: '' }
 const emptyGastosDespachante: GastosDespachante = {
   terminal: '',
   fleteInternacional: '',
@@ -287,11 +287,11 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
     divisa: 'ARS/USD',
     notas: 'Carga consolidada. Arribo por puerto de Buenos Aires.',
     productos: [
-      { id: 'p1', producto: 'Electrónica industrial', descripcion: 'Módulos de control PLC', cantidad: '100', valorUSD: '45.50' },
-      { id: 'p2', producto: 'Cables y conectores', descripcion: 'Cables de comunicación RS-485', cantidad: '500', valorUSD: '4.80' },
-      { id: 'p3', producto: 'Sensores de temperatura', descripcion: 'Sensores PT100 industriales', cantidad: '200', valorUSD: '12.25' },
+      { id: 'p1', producto: 'Electrónica industrial', descripcion: 'Módulos de control PLC', cantidad: '100', valorUSD: '45.50', derechos: '' },
+      { id: 'p2', producto: 'Cables y conectores', descripcion: 'Cables de comunicación RS-485', cantidad: '500', valorUSD: '4.80', derechos: '' },
+      { id: 'p3', producto: 'Sensores de temperatura', descripcion: 'Sensores PT100 industriales', cantidad: '200', valorUSD: '12.25', derechos: '' },
     ],
-    gastosDespacho: { sim: '85000', derechos: '320000', otros: '40000', tasaEstadistica: '' },
+    gastosDespacho: { sim: '85000', otros: '40000', tasaEstadistica: '' },
     gastosDespachante: {
       terminal: '150000',
       fleteInternacional: '3200',
@@ -338,10 +338,10 @@ export const MOCK_OCS_DETALLE: OCDetalle[] = [
     divisa: 'ARS/USD',
     notas: 'Importación directa. En proceso de verificación aduanera.',
     productos: [
-      { id: 'p1', producto: 'Maquinaria agrícola', descripcion: 'Bombas hidráulicas de precisión', cantidad: '15', valorUSD: '380.00' },
-      { id: 'p2', producto: 'Repuestos maquinaria', descripcion: 'Filtros y sellos de repuesto', cantidad: '300', valorUSD: '8.90' },
+      { id: 'p1', producto: 'Maquinaria agrícola', descripcion: 'Bombas hidráulicas de precisión', cantidad: '15', valorUSD: '380.00', derechos: '' },
+      { id: 'p2', producto: 'Repuestos maquinaria', descripcion: 'Filtros y sellos de repuesto', cantidad: '300', valorUSD: '8.90', derechos: '' },
     ],
-    gastosDespacho: { sim: '85000', derechos: '320000', otros: '40000', tasaEstadistica: '' },
+    gastosDespacho: { sim: '85000', otros: '40000', tasaEstadistica: '' },
     gastosDespachante: {
       terminal: '150000',
       fleteInternacional: '3200',

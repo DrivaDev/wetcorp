@@ -36,6 +36,7 @@ export function ProductosTable({
             <col />
             <col className="w-20" />
             <col className="w-24" />
+            <col className="w-24" />
             <col className="w-28" />
             <col className="w-11" />
           </colgroup>
@@ -45,6 +46,7 @@ export function ProductosTable({
               <th className="px-2 py-3 text-xs font-medium text-titulares text-left">Producto / Descripción *</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Cant. *</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Valor ({fx}) *</th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Derechos ({fx})</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-right whitespace-nowrap">Total ({fx})</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-center"></th>
             </tr>
@@ -100,6 +102,18 @@ export function ProductosTable({
                     className={cellInput}
                   />
                 </td>
+                <td className="px-2 py-2 align-top pt-3">
+                  <input
+                    type="number"
+                    value={row.derechos}
+                    placeholder="0.00"
+                    min="0"
+                    step="any"
+                    onChange={(e) => onChange(row.id, 'derechos', e.target.value)}
+                    onWheel={(e) => e.currentTarget.blur()}
+                    className={cellInput}
+                  />
+                </td>
                 <td className="px-2 py-2 font-bold text-titulares text-right align-top pt-3 whitespace-nowrap">
                   {formatNum(calcTotalFila(row))}
                 </td>
@@ -124,7 +138,7 @@ export function ProductosTable({
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-acento bg-fondo">
-              <td colSpan={4} className="px-2 py-3 text-right text-xs font-medium text-titulares">
+              <td colSpan={5} className="px-2 py-3 text-right text-xs font-medium text-titulares">
                 FOB Total
               </td>
               <td className="px-2 py-3 text-right">

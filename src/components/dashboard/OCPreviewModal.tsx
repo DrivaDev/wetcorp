@@ -24,7 +24,7 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
 
   const fx = oc.divisa === 'ARS/EUR' ? 'EUR' : 'USD'
 
-  const { costosRows, totalFOB, totalCostoImport, totalCostoTotal } = useMemo(() => {
+  const { costosRows, totalFOB, totalCostoImport, totalCostoTotal, totalDerechos } = useMemo(() => {
     const tc = oc.tipoCambio ?? '0'
     const totalGastos = calcTotalGastos(
       oc.gastosDespacho,
@@ -39,7 +39,8 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
     const fob = calcFOBTotal(oc.productos ?? [])
     const costoImport = rows.reduce((acc, r) => acc.plus(r.costoImport), new Decimal(0))
     const costoTotal = rows.reduce((acc, r) => acc.plus(r.costoTotal), new Decimal(0))
-    return { costosRows: rows, totalFOB: fob, totalCostoImport: costoImport, totalCostoTotal: costoTotal }
+    const derechosTotal = (oc.productos ?? []).reduce((acc, p) => acc.plus(new Decimal(p.derechos || '0')), new Decimal(0))
+    return { costosRows: rows, totalFOB: fob, totalCostoImport: costoImport, totalCostoTotal: costoTotal, totalDerechos: derechosTotal }
   }, [oc])
 
   const fmt = useMemo(() =>
@@ -47,13 +48,14 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
   [fx])
 
   const handleCopyExcel = async () => {
-    const headers = ['Producto', 'Descripción', 'Cant.', `FOB (${fx})`, `Costo Import. (${fx})`, `Costo Total (${fx})`]
+    const headers = ['Producto', 'Descripción', 'Cant.', `Derechos (${fx})`, `FOB (${fx})`, `Costo Import. (${fx})`, `Costo Total (${fx})`]
     const rows = (oc.productos ?? []).map((p, i) => {
       const row = costosRows[i]
       return [
         p.producto || '',
         p.descripcion || '',
         p.cantidad.toString(),
+        new Decimal(p.derechos || '0').toFixed(2),
         row.fobRow.toFixed(2),
         row.costoImport.toFixed(2),
         row.costoTotal.toFixed(2),
@@ -62,6 +64,7 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
     const totalsRow = [
       'Total', '',
       '',
+      totalDerechos.toFixed(2),
       totalFOB.toFixed(2),
       totalCostoImport.toFixed(2),
       totalCostoTotal.toFixed(2),
@@ -125,6 +128,7 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
                 <tr className="border-b border-acento">
                   <th className="text-left py-2 pr-4 font-medium text-titulares">Producto</th>
                   <th className="text-right py-2 px-2 font-medium text-titulares whitespace-nowrap">Cant.</th>
+                  <th className="text-right py-2 px-2 font-medium text-titulares whitespace-nowrap">Derechos</th>
                   <th className="text-right py-2 px-2 font-medium text-titulares whitespace-nowrap">FOB</th>
                   <th className="text-right py-2 px-2 font-medium text-titulares whitespace-nowrap">Costo Import.</th>
                   <th className="text-right py-2 pl-2 font-medium text-titulares whitespace-nowrap">Costo Total</th>
@@ -140,6 +144,7 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
                         {p.descripcion && <p className="text-xs text-texto/50">{p.descripcion}</p>}
                       </td>
                       <td className="py-2.5 px-2 text-right text-texto">{p.cantidad}</td>
+                      <td className="py-2.5 px-2 text-right text-texto tabular-nums">{fmt(new Decimal(p.derechos || '0'))}</td>
                       <td className="py-2.5 px-2 text-right text-texto tabular-nums">{fmt(row.fobRow)}</td>
                       <td className="py-2.5 px-2 text-right text-acento-text tabular-nums">
                         <span className="text-texto/70">{fmt(row.costoImport)}</span>
@@ -152,6 +157,7 @@ export function OCPreviewModal({ oc, rol, onClose }: OCPreviewModalProps) {
               <tfoot>
                 <tr className="border-t-2 border-acento bg-fondo/50">
                   <td className="py-2.5 pr-4 font-bold text-titulares" colSpan={2}>Total</td>
+                  <td className="py-2.5 px-2 text-right font-bold text-titulares tabular-nums">{fmt(totalDerechos)}</td>
                   <td className="py-2.5 px-2 text-right font-bold text-titulares tabular-nums">{fmt(totalFOB)}</td>
                   <td className="py-2.5 px-2 text-right font-bold text-titulares tabular-nums">{fmt(totalCostoImport)}</td>
                   <td className="py-2.5 pl-2 text-right font-bold text-principal tabular-nums">{fmt(totalCostoTotal)}</td>

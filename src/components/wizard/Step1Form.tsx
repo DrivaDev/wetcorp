@@ -99,13 +99,13 @@ export function Step1Form({ initialData, ocId, rol = 'importador' }: Step1FormPr
   const [productos, setProductos] = useState<ProductRow[]>(
     initialData?.productos?.length
       ? initialData.productos
-      : [{ id: crypto.randomUUID(), producto: '', descripcion: '', cantidad: '', valorUSD: '' }]
+      : [{ id: crypto.randomUUID(), producto: '', descripcion: '', cantidad: '', valorUSD: '', derechos: '' }]
   )
 
   const addProducto = () =>
     setProductos((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), producto: '', descripcion: '', cantidad: '', valorUSD: '' },
+      { id: crypto.randomUUID(), producto: '', descripcion: '', cantidad: '', valorUSD: '', derechos: '' },
     ])
   const removeProducto = (id: string) =>
     setProductos((prev) => prev.filter((r) => r.id !== id))

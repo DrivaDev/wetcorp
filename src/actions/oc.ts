@@ -80,7 +80,7 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
     llegadaEstimada: string
     fechaPago: string
     fechaDespacho: string
-    productos: Array<{ producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
+    productos: Array<{ producto?: string; descripcion: string; cantidad: number; valorUSD: number; derechos?: number }>
     gastosDespacho: Record<string, number>
     gastosDespachante: Record<string, number>
     gastosAdicionales: Record<string, number>
@@ -125,10 +125,10 @@ function serializeOC(doc: Record<string, unknown>): SerializedOC {
       descripcion: p.descripcion ?? '',
       cantidad: String(p.cantidad ?? 0),
       valorUSD: fromCentavos(p.valorUSD),
+      derechos: fromCentavos(p.derechos),
     })),
     gastosDespacho: {
       sim: fromCentavos(d.gastosDespacho?.sim),
-      derechos: fromCentavos(d.gastosDespacho?.derechos),
       tasaEstadistica: fromCentavos(d.gastosDespacho?.tasaEstadistica),
       otros: fromCentavos(d.gastosDespacho?.otros),
     },
@@ -269,6 +269,7 @@ export async function createOC(data: {
         descripcion: p.descripcion,
         cantidad: Math.round(parseFloat(p.cantidad || '0')),
         valorUSD: toCentavos(p.valorUSD),
+        derechos: toCentavos(p.derechos),
       })),
     })
     after(() => syncToSheets(oc._id.toString()))
@@ -346,7 +347,6 @@ export async function updateOC(
   await OC.findByIdAndUpdate(id, {
     gastosDespacho: {
       sim: toCentavos(data.gastosDespacho.sim),
-      derechos: toCentavos(data.gastosDespacho.derechos),
       tasaEstadistica: toCentavos(data.gastosDespacho.tasaEstadistica),
       otros: toCentavos(data.gastosDespacho.otros),
     },
@@ -527,6 +527,7 @@ export async function updateOCInfo(
       descripcion: p.descripcion,
       cantidad: Math.round(parseFloat(p.cantidad || '0')),
       valorUSD: toCentavos(p.valorUSD),
+      derechos: toCentavos(p.derechos),
     })),
   })
 
@@ -849,7 +850,7 @@ async function syncToSheets(ocId: string): Promise<void> {
       paisOrigen: string
       despacho: string
       fechaDespacho: string
-      productos: Array<{ producto?: string; descripcion: string; cantidad: number; valorUSD: number }>
+      productos: Array<{ producto?: string; descripcion: string; cantidad: number; valorUSD: number; derechos?: number }>
       gastosDespacho: Record<string, number>
       gastosDespachante: Record<string, number>
       gastosAdicionales: Record<string, number>
@@ -894,10 +895,10 @@ async function syncToSheets(ocId: string): Promise<void> {
       descripcion: p.descripcion ?? '',
       cantidad: String(p.cantidad ?? 0),
       valorUSD: fc(p.valorUSD),
+      derechos: fc(p.derechos),
     }))
     const gastosDespachoTyped = {
       sim: fc((doc.gastosDespacho as Record<string, number>)?.sim),
-      derechos: fc((doc.gastosDespacho as Record<string, number>)?.derechos),
       tasaEstadistica: fc((doc.gastosDespacho as Record<string, number>)?.tasaEstadistica),
       otros: fc((doc.gastosDespacho as Record<string, number>)?.otros),
     }
@@ -924,6 +925,7 @@ async function syncToSheets(ocId: string): Promise<void> {
 
     const { calcFOBTotal, calcTotalGastos, calcLandedCost } = await import('@/lib/wizard-calculations')
     const fob = calcFOBTotal(productos)
+    const totalDerechosProd = productos.reduce((acc, p) => acc.plus(new Decimal(p.derechos || '0')), new Decimal(0))
     const gastos = calcTotalGastos(gastosDespachoTyped, gastosDespachante, gastosAdicionales, otrosGastos, tc)
     const landed = calcLandedCost(fob, gastos)
 
@@ -1006,7 +1008,7 @@ async function syncToSheets(ocId: string): Promise<void> {
       doc.fechaDespacho ?? '',                            // F - texto
       fxFmt(fob.toFixed(2)),                              // G - FOB (FX)
       fxFmt(gastosDespachoTyped.sim),                     // H - SIM (FX)
-      fxFmt(gastosDespachoTyped.derechos),                // I - Derechos (FX)
+      fxFmt(totalDerechosProd.toFixed(2)),                // I - Derechos (FX)
       fxFmt(gastosDespachoTyped.tasaEstadistica),         // J - Tasa estadística (FX)
       fxFmt(gastosDespachoTyped.otros),                   // K - Otros despacho (FX)
       ars(gastosDespachante.terminal),                    // L - Terminal (ARS)

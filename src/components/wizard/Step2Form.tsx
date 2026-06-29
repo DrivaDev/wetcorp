@@ -33,7 +33,6 @@ import { updateOC } from '@/actions/oc'
 
 const camposDespacho: GastoField[] = [
   { key: 'sim', label: 'SIM (USD)', divisa: 'USD' },
-  { key: 'derechos', label: 'Derechos (USD)', divisa: 'USD' },
   { key: 'tasaEstadistica', label: 'Tasa de estadística (USD)', divisa: 'USD' },
   { key: 'otros', label: 'Otros (USD)', divisa: 'USD' },
 ]
@@ -70,7 +69,7 @@ export function Step2Form({ ocData, ocId }: Step2FormProps) {
   const router = useRouter()
 
   const [gastosDespacho, setGastosDespacho] = useState<GastosDespacho>(
-    ocData?.gastosDespacho ?? { sim: '', derechos: '', otros: '', tasaEstadistica: '' }
+    ocData?.gastosDespacho ?? { sim: '', otros: '', tasaEstadistica: '' }
   )
   const [gastosDespachante, setGastosDespachante] = useState<GastosDespachante>(
     ocData?.gastosDespachante ?? {

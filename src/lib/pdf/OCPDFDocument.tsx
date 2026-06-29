@@ -92,7 +92,7 @@ export function OCPDFDocument({ oc }: OCPDFDocumentProps) {
 
         {/* Gastos */}
         <Text style={styles.sectionTitle}>Gastos de Importación</Text>
-        <View style={styles.row}><Text style={styles.label}>Despacho:</Text><Text style={styles.value}>SIM {oc.gastosDespacho.sim} | Derechos {oc.gastosDespacho.derechos} | Otros {oc.gastosDespacho.otros}</Text></View>
+        <View style={styles.row}><Text style={styles.label}>Despacho:</Text><Text style={styles.value}>SIM {oc.gastosDespacho.sim} | Otros {oc.gastosDespacho.otros}</Text></View>
         <View style={styles.row}><Text style={styles.label}>Despachante:</Text><Text style={styles.value}>Flete int&apos;l {oc.gastosDespachante.fleteInternacional} USD | Flete interno {oc.gastosDespachante.fleteInterno} | Terminal {oc.gastosDespachante.terminal}</Text></View>
         <View style={styles.row}><Text style={styles.label}>Adicionales:</Text><Text style={styles.value}>Depósito {oc.gastosAdicionales.depositoFiscal} | Digital {oc.gastosAdicionales.digitalizacion} | Estancia {oc.gastosAdicionales.estanciaCamion}</Text></View>
         {oc.otrosGastos.length > 0 && (

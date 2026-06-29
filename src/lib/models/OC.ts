@@ -6,6 +6,7 @@ const ProductRowSchema = new Schema(
     descripcion: { type: String, default: '' },
     cantidad: { type: Number, required: true },
     valorUSD: { type: Number, required: true },
+    derechos: { type: Number, default: 0 },
   },
   { _id: false }
 )
@@ -53,7 +54,6 @@ const OCSchema = new Schema(
     productos: { type: [ProductRowSchema], default: [] },
     gastosDespacho: {
       sim: { type: Number, default: 0 },
-      derechos: { type: Number, default: 0 },
       tasaEstadistica: { type: Number, default: 0 },
       otros: { type: Number, default: 0 },
     },

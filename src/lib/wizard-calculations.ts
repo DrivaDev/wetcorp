@@ -34,9 +34,7 @@ export function usdToARS(montoUSD: string, tipoCambio: string): Decimal {
 }
 
 export function calcSubtotalDespacho(g: GastosDespacho, _tc: string): Decimal {
-  // All Despacho fields are in USD — no conversion needed
   return new Decimal(g.sim || '0')
-    .plus(new Decimal(g.derechos || '0'))
     .plus(new Decimal(g.otros || '0'))
     .plus(new Decimal(g.tasaEstadistica || '0'))
 }
