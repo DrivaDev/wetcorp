@@ -12,7 +12,8 @@ import type {
 export function calcTotalFila(row: ProductRow): Decimal {
   const cant = new Decimal(row.cantidad || '0')
   const val = new Decimal(row.valorUSD || '0')
-  return cant.times(val)
+  const derechos = new Decimal(row.derechos || '0')
+  return cant.times(val).plus(derechos)
 }
 
 export function calcFOBTotal(rows: ProductRow[]): Decimal {
