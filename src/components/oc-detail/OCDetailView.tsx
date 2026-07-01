@@ -29,7 +29,6 @@ interface OCDetailViewProps {
 
 const camposDespacho: GastoField[] = [
   { key: 'sim', label: 'SIM (USD)', divisa: 'USD' },
-  { key: 'derechos', label: 'Derechos (USD)', divisa: 'USD' },
   { key: 'tasaEstadistica', label: 'Tasa de estadística (USD)', divisa: 'USD' },
   { key: 'otros', label: 'Otros (USD)', divisa: 'USD' },
 ]

@@ -1,5 +1,6 @@
 'use client'
-import { calcTotalFila, calcFOBTotal, formatFX, usdToARS, formatARS } from '@/lib/wizard-calculations'
+import { Decimal } from 'decimal.js'
+import { calcTotalFila, calcFOBTotal, calcDerechosTotal, formatFX, formatNum, usdToARS, formatARS } from '@/lib/wizard-calculations'
 import type { Step1Data } from '@/lib/wizard-types'
 import type { EstadoOC } from '@/lib/mock-ocs'
 
@@ -24,6 +25,7 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
   const fx = info.divisa === 'ARS/EUR' ? 'EUR' : 'USD'
   const fobUSD = calcFOBTotal(productos)
   const fobARS = usdToARS(fobUSD.toString(), info.tipoCambio)
+  const derechosTotalUSD = calcDerechosTotal(productos)
 
   return (
     <div className="flex flex-col gap-6">
@@ -113,16 +115,27 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
                     {row.cantidad} × {row.valorUSD}
                   </p>
                 </div>
-                <div className="text-right ml-4">
-                  <p className="text-base font-bold text-titulares whitespace-nowrap">
-                    {fx} {total.toFixed(2)}
-                  </p>
+                <div className="text-right ml-4 flex flex-col gap-0.5">
+                  <div>
+                    <p className="text-xs font-normal text-titulares/50 whitespace-nowrap">FOB</p>
+                    <p className="text-base font-bold text-titulares whitespace-nowrap">
+                      {fx} {total.toFixed(2)}
+                    </p>
+                  </div>
+                  {row.derechos && row.derechos !== '' && (
+                    <div>
+                      <p className="text-xs font-normal text-titulares/50 whitespace-nowrap">Derechos</p>
+                      <p className="text-sm font-semibold text-titulares whitespace-nowrap">
+                        {fx} {formatNum(new Decimal(row.derechos || '0'))}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )
           })}
         </div>
-        {/* FOB Total */}
+        {/* FOB Total + Derechos Total */}
         <div className="flex items-center justify-between pt-3 border-t-2 border-acento">
           <span className="text-sm font-bold text-titulares">Valor FOB Total</span>
           <div className="text-right">
@@ -134,6 +147,14 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
             </p>
           </div>
         </div>
+        {!derechosTotalUSD.isZero() && (
+          <div className="flex items-center justify-between pt-2 border-t border-acento/50">
+            <span className="text-sm font-bold text-titulares">Derechos Total</span>
+            <p className="text-base font-bold text-titulares whitespace-nowrap">
+              {formatFX(derechosTotalUSD, fx)}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

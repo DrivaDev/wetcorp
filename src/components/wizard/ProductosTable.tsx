@@ -3,7 +3,7 @@
 import { Trash2, Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { ProductRow } from '@/lib/wizard-types'
-import { calcTotalFila, calcFOBTotal, usdToARS, formatNum, formatFX, formatARS } from '@/lib/wizard-calculations'
+import { calcTotalFila, calcFOBTotal, calcDerechosTotal, usdToARS, formatNum, formatFX, formatARS } from '@/lib/wizard-calculations'
 
 interface ProductosTableProps {
   productos: ProductRow[]
@@ -26,6 +26,7 @@ export function ProductosTable({
 }: ProductosTableProps) {
   const fobTotal = calcFOBTotal(productos)
   const fobARS = usdToARS(fobTotal.toString(), tipoCambio)
+  const derechosTotal = calcDerechosTotal(productos)
 
   return (
     <div className="flex flex-col gap-3">
@@ -46,8 +47,8 @@ export function ProductosTable({
               <th className="px-2 py-3 text-xs font-medium text-titulares text-left">Producto / Descripción *</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Cant. *</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Valor ({fx}) *</th>
+              <th className="px-2 py-3 text-xs font-medium text-titulares text-right whitespace-nowrap">FOB ({fx})</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-left whitespace-nowrap">Derechos ({fx})</th>
-              <th className="px-2 py-3 text-xs font-medium text-titulares text-right whitespace-nowrap">Total ({fx})</th>
               <th className="px-2 py-3 text-xs font-medium text-titulares text-center"></th>
             </tr>
           </thead>
@@ -102,6 +103,9 @@ export function ProductosTable({
                     className={cellInput}
                   />
                 </td>
+                <td className="px-2 py-2 font-bold text-titulares text-right align-top pt-3 whitespace-nowrap">
+                  {formatNum(calcTotalFila(row))}
+                </td>
                 <td className="px-2 py-2 align-top pt-3">
                   <input
                     type="number"
@@ -113,9 +117,6 @@ export function ProductosTable({
                     onWheel={(e) => e.currentTarget.blur()}
                     className={cellInput}
                   />
-                </td>
-                <td className="px-2 py-2 font-bold text-titulares text-right align-top pt-3 whitespace-nowrap">
-                  {formatNum(calcTotalFila(row))}
                 </td>
                 <td className="px-2 py-2 text-center align-top">
                   <button
@@ -138,7 +139,7 @@ export function ProductosTable({
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-acento bg-fondo">
-              <td colSpan={5} className="px-2 py-3 text-right text-xs font-medium text-titulares">
+              <td colSpan={4} className="px-2 py-3 text-right text-xs font-medium text-titulares">
                 FOB Total
               </td>
               <td className="px-2 py-3 text-right">
@@ -147,6 +148,12 @@ export function ProductosTable({
                 </span>
                 <span className="block text-xs font-normal text-titulares/60 whitespace-nowrap">
                   {formatARS(fobARS)}
+                </span>
+              </td>
+              <td className="px-2 py-3 text-right">
+                <span className="block text-xs font-medium text-titulares/60 whitespace-nowrap mb-0.5">Derechos Total</span>
+                <span className="block text-sm font-bold text-titulares whitespace-nowrap">
+                  {formatFX(derechosTotal, fx)}
                 </span>
               </td>
               <td />
