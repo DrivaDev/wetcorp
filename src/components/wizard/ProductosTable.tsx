@@ -103,8 +103,10 @@ export function ProductosTable({
                     className={cellInput}
                   />
                 </td>
-                <td className="px-2 py-2 font-bold text-titulares text-right align-middle whitespace-nowrap tabular-nums">
-                  {formatNum(calcTotalFila(row))}
+                <td className="px-2 py-2 align-top pt-3">
+                  <div className="h-8 flex items-center justify-end font-bold text-titulares whitespace-nowrap tabular-nums">
+                    {formatNum(calcTotalFila(row))}
+                  </div>
                 </td>
                 <td className="px-2 py-2 align-top pt-3">
                   <input
