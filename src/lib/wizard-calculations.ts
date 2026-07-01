@@ -111,10 +111,11 @@ export function calcCostoImportacionPorProducto(
   const totalFOB = calcFOBTotal(productos)
   return productos.map(p => {
     const fobRow = calcTotalFila(p)
+    const derechos = new Decimal(p.derechos || '0')
     const costoImport = totalFOB.isZero()
       ? new Decimal(0)
       : fobRow.dividedBy(totalFOB).times(totalGastosUSD)
-    return { fobRow, costoImport, costoTotal: fobRow.plus(costoImport) }
+    return { fobRow, costoImport, costoTotal: fobRow.plus(costoImport).plus(derechos) }
   })
 }
 

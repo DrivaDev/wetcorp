@@ -101,6 +101,10 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
       {/* Productos */}
       <div className="rounded-xl border border-acento bg-white p-6 flex flex-col gap-4">
         <h2 className="text-base font-bold text-titulares">Productos</h2>
+        <div className="flex justify-end gap-6 pb-1 border-b border-acento/30">
+          <p className="text-xs font-medium text-titulares/60 whitespace-nowrap w-28 text-right">FOB</p>
+          <p className="text-xs font-medium text-titulares/60 whitespace-nowrap w-28 text-right">Derechos</p>
+        </div>
         <div className="flex flex-col divide-y divide-acento/50">
           {productos.map((row) => {
             const total = calcTotalFila(row)
@@ -115,28 +119,21 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
                     {row.cantidad} × {row.valorUSD}
                   </p>
                 </div>
-                <div className="flex items-start gap-6 ml-4 shrink-0">
-                  <div className="text-right">
-                    <p className="text-xs font-normal text-titulares/50 whitespace-nowrap">FOB</p>
-                    <p className="text-base font-bold text-titulares whitespace-nowrap">
-                      {fx} {total.toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-xs font-normal text-titulares/50 whitespace-nowrap">Derechos</p>
-                    <p className="text-base font-bold text-titulares whitespace-nowrap">
-                      {row.derechos && row.derechos !== '' ? `${fx} ${formatNum(new Decimal(row.derechos))}` : '—'}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-6 ml-4 shrink-0">
+                  <p className="text-base font-bold text-titulares whitespace-nowrap tabular-nums text-right w-28">
+                    {fx} {total.toFixed(2)}
+                  </p>
+                  <p className="text-base font-bold text-titulares whitespace-nowrap tabular-nums text-right w-28">
+                    {row.derechos && row.derechos !== '' ? `${fx} ${formatNum(new Decimal(row.derechos))}` : '—'}
+                  </p>
                 </div>
               </div>
             )
           })}
         </div>
-        {/* FOB Total + Derechos Total */}
-        <div className="flex items-center justify-between pt-3 border-t-2 border-acento">
-          <span className="text-sm font-bold text-titulares">Valor FOB Total</span>
-          <div className="text-right">
+        {/* Totals */}
+        <div className="flex justify-end gap-6 pt-3 border-t-2 border-acento">
+          <div className="text-right w-28">
             <p className="text-base font-bold text-titulares whitespace-nowrap">
               {formatFX(fobUSD, fx)}
             </p>
@@ -144,15 +141,15 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
               {formatARS(fobARS)}
             </p>
           </div>
-        </div>
-        {!derechosTotalUSD.isZero() && (
-          <div className="flex items-center justify-between pt-2 border-t border-acento/50">
-            <span className="text-sm font-bold text-titulares">Derechos Total</span>
+          <div className="text-right w-28">
             <p className="text-base font-bold text-titulares whitespace-nowrap">
               {formatFX(derechosTotalUSD, fx)}
             </p>
+            <p className="text-sm font-normal text-titulares/60 whitespace-nowrap">
+              {formatARS(usdToARS(derechosTotalUSD.toString(), info.tipoCambio))}
+            </p>
           </div>
-        )}
+        </div>
       </div>
     </div>
   )
