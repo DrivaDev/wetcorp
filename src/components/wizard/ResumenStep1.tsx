@@ -115,21 +115,19 @@ export function ResumenStep1({ step1Data }: ResumenStep1Props) {
                     {row.cantidad} × {row.valorUSD}
                   </p>
                 </div>
-                <div className="text-right ml-4 flex flex-col gap-0.5">
-                  <div>
+                <div className="flex items-start gap-6 ml-4 shrink-0">
+                  <div className="text-right">
                     <p className="text-xs font-normal text-titulares/50 whitespace-nowrap">FOB</p>
                     <p className="text-base font-bold text-titulares whitespace-nowrap">
                       {fx} {total.toFixed(2)}
                     </p>
                   </div>
-                  {row.derechos && row.derechos !== '' && (
-                    <div>
-                      <p className="text-xs font-normal text-titulares/50 whitespace-nowrap">Derechos</p>
-                      <p className="text-sm font-semibold text-titulares whitespace-nowrap">
-                        {fx} {formatNum(new Decimal(row.derechos || '0'))}
-                      </p>
-                    </div>
-                  )}
+                  <div className="text-right">
+                    <p className="text-xs font-normal text-titulares/50 whitespace-nowrap">Derechos</p>
+                    <p className="text-base font-bold text-titulares whitespace-nowrap">
+                      {row.derechos && row.derechos !== '' ? `${fx} ${formatNum(new Decimal(row.derechos))}` : '—'}
+                    </p>
+                  </div>
                 </div>
               </div>
             )

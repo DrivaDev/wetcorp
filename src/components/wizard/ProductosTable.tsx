@@ -37,8 +37,8 @@ export function ProductosTable({
             <col />
             <col className="w-20" />
             <col className="w-24" />
-            <col className="w-24" />
             <col className="w-28" />
+            <col className="w-24" />
             <col className="w-11" />
           </colgroup>
           <thead className="bg-fondo border-b border-acento">
@@ -139,9 +139,7 @@ export function ProductosTable({
           </tbody>
           <tfoot>
             <tr className="border-t-2 border-acento bg-fondo">
-              <td colSpan={4} className="px-2 py-3 text-right text-xs font-medium text-titulares">
-                FOB Total
-              </td>
+              <td colSpan={4} />
               <td className="px-2 py-3 text-right">
                 <span className="block text-sm font-bold text-titulares whitespace-nowrap">
                   {formatFX(fobTotal, fx)}
@@ -151,9 +149,11 @@ export function ProductosTable({
                 </span>
               </td>
               <td className="px-2 py-3 text-right">
-                <span className="block text-xs font-medium text-titulares/60 whitespace-nowrap mb-0.5">Derechos Total</span>
                 <span className="block text-sm font-bold text-titulares whitespace-nowrap">
                   {formatFX(derechosTotal, fx)}
+                </span>
+                <span className="block text-xs font-normal text-titulares/60 whitespace-nowrap">
+                  {formatARS(usdToARS(derechosTotal.toString(), tipoCambio))}
                 </span>
               </td>
               <td />
